@@ -1,0 +1,31 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('document_contracts', function (Blueprint $table) {
+            $table->id();
+
+            $table->string('nama');
+            $table->string('realisasi');
+            $table->text('keterangan_jasa');
+            $table->decimal('harga', 15, 2);
+            $table->enum('status', ['aktif', 'selesai', 'batal']);
+            $table->string('keterangan')->nullable();
+            $table->text('uraian_rkab')->nullable();
+            $table->string('file_kontrak');
+
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('document_contracts');
+    }
+};

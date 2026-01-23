@@ -10,4 +10,9 @@ class HomeController extends Controller
     {
         return redirect('dashboard');
     }
+
+    public function index()
+    {
+        return view('index');
+    }
 }

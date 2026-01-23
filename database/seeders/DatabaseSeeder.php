@@ -1,7 +1,13 @@
 <?php
 
-namespace Database\Seeders;
-
+use Database\Seeders\UserSeeder;
+use Database\Seeders\EquipmentSeeder;
+use Database\Seeders\DocumentContractSeeder;
+use Database\Seeders\WorkHourSeeder;
+use Database\Seeders\DokumentasiKegiatanSeeder;
+use Database\Seeders\WasteWaterManagementSeeder;
+use Database\Seeders\BukaanLahanSeeder;
+use Database\Seeders\ReklamasiSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,7 +21,14 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         $this->call([
-            UserSeeder::class
+            UserSeeder::class,
+            EquipmentSeeder::class,
+            DocumentContractSeeder::class,
+            WorkHourSeeder::class,
+            DokumentasiKegiatanSeeder::class,
+            WasteWaterManagementSeeder::class,
+            BukaanLahanSeeder::class,
+            ReklamasiSeeder::class,
         ]);
     }
 }

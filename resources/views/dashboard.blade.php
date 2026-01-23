@@ -92,17 +92,80 @@
       </div>
     </div> --}}
   </div>
+  
+  {{-- Dokumen Kontrak (Khusus Admin) --}}
   <div class="row mt-4">
     <div class="col-lg-6 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
-          <h6>Grafik Kumulatif</h6>
+          <h6>Grafik </h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1"></span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1"></span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1"></span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {{-- Report Harian --}}
+  <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6></h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1"></span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1"></span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1"></span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {{-- Report Harian --}}
+  <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Grafik Harian</h6>
           <p class="text-sm mb-0">
             <span class="me-3">
               <i class="fa-solid fa-circle text-info"></i>
               <span class="ms-1">Bukaan Lahan</span>
             </span>
-            <span>
+            <span class="me-3">
               <i class="fa-solid fa-circle text-success"></i>
               <span class="ms-1">Reklamasi</span>
             </span>
@@ -121,7 +184,97 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-6">
+    {{-- Report Mingguan --}}
+    <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Grafik Mingguan</h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1">Bukaan Lahan</span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1">Reklamasi</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1">Revegetasi</span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{-- Report Bulanan --}}
+    <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Grafik Bulanan</h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1">Bukaan Lahan</span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1">Reklamasi</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1">Revegetasi</span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{-- Report Tahunan --}}
+    <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Grafik Tahunan</h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1">Bukaan Lahan</span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1">Reklamasi</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1">Revegetasi</span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-12">
       <div class="card z-index-2">
         <div class="card-header pb-0">
           <h6>Rencana dan Realisasi Revegetasi</h6>
@@ -145,8 +298,9 @@
       </div>
     </div>
   </div>
+  {{-- Detail Reklamasi --}}
   <div class="row mt-4">
-    <div class="col-lg-6 mb-lg-0 mb-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
           <div class="d-flex justify-content-between align-items-center">
@@ -204,11 +358,11 @@
         </div>
       </div>
     </div>
-    <div class="col-lg-6">
+    {{-- Tabel Tanaman --}}
+    <div class="col-lg-12">
       <div class="card-body p-3" >
-
   <div class="text-center mb-4">
-    <span class="badge px-4 py-2 fs-6">Tanaman</span>
+    <span class="text-dark badge px-4 py-2 fs-6">Tanaman</span>
   </div>
 
   <div class="table-responsive">
@@ -216,7 +370,7 @@
       <tbody>
 
         {{-- Lokasi 1 --}}
-        <tr>
+        <tr class="align-">
           <td colspan="3">
             <span class="badge text-dark px-3 py-2">Lokasi 1</span>
             <span class="badge text-dark ms-2">Luas (Ha)</span>
