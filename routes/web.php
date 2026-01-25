@@ -33,7 +33,7 @@ use App\Models\Complience;
 |
 */
 
-Route::get('index', [HomeController::class, 'index'])->name('index');
+Route::get('/dashboard ', [HomeController::class, 'index'])->name('dashboard');
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
