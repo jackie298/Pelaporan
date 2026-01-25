@@ -31,7 +31,7 @@ use App\Http\Controllers\Admin\DokumentasiKegiatanController;
 |
 */
 
-Route::get('index', [HomeController::class, 'index'])->name('index');
+Route::get('/dashboard ', [HomeController::class, 'index'])->name('dashboard');
 
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')

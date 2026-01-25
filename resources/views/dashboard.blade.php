@@ -98,31 +98,70 @@
     <div class="col-lg-6 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
+          <h6>Rekap Anggaran</h6>          
+        </div>
+        <div class="card-body p-3">
+          <table class="table align-items-center mb-0">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">No</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Kontrak File</th>                
+              </tr>
+            </thead>
+            <tbody>
+              @foreach ($documentContracts ?? [] as $index => $documentContract)
+                <tr>
+                  <td>
+                    <p class="text-xs font-weight-bold mb-0">{{ $index + 1 }}</p>
+                  </td>
+                  <td>
+                    <p class="text-xs font-weight-bold mb-0">{{ $documentContract->nama }}</p>
+                  </td>
+                  <td class="align-middle text-center text-sm">
+                    <a href="{{ asset('storage/contracts/' . $documentContract->file_kontrak) }}" target="_blank" class="btn btn-link text-secondary mb-0">
+                      <i class="fa fa-file-pdf-o text-lg me-2" aria-hidden="true"></i> Lihat File
+                    </a>
+                  </td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>              
+
+        </div>
+      </div>      
+    </div>
+    <div class="col-lg-6 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
           <h6>Grafik </h6>
-          <p class="text-sm mb-0">
+          <p
+            class="text-sm mb-0">
             <span class="me-3">
               <i class="fa-solid fa-circle text-info"></i>
-              <span class="ms-1"></span>
+              <span class="ms-1">Aktif: {{ $statuscount['aktif'] ?? 0 }}</span>
             </span>
             <span class="me-3">
               <i class="fa-solid fa-circle text-success"></i>
-              <span class="ms-1"></span>
+              <span class="ms-1">Selesai: {{ $statuscount['selesai'] ?? 0 }}</span>
             </span>
-            <span>
+            <span class="me-3">
               <i class="fa-solid fa-circle text-danger"></i>
-              <span class="ms-1"></span>
+              <span class="ms-1">Batal: {{ $statuscount['batal'] ?? 0 }}</span>
             </span>
           </p>
         </div>
         <div class="card-body p-3">
           <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
             <div class="chart">
-              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+              <canvas id="chart-pie" class="chart-pie" height="300"></canvas>
             </div>
           </div>
         </div>
-      </div>
+      </div>      
     </div>
+  </div>
+  
 
   {{-- Report Harian --}}
   <div class="row mt-4">
@@ -219,65 +258,50 @@
     <div class="col-lg-12 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
-          <h6>Grafik Bulanan</h6>
+          <h6>Ritase dan Jam Kerja Alat</h6>
           <p class="text-sm mb-0">
-            <span class="me-3">
-              <i class="fa-solid fa-circle text-info"></i>
-              <span class="ms-1">Bukaan Lahan</span>
-            </span>
-            <span class="me-3">
-              <i class="fa-solid fa-circle text-success"></i>
-              <span class="ms-1">Reklamasi</span>
-            </span>
-            <span>
-              <i class="fa-solid fa-circle text-danger"></i>
-              <span class="ms-1">Revegetasi</span>
-            </span>
+            @foreach ($kodealat as $id => $kode)
+              <span class="me-3">
+                <i class="fa-solid fa-circle 
+                  @php
+                    $colors = ['text-info', 'text-success', 'text-danger', 'text-primary', 'text-warning', 'text-secondary'];
+                    echo $colors[$loop->index % count($colors)];
+                  @endphp
+                "></i>
+                <span class="ms-1">{{ $kode }}</span>
+              </span>
+            @endforeach              
           </p>
         </div>
         <div class="card-body p-3">
           <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
             <div class="chart">
-              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+              <canvas id="chart-ritase" class="chart-canvas" height="300"></canvas>
             </div>
           </div>
         </div>
       </div>
     </div>
-    {{-- Report Tahunan --}}
+    {{-- Report Ph air dan TSs --}}
     <div class="row mt-4">
-    <div class="col-lg-12 mb-lg-0 mb-4">
+    <div class="col-lg-6 mb-lg-0 mb-4">
       <div class="card z-index-2">
         <div class="card-header pb-0">
-          <h6>Grafik Tahunan</h6>
-          <p class="text-sm mb-0">
-            <span class="me-3">
-              <i class="fa-solid fa-circle text-info"></i>
-              <span class="ms-1">Bukaan Lahan</span>
-            </span>
-            <span class="me-3">
-              <i class="fa-solid fa-circle text-success"></i>
-              <span class="ms-1">Reklamasi</span>
-            </span>
-            <span>
-              <i class="fa-solid fa-circle text-danger"></i>
-              <span class="ms-1">Revegetasi</span>
-            </span>
-          </p>
+          <h6>Ph Air</h6>          
         </div>
         <div class="card-body p-3">
           <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
             <div class="chart">
-              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+              <canvas id="chart-air" class="chart-canvas" height="300"></canvas>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-lg-12">
+    <div class="col-lg-6">
       <div class="card z-index-2">
         <div class="card-header pb-0">
-          <h6>Rencana dan Realisasi Revegetasi</h6>
+          <h6>TSS</h6>
           <p class="text-sm mb-0">
             <span class="me-3">
               <i class="fa-solid fa-circle text-success"></i>
@@ -692,6 +716,114 @@
           }
         }
       });
+
+      var ctx3 = document.getElementById("chart-pie").getContext("2d");
+      new Chart(ctx3, {
+        type: "pie",
+        data: {
+          labels: ["Aktif", "Selesai", "Batal"],
+          datasets: [{
+              label: "Status Kontrak",
+              weight: 9,
+              cutout: 0, // Set 0 untuk Pie Chart penuh, atau >0 untuk Donut Chart
+              tension: 0.9,
+              pointRadius: 2,
+              borderWidth: 2,
+              backgroundColor: ["#11cdef", "#2dce89", "#f5365c"], // Sesuaikan warna info, success, danger
+              data: [
+                  {{ $statuscount['aktif'] }}, 
+                  {{ $statuscount['selesai'] }}, 
+                  {{ $statuscount['batal'] }}
+              ],
+              fill: false
+          }],
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: {
+                  display: false, // Kita sudah buat legend manual di atas
+              }
+          }
+      }
+      });
+
+      var ctx4 = document.getElementById("chart-ritase").getContext("2d");
+      new Chart(ctx4, {
+        type: "bar",
+        data: {
+          labels: {!! json_encode($labels) !!},
+          datasets: [
+            @foreach ($kodealat as $id => $kode)
+            {
+              label: "{{ $kode }}",
+              data: {!! json_encode($chartData[$kode]) ?? [] !!}, // Ganti dengan data ritase sebenarnya
+              backgroundColor: 
+                @php
+                  $colors = ['#11cdef', '#2dce89', '#f5365c', '#ffd600', '#9c27b0', '#8e24aa'];
+                  echo "'" . $colors[$loop->index % count($colors)] . "'";
+                @endphp
+              ,
+              borderRadius: 6,
+              maxBarThickness: 40
+            },
+            @endforeach
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Jam",
+                color: "#fff",
+                font: {
+                  size: 14,
+                  family: "Open Sans",
+                  weight: "bold"
+                },
+                padding: {
+                  bottom: 10
+                }
+              },
+              grid: {
+                drawBorder: false,
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                padding: 10,
+                font: {
+                  size: 13,
+                  family: "Open Sans"
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                font: {
+                  size: 12,
+                  family: "Open Sans"
+                }
+              }
+            }
+          }
+        }
+      });
+      
     }
   </script>
 @endpush
