@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('document_contracts', function (Blueprint $table) {
             $table->id();
-
             $table->string('nama');
             $table->string('realisasi');
             $table->text('keterangan_jasa');
@@ -19,7 +18,6 @@ return new class extends Migration
             $table->string('keterangan')->nullable();
             $table->text('uraian_rkab')->nullable();
             $table->string('file_kontrak');
-
             $table->timestamps();
         });
     }
