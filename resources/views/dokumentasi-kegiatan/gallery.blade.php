@@ -52,7 +52,7 @@
                                         <p class="text-gradient text-dark mb-2 text-sm">
                                             {{ $data->jenis_kegiatan }}
                                         </p>
-                                        <a href="javascript:;">
+                                        <a href="javascript:;"> test
                                             <h5>{{ Str::limit($data->judul, 30) }}</h5>
                                         </a>
                                         <p class="mb-4 text-sm">
