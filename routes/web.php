@@ -110,6 +110,10 @@ Route::middleware(['auth', 'admin'])
         Route::get('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'index'])
             ->name('dokumentasi-kegiatan');
 
+        // Gallery
+        Route::get('dokumentasi-kegiatan/gallery', [DokumentasiKegiatanController::class, 'gallery'])
+            ->name('dokumentasi-kegiatan.gallery');
+
         // CREATE
         Route::get('dokumentasi-kegiatan/create', [DokumentasiKegiatanController::class, 'create'])
             ->name('dokumentasi-kegiatan.create');

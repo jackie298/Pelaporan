@@ -38,6 +38,23 @@
                 </a>
             </li>
 
+            {{-- ================= Galeri Kegiatan ================= --}}
+            <li class="nav-item">
+                <a class="nav-link {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'active' : '' }}"
+                href="{{ route('admin.dokumentasi-kegiatan.gallery') }}">
+
+                    <div class="icon icon-shape icon-sm shadow
+                        {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'bg-primary' : 'bg-white' }}
+                        text-center me-2 d-flex align-items-center justify-content-center">
+
+                        <i class="fas fa-images
+                        {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'text-white' : 'text-dark' }}"></i>
+                    </div>
+
+                    <span class="nav-link-text ms-1">Gallery Kegiatan</span>
+                </a>
+            </li>
+
             {{-- ================= BUKAAN LAHAN ================= --}}
             <li class="nav-item">
                 <a class="nav-link {{ Request::is('bukaan-lahan*') ? 'active' : '' }}"
@@ -113,7 +130,7 @@
                 </h6>
             </li>
 
-            {{-- ================= DOCUMENT CONTRACT ================= --}}
+            {{-- ================= DOKUMEN KONTRAK ================= --}}
             <li class="nav-item">
                 <a class="nav-link {{ Request::is('admin/document-contract*') || Request::is('admin/add-contract') ? 'active' : '' }}"
                    href="{{ route('admin.document-contract') }}">
@@ -126,7 +143,7 @@
                             {{ Request::is('admin/document-contract*') || Request::is('admin/add-contract') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
 
-                    <span class="nav-link-text ms-1">Document Contract</span>
+                    <span class="nav-link-text ms-1">Rekap Anggaran</span>
                 </a>
             </li>
 
