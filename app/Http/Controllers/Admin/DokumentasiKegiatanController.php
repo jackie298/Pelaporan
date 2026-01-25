@@ -74,6 +74,15 @@ class DokumentasiKegiatanController extends Controller
         return view('dokumentasi-kegiatan.edit', compact('dokumentasi'));
     }
 
+    public function gallery()
+    {
+        $dokumentasiData = DokumentasiKegiatan::with('creator')
+            ->latest()
+            ->paginate(12); // 12 item per halaman
+
+        return view('dokumentasi-kegiatan.gallery', compact('dokumentasiData'));
+    }
+
     /**
      * Perbarui data dokumentasi
      */
