@@ -18,7 +18,7 @@
     <hr class="horizontal dark mt-0">
 
     {{-- MENU --}}
-    <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
+    <div class="collapse navbar-collapse w-auto h-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
 
             {{-- ================= DASHBOARD ================= --}}
