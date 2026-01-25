@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('realisasi');
             $table->text('keterangan_jasa');
             $table->decimal('harga', 15, 2);
-            $table->enum('status', ['aktif', 'selesai', 'batal']);
+            $table->enum('status', ['open', 'close', 'pending', 'proses finance', 'hold']);
             $table->string('keterangan')->nullable();
             $table->text('uraian_rkab')->nullable();
             $table->string('file_kontrak');

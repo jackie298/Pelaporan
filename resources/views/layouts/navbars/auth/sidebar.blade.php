@@ -122,6 +122,22 @@
                     <span class="nav-link-text ms-1">Waste Water</span>
                 </a>
             </li>
+            {{-- ================= COMPLIANCE ================= --}}
+            <li class="nav-item">
+                <a class="nav-link {{ Request::is('complience*') ? 'active' : '' }}"
+                href="{{ route('complience') }}">
+
+                    <div class="icon icon-shape icon-sm shadow
+                        {{ Request::is('complience*') ? 'bg-primary' : 'bg-white' }}
+                        text-center me-2 d-flex align-items-center justify-content-center">
+
+                        <i class="fa-solid fa-clipboard-check
+                        {{ Request::is('complience*') ? 'text-white' : 'text-dark' }}"></i>
+                    </div>
+
+                    <span class="nav-link-text ms-1">Compliance</span>
+                </a>
+            </li>
 
             {{-- ================= ADMIN ================= --}}
             <li class="nav-item mt-3">

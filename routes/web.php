@@ -10,6 +10,7 @@ use App\Http\Controllers\WasteWaterManagementController;
 use App\Http\Controllers\RevegetasiController;
 use App\Http\Controllers\BukaanLahanController;
 use App\Http\Controllers\ReklamasiController;
+use App\Http\Controllers\ComplienceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Admin\DocumentContractController;
 use App\Http\Controllers\Admin\EquipmentListController;
 use App\Http\Controllers\Admin\WorkHoursController;
 use App\Http\Controllers\Admin\DokumentasiKegiatanController;
+use App\Models\Complience;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +133,7 @@ Route::middleware(['auth', 'admin'])
         // DELETE
         Route::delete('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'destroy'])
             ->name('dokumentasi-kegiatan.destroy');
+
     });
 
 
@@ -257,6 +260,29 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('reklamasi/{id}', [ReklamasiController::class, 'destroy'])
         ->name('reklamasi.destroy');
     // END REKLAMASI
+
+    // ROUTING complience
+    Route::get('complience', [ComplienceController::class, 'index'])
+        ->name('complience');
+
+    // CREATE
+    Route::get('complience/create', [ComplienceController::class, 'create'])
+        ->name('complience.create');
+
+    Route::post('complience', [ComplienceController::class, 'store'])
+        ->name('complience.store');
+
+    // EDIT
+    Route::get('complience/{id}/edit', [ComplienceController::class, 'edit'])
+        ->name('complience.edit');
+
+    Route::put('complience/{id}', [ComplienceController::class, 'update'])
+        ->name('complience.update');
+
+    // DELETE
+    Route::delete('complience/{id}', [ComplienceController::class, 'destroy'])
+        ->name('complience.destroy');
+    // END COMPLIENCE
 
     Route::get('/logout', [SessionsController::class, 'destroy']);
 	Route::get('/user-profile', [InfoUserController::class, 'create']);

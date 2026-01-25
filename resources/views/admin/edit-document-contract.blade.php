@@ -86,12 +86,13 @@
                             {{-- STATUS --}}
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Status</label>
-                                <select name="status"
-                                        class="form-select @error('status') is-invalid @enderror">
+                                <select name="status" class="form-select @error('status') is-invalid @enderror">
                                     <option value="">-- Pilih Status --</option>
-                                    <option value="aktif"   {{ old('status', $contract->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                    <option value="selesai" {{ old('status', $contract->status) == 'selesai' ? 'selected' : '' }}>Selesai</option>
-                                    <option value="batal"   {{ old('status', $contract->status) == 'batal' ? 'selected' : '' }}>Batal</option>
+                                    <option value="Open" {{ old('status') == 'Open' ? 'selected' : '' }}>Open</option>
+                                    <option value="Close" {{ old('status') == 'Close' ? 'selected' : '' }}>Close</option>
+                                    <option value="Pending" {{ old('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                    <option value="Proses Finance" {{ old('status') == 'Proses Finance' ? 'selected' : '' }}>Proses Finance</option>
+                                    <option value="Hold" {{ old('status') == 'Hold' ? 'selected' : '' }}>Hold</option>
                                 </select>
 
                                 @error('status')
