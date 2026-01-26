@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\DocumentContract;
-use App\Models\WorkHours;
+use App\Models\workhours;
 use App\Models\Equipment;
-use App\Models\WasteWatermanagement;
-use App\Models\BukaanLahan;
+use App\Models\WasteWaterManagement;
 use App\Models\Reklamasi;
+use App\Models\BukaanLahan;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -30,7 +30,7 @@ class HomeController extends Controller
         $kodealat = Equipment::pluck('kode', 'id')->toArray();
 
         // Data Work Hours (Grafik Existing)
-        $labels = WorkHours::orderBy('tanggal')
+        $labels = workhours::orderBy('tanggal')
                 ->pluck('tanggal')
                 ->unique()
                 ->map(function ($item) {
@@ -44,58 +44,67 @@ class HomeController extends Controller
                 ->pluck('total_jam')
                 ->toArray();
         }
-        $waterData = \App\Models\WasteWatermanagement::orderBy('tanggal_sampling', 'asc')->get();
 
-        $labelsPh = $waterData->pluck('tanggal_sampling')->map(function ($item) {
-            return \Carbon\Carbon::parse($item)->format('d M');
-        })->values();
-
-        $dataPh = $waterData->pluck('ph')->toArray(); // Pastikan nama kolom di DB sesuai
-        $lokasiPh = $waterData->pluck('lokasi_sampling')->toArray();
-
-        $labelstss = $waterData->pluck('tanggal_sampling')->map(function ($item) {
-            return \Carbon\Carbon::parse($item)->format('d M');
-        })->values();
-        $dataTss = $waterData->pluck('tss')->toArray(); // Pastikan nama kolom di DB sesuai
-        $lokasiTss = $waterData->pluck('lokasi_sampling')->toArray();
-
-
-        $bukaanlahan = \App\Models\BukaanLahan::all();
-        $bukaanlahanData = BukaanLahan::orderBy('tanggal_bukaan', 'asc')->get();
-        $labelsbukaanlahan = $bukaanlahanData->pluck('tanggal_bukaan')->map(function ($item) {
-            return \Carbon\Carbon::parse($item)->format('d M');
-        })->values();
-        $luasbukaanlahan = $bukaanlahanData->pluck('luas_dibuka')->toArray();
-
-
-        $reklamasi = \App\Models\Reklamasi::all();
-        $reklamasiData = Reklamasi::orderBy('tanggal_reklamasi', 'asc')->get();
-        $labelsReklamasi = $reklamasiData->pluck('tanggal_reklamasi')->map(function ($item) {
-            return \Carbon\Carbon::parse($item)->format('d M');
-        })->values();
-
-        $luasReklamasi = $reklamasiData->pluck('luas_direklamasi')->toArray();
-
-        return view('dashboard', compact('documentContracts', 'statuscount', 'kodealat', 'labels', 'chartData', 'reklamasi', 'labelsReklamasi', 'luasReklamasi', 'labelsPh', 'dataPh', 'lokasiPh', 'bukaanlahan', 'labelsbukaanlahan', 'luasbukaanlahan', 'labelstss', 'dataTss', 'lokasiTss'));
-    }
-
-    public function getChartData(Request $request)
-    {
-        $query = Reklamasi::query();
-
-        if ($request->tahun) {
-            $query->whereYear('tanggal', $request->tahun);
+        // 1. Ambil data 6 bulan terakhir
+        $lastSixMonths = collect();
+        for ($i = 5; $i >= 0; $i--) {
+            $lastSixMonths->push(now()->subMonths($i)->format('Y-m'));
         }
+
+        // 2. Query Luas Bukaan Lahan per Bulan
+        $bukaanData = BukaanLahan::selectRaw("DATE_FORMAT(tanggal_bukaan, '%Y-%m') as bulan, SUM(luas_dibuka) as total")
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan');
+
+        // 3. Query Luas Reklamasi per Bulan
+        $reklamasiData = Reklamasi::selectRaw("DATE_FORMAT(tanggal_reklamasi, '%Y-%m') as bulan, SUM(luas_direklamasi) as total")
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan');
+
+        // 4. Mapping data agar sesuai dengan urutan bulan (mengisi 0 jika data kosong)
+        $reklamasiLabels = $lastSixMonths->map(fn($m) => Carbon::parse($m)->format('M Y'));
+        $finalBukaanValues = $lastSixMonths->map(fn($m) => $bukaanData->get($m, 0));
+        $finalReklamasiValues = $lastSixMonths->map(fn($m) => $reklamasiData->get($m, 0));
+
+        // --- TAMBAHAN UNTUK WASTE WATER (pH AIR) ---
+        $wasteWaterRaw = WasteWaterManagement::orderBy('tanggal_sampling', 'asc')->get();
+
+        $phLabels = $wasteWaterRaw->map(function($item) {
+            return Carbon::parse($item->tanggal_sampling)->format('d/m');
+        });
+
+        $phValues = $wasteWaterRaw->pluck('ph');
         
-        if ($request->lokasi) {
-            $query->where('lokasi', $request->lokasi);
-        }
+        // Ambil nilai ambang batas (Misal dari config atau hardcode sesuai standar lingkungan)
+        $bmAtas = 9.0; 
+        $bmBawah = 6.0;
 
-        $data = $query->orderBy('tanggal', 'asc')->get();
+        // Di dalam public function index() HomeController
+        $wasteWaterRaw = WasteWaterManagement::orderBy('tanggal_sampling', 'asc')->get();
 
-        return response()->json([
-            'labels' => $data->pluck('tanggal')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d M Y')),
-            'values' => $data->pluck('luas_tanah') // Pastikan nama kolom di DB adalah luas_tanah
-        ]);
+        $tssLabels = $wasteWaterRaw->map(function($item) {
+            return Carbon::parse($item->tanggal_sampling)->format('d/m');
+        });
+
+        $tssValues = $wasteWaterRaw->pluck('tss'); // Mengambil kolom tss
+        $bmTss = 200; // Baku Mutu TSS adalah 200 mg/L
+
+        return view('dashboard', compact(
+            'documentContracts', 
+            'statuscount', 
+            'kodealat', 
+            'labels', 
+            'chartData',
+            'reklamasiLabels',
+            'finalBukaanValues',
+            'finalReklamasiValues',
+            'phLabels', 
+            'phValues', 
+            'bmAtas',   
+            'bmBawah',
+            'tssLabels', 
+            'tssValues', 
+            'bmTss'   
+        ));
     }
 }
