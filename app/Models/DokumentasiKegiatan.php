@@ -15,6 +15,7 @@ class DokumentasiKegiatan extends Model
      */
     protected $table = 'dokumentasi_kegiatan';
 
+
     /**
      * Kolom yang bisa diisi
      */
@@ -33,6 +34,7 @@ class DokumentasiKegiatan extends Model
      */
     protected $casts = [
         'tanggal' => 'date:Y-m-d',
+        'file_dokumentasi' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

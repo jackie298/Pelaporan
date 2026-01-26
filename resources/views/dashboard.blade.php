@@ -138,36 +138,127 @@
             </div>
         </div>
     </div>
-</div>
+  </div>
+  
 
-{{-- RITASE DAN JAM KERJA ALAT --}}
-<div class="row mt-4">
+  {{-- Report Harian --}}
+  <div class="row mt-4">
     <div class="col-lg-12 mb-lg-0 mb-4">
-        <div class="card z-index-2">
-            <div class="card-header pb-0">
-                <h6>Ritase dan Jam Kerja Alat</h6>
-                <p class="text-sm mb-0">
-                    @foreach ($kodealat as $id => $kode)
-                        <span class="me-3">
-                            <i class="fa-solid fa-circle 
-                                @php
-                                    $colors = ['text-info', 'text-success', 'text-danger', 'text-primary', 'text-warning', 'text-secondary'];
-                                    echo $colors[$loop->index % count($colors)];
-                                @endphp
-                            "></i>
-                            <span class="ms-1">{{ $kode }}</span>
-                        </span>
-                    @endforeach
-                </p>
-            </div>
-            <div class="card-body p-3">
-                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
-                    <div class="chart">
-                        <canvas id="chart-ritase" class="chart-canvas" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6></h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1"></span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1"></span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1"></span>
+            </span>
+          </p>
         </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {{-- Report Harian --}}
+  <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Grafik Harian</h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1">Bukaan Lahan</span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1">Reklamasi</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1">Revegetasi</span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{-- Report Mingguan --}}
+    <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Grafik Mingguan</h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1">Bukaan Lahan</span>
+            </span>
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1">Reklamasi</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1">Revegetasi</span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{-- Report Bulanan --}}
+    <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Ritase dan Jam Kerja Alat</h6>
+          <p class="text-sm mb-0">
+            @foreach ($kodealat as $id => $kode)
+              <span class="me-3">
+                <i class="fa-solid fa-circle 
+                  @php
+                    $colors = ['text-info', 'text-success', 'text-danger', 'text-primary', 'text-warning', 'text-secondary'];
+                    echo $colors[$loop->index % count($colors)];
+                  @endphp
+                "></i>
+                <span class="ms-1">{{ $kode }}</span>
+              </span>
+            @endforeach              
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-ritase" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 </div>
 
@@ -175,518 +266,547 @@
 {{-- Report Ph air --}}
 <div class="row mt-4">
     <div class="col-lg-6 mb-lg-0 mb-4">
-        <div class="card z-index-2">
-            <div class="card-header pb-0">
-                <h6>PH Air</h6>
-            </div>
-            <div class="card-body p-3">
-                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
-                    <div class="chart">
-                        <canvas id="chart-air" class="chart-canvas" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <h6>Ph Air</h6>          
         </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-air" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     {{-- Report TSs --}}
     <div class="col-lg-6">
       <div class="card z-index-2">
-          <div class="card-header pb-0">
-              <h6>Monitoring TSS Air</h6>
-              <p class="text-sm mb-0">
-                  <span>
-                      <i class="fa fa-arrow-up text-danger"></i>
-                      <span class="font-weight-bold">Baku Mutu: {{ $bmTss }} mg/L</span>
-                  </span>
-              </p>
-          </div>
-          <div class="card-body p-3">
-              <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
-                  <div class="chart">
-                      <canvas id="chart-tss" class="chart-canvas" height="300"></canvas>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </div>
-</div>
-
-{{-- Detail Reklamasi --}}
-<div class="row mt-4">
-    <div class="col-lg-12 mb-lg-0 mb-4">
-        <div class="card z-index-2">
-            <div class="card-header pb-0">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Detail Reklamasi</h6>
-                </div>
-
-                <div class="row mt-2 mb-3">
-                    <div class="col-md-6">
-                        <label class="text-sm text-white">Tahun</label>
-                        <select class="form-control">
-                            <option value="">Pilih Tahun</option>
-                            <option>2022</option>
-                            <option>2023</option>
-                            <option>2024</option>
-                            <option>2025</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="text-sm text-white">Lokasi</label>
-                        <select class="form-control">
-                            <option value="">Pilih Lokasi</option>
-                            <option>Lokasi 1</option>
-                            <option>Lokasi 2</option>
-                            <option>Lokasi 3</option>
-                            <option>Lokasi 4</option>
-                        </select>
-                    </div>
-                </div>
-                <p class="text-sm mt-2 mb-0">
-                    <span class="me-3">
-                        <i class="fa-solid fa-circle text-info"></i>
-                        <span class="ms-1">Lokasi 1</span>
-                    </span>
-                    <span>
-                        <i class="fa-solid fa-circle text-success"></i>
-                        <span class="ms-1">Lokasi 2</span>
-                    </span>
-                    <span>
-                        <i class="fa-solid fa-circle text-danger"></i>
-                        <span class="ms-1">Lokasi 3</span>
-                    </span>
-                    <span>
-                        <i class="fa-solid fa-circle text-primary"></i>
-                        <span class="ms-1">Lokasi 4</span>
-                    </span>
-                </p>
-            </div>
-            <div class="card-body p-3">
-                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
-                    <div class="chart">
-                        <canvas id="chart-bars2" class="chart-canvas" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
+        <div class="card-header pb-0">
+          <h6>TSS</h6>
+          <p class="text-sm mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1">Rencana</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1">Realisasi</span>
+            </span>
+          </p>
         </div>
+        <div class="card-body p-3">
+          <div class="chart">
+            <canvas id="chart-line"  height="300"></canvas>
+          </div>
+        </div>
+        </div>
+      </div>
     </div>
+  </div>
+  {{-- Detail Reklamasi --}}
+  <div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+      <div class="card z-index-2">
+        <div class="card-header pb-0">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Detail Reklamasi</h6>
+          </div>
+
+          <div class="row mt-2 mb-3">
+            <div class="col-md-6">
+              <label class="text-sm text-white">Tahun</label>
+              <select class="form-control">
+                <option value="">Pilih Tahun</option>
+                <option>2022</option>
+                <option>2023</option>
+                <option>2024</option>
+                <option>2025</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="text-sm text-white">Lokasi</label>
+              <select class="form-control">
+                <option value="">Pilih Lokasi</option>
+                <option>Lokasi 1</option>
+                <option>Lokasi 2</option>
+                <option>Lokasi 3</option>
+                <option>Lokasi 4</option>
+              </select>
+            </div>
+          </div>
+          <p class="text-sm mt-2 mb-0">
+            <span class="me-3">
+              <i class="fa-solid fa-circle text-info"></i>
+              <span class="ms-1">Lokasi 1</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-success"></i>
+              <span class="ms-1">Lokasi 2</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-danger"></i>
+              <span class="ms-1">Lokasi 3</span>
+            </span>
+            <span>
+              <i class="fa-solid fa-circle text-primary"></i>
+              <span class="ms-1">Lokasi 4</span>
+            </span>
+          </p>
+        </div>
+        <div class="card-body p-3">
+          <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+            <div class="chart">
+              <canvas id="chart-bars2" class="chart-canvas" height="300"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{-- Tabel Tanaman --}}
+    <div class="col-lg-12">
+      <div class="card-body p-3" >
+  <div class="text-center mb-4">
+    <span class="text-dark badge px-4 py-2 fs-6">Tanaman</span>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-borderless align-middle">
+      <tbody>
+
+        {{-- Lokasi 1 --}}
+        <tr class="align-">
+          <td colspan="3">
+            <span class="badge text-dark px-3 py-2">Lokasi 1</span>
+            <span class="badge text-dark ms-2">Luas (Ha)</span>
+            <span class="badge text-dark ms-2">Nilai Keberhasilan Reklamasi (%)</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <div class="text-dark fw-bold text-center p-3 rounded">
+              Sengon, Angsana, Nangka
+            </div>
+          </td>
+        </tr>
+
+        {{-- Lokasi 2 --}}
+        <tr class="mt-3">
+          <td colspan="3">
+            <span class="badge text-dark px-3 py-2">Lokasi 2</span>
+            <span class="badge text-dark ms-2">Luas (Ha)</span>
+            <span class="badge text-dark ms-2">Nilai Keberhasilan Reklamasi (%)</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <div class="text-dark fw-bold text-center p-3 rounded">
+              Sengon, Rambutan, Durian
+            </div>
+          </td>
+        </tr>
+
+        {{-- Lokasi 3 --}}
+        <tr>
+          <td colspan="3">
+            <span class="badge text-dark px-3 py-2">Lokasi 3</span>
+            <span class="badge text-dark ms-2">Luas (Ha)</span>
+            <span class="badge text-dark ms-2">Nilai Keberhasilan Reklamasi (%)</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <div class="text-dark fw-bold text-center p-3 rounded" >
+              Sengon, Kakao, Matoa
+            </div>
+          </td>
+        </tr>
+
+        {{-- Lokasi 4 --}}
+        <tr>
+          <td colspan="3">
+            <span class="badge text-dark px-3 py-2">Lokasi 4</span>
+            <span class="badge text-dark ms-2">Luas (Ha)</span>
+            <span class="badge text-dark ms-2">Nilai Keberhasilan Reklamasi (%)</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3">
+            <div class="text-dark fw-bold text-center p-3 rounded">
+              Sengon, Jati, Mahoni
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
 </div>
 
+    </div>
+  </div>
+  
 @endsection
 @push('dashboard')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // var ctx = document.getElementById("chart-bars").getContext("2d");
+  <script>
+    window.onload = function() {
+      var ctx = document.getElementById("chart-bars").getContext("2d");
 
-    // new Chart(ctx, {
-    //     type: "bar",
-    //     data: {
-    //         labels: ["Bukaan Lahan", "Reklamasi", "Revegetasi"],
-    //         datasets: [
-    //             {
-    //                 label: "Grafik Kumulatif",
-    //                 data: [8, 12, 16],
-    //                 backgroundColor: [
-    //                     "#11cdef", // biru
-    //                     "#2dce89", // hijau
-    //                     "#f5365c"  // merah
-    //                 ],
-    //                 borderRadius: 6,
-    //                 maxBarThickness: 40
-    //             }
-    //         ]
-    //     },
-    //     options: {
-    //         responsive: true,
-    //         maintainAspectRatio: false,
-    //         plugins: {
-    //             legend: {
-    //                 display: false
-    //             }
-    //         },
-    //         scales: {
-    //             y: {
-    //                 beginAtZero: true,
-    //                 title: {
-    //                     display: true,
-    //                     text: "Luas (Ha)",
-    //                     color: "#fff",
-    //                     font: {
-    //                         size: 14,
-    //                         family: "Open Sans",
-    //                         weight: "bold"
-    //                     },
-    //                     padding: {
-    //                         bottom: 10
-    //                     }
-    //                 },
-    //                 grid: {
-    //                     drawBorder: false,
-    //                     display: false
-    //                 },
-    //                 ticks: {
-    //                     color: "#fff",
-    //                     padding: 10,
-    //                     font: {
-    //                         size: 13,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             },
-    //             x: {
-    //                 grid: {
-    //                     display: false
-    //                 },
-    //                 ticks: {
-    //                     color: "#fff",
-    //                     font: {
-    //                         size: 12,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-
-    // var ctx2 = document.getElementById("chart-line").getContext("2d");
-
-    // var gradientStroke1 = ctx2.createLinearGradient(0, 230, 0, 50);
-    // gradientStroke1.addColorStop(1, 'rgba(45,206,137,0.2)');
-    // gradientStroke1.addColorStop(0.2, 'rgba(45,206,137,0.0)');
-    // gradientStroke1.addColorStop(0, 'rgba(45,206,137,0)');
-
-    // var gradientStroke2 = ctx2.createLinearGradient(0, 230, 0, 50);
-    // gradientStroke2.addColorStop(1, 'rgba(245,54,92,0.2)');
-    // gradientStroke2.addColorStop(0.2, 'rgba(245,54,92,0.0)');
-    // gradientStroke2.addColorStop(0, 'rgba(245,54,92,0)');
-
-    // new Chart(ctx2, {
-    //     type: "line",
-    //     data: {
-    //         labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    //         datasets: [
-    //             {
-    //                 label: "Rencana",
-    //                 tension: 0.4,
-    //                 pointRadius: 0,
-    //                 borderColor: "#2dce89",
-    //                 borderWidth: 3,
-    //                 backgroundColor: gradientStroke1,
-    //                 fill: true,
-    //                 data: [50, 40, 300, 220, 500, 250, 400, 230, 500]
-    //             },
-    //             {
-    //                 label: "Realisasi",
-    //                 tension: 0.4,
-    //                 pointRadius: 0,
-    //                 borderColor: "#f5365c",
-    //                 borderWidth: 3,
-    //                 backgroundColor: gradientStroke2,
-    //                 fill: true,
-    //                 data: [30, 90, 40, 140, 290, 290, 340, 230, 400]
-    //             }
-    //         ]
-    //     },
-    //     options: {
-    //         responsive: true,
-    //         maintainAspectRatio: false,
-    //         plugins: {
-    //             legend: {
-    //                 display: false
-    //             }
-    //         },
-    //         interaction: {
-    //             intersect: false,
-    //             mode: 'index'
-    //         },
-    //         scales: {
-    //             y: {
-    //                 title: {
-    //                     display: true,
-    //                     text: "Luas (Ha)",
-    //                     color: "#000000",
-    //                     font: {
-    //                         size: 13,
-    //                         family: "Open Sans",
-    //                         weight: "bold"
-    //                     },
-    //                     padding: {
-    //                         bottom: 10
-    //                     }
-    //                 },
-    //                 grid: {
-    //                     drawBorder: false,
-    //                     display: true,
-    //                     drawOnChartArea: true,
-    //                     drawTicks: false,
-    //                     borderDash: [5, 5]
-    //                 },
-    //                 ticks: {
-    //                     padding: 10,
-    //                     color: '#000000',
-    //                     font: {
-    //                         size: 11,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             },
-    //             x: {
-    //                 grid: {
-    //                     drawBorder: false,
-    //                     display: false
-    //                 },
-    //                 ticks: {
-    //                     color: '#000000',
-    //                     padding: 20,
-    //                     font: {
-    //                         size: 11,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-
-    var ctx3 = document.getElementById("chart-pie").getContext("2d");
-    // === CHART PIE (Status Dokumen) ===
-    var ctx3 = document.getElementById("chart-pie");
-    if (ctx3) {
-        new Chart(ctx3.getContext("2d"), {
-            type: "pie",
-            data: {
-                labels: ["Open", "Close", "Pending", "Proses Finance", "Hold"],
-                datasets: [{
-                    label: "Status Kontrak",
-                    weight: 9,
-                    cutout: 0,
-                    tension: 0.9,
-                    pointRadius: 2,
-                    borderWidth: 2,
-                    backgroundColor: ["#11cdef", "#2dce89", "#fb6340", "#5e72e4", "#f5365c"],
-                    data: [
-                        {{ $statuscount['open'] ?? 0 }},
-                        {{ $statuscount['close'] ?? 0 }},
-                        {{ $statuscount['pending'] ?? 0 }},
-                        {{ $statuscount['proses finance'] ?? 0 }},
-                        {{ $statuscount['hold'] ?? 0 }}
-                    ],
-                    fill: false
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                }
-            }
-        });
-    }
-
-    var ctx4 = document.getElementById("chart-ritase").getContext("2d");
-    new Chart(ctx4, {
+      new Chart(ctx, {
         type: "bar",
         data: {
-            labels: {!! json_encode($labels) !!},
-            datasets: [
-                @foreach ($kodealat as $id => $kode)
-                {
-                    label: "{{ $kode }}",
-                    data: {!! json_encode($chartData[$kode] ?? []) !!},
-                    backgroundColor: 
-                        @php
-                            $colors = ['#11cdef', '#2dce89', '#f5365c', '#ffd600', '#9c27b0', '#8e24aa'];
-                            echo "'" . $colors[$loop->index % count($colors)] . "'";
-                        @endphp
-                    ,
-                    borderRadius: 6,
-                    maxBarThickness: 40
-                },
-                @endforeach
-            ]
+          labels: ["Bukaan Lahan", "Reklamasi", "Revegetasi"],
+          datasets: [
+            {
+              label: "Grafik Kumulatif",
+              data: [8, 12, 16],
+              backgroundColor: [
+                "#11cdef", // biru
+                "#2dce89", // hijau
+                "#f5365c"  // merah
+              ],
+              borderRadius: 6,
+              maxBarThickness: 40
+            }
+          ]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "Jam",
-                        color: "#fff",
-                        font: {
-                            size: 14,
-                            family: "Open Sans",
-                            weight: "bold"
-                        },
-                        padding: {
-                            bottom: 10
-                        }
-                    },
-                    grid: {
-                        drawBorder: false,
-                        display: false
-                    },
-                    ticks: {
-                        color: "#fff",
-                        padding: 10,
-                        font: {
-                            size: 13,
-                            family: "Open Sans"
-                        }
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        color: "#fff",
-                        font: {
-                            size: 12,
-                            family: "Open Sans"
-                        }
-                    }
-                }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
             }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Luas (Ha)",
+                color: "#fff",
+                font: {
+                  size: 14,
+                  family: "Open Sans",
+                  weight: "bold"
+                },
+                padding: {
+                  bottom: 10
+                }
+              },
+              grid: {
+                drawBorder: false,
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                padding: 10,
+                font: {
+                  size: 13,
+                  family: "Open Sans"
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                font: {
+                  size: 12,
+                  family: "Open Sans"
+                }
+              }
+            }
+          }
         }
-    });
+      });
 
-    // CHART - PH AIR
-    var ctx5 = document.getElementById("chart-air").getContext("2d");
-    // Mengambil data dari Laravel
-    var phLabels = {!! json_encode($phLabels) !!};
-    var phData = {!! json_encode($phValues) !!};
-    var bmAtasValue = {{ $bmAtas }};
-    var bmBawahValue = {{ $bmBawah }};
+      var ctx2 = document.getElementById("chart-line").getContext("2d");
 
-    new Chart(ctx5, {
+      var gradientStroke1 = ctx2.createLinearGradient(0, 230, 0, 50);
+      gradientStroke1.addColorStop(1, 'rgba(45,206,137,0.2)');
+      gradientStroke1.addColorStop(0.2, 'rgba(45,206,137,0.0)');
+      gradientStroke1.addColorStop(0, 'rgba(45,206,137,0)');
+
+      var gradientStroke2 = ctx2.createLinearGradient(0, 230, 0, 50);
+      gradientStroke2.addColorStop(1, 'rgba(245,54,92,0.2)');
+      gradientStroke2.addColorStop(0.2, 'rgba(245,54,92,0.0)');
+      gradientStroke2.addColorStop(0, 'rgba(245,54,92,0)');
+
+      new Chart(ctx2, {
         type: "line",
         data: {
-            labels: phLabels,
-            datasets: [
-                {
-                    label: "PH Air",
-                    data: phData,
-                    borderColor: "#11cdef",
-                    backgroundColor: "rgba(17, 205, 223, 0.2)",
-                    borderWidth: 3,
-                    fill: true,
-                    pointRadius: 4,
-                    tension: 0.4,
-                    zIndex: 3
-                },
-                {
-                    label: "BM Atas (Max " + bmAtasValue + ")",
-                    data: Array(phLabels.length).fill(bmAtasValue),
-                    borderColor: "#f5365c", // Merah
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    fill: false,
-                    pointRadius: 0
-                },
-                {
-                    label: "BM Bawah (Min " + bmBawahValue + ")",
-                    data: Array(phLabels.length).fill(bmBawahValue),
-                    borderColor: "#ffd600", // Kuning
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    fill: false,
-                    pointRadius: 0
-                }
-            ]
+          labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          datasets: [
+            {
+              label: "Rencana",
+              tension: 0.4,
+              pointRadius: 0,
+              borderColor: "#2dce89",
+              borderWidth: 3,
+              backgroundColor: gradientStroke1,
+              fill: true,
+              data: [50, 40, 300, 220, 500, 250, 400, 230, 500]
+            },
+            {
+              label: "Realisasi",
+              tension: 0.4,
+              pointRadius: 0,
+              borderColor: "#f5365c",
+              borderWidth: 3,
+              backgroundColor: gradientStroke2,
+              fill: true,
+              data: [30, 90, 40, 140, 290, 290, 340, 230, 400]
+            }
+          ]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { color: "#fff" }
-                }
-            },
-            scales: {
-                y: {
-                    min: 0,
-                    max: 14, // pH scale 0-14
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255, 255, 255, 0.1)", drawBorder: false }
-                },
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { display: false }
-                }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
             }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          scales: {
+            y: {
+              title: {
+                display: true,
+                text: "Luas (Ha)",
+                color: "#000000",
+                font: {
+                  size: 13,
+                  family: "Open Sans",
+                  weight: "bold"
+                },
+                padding: {
+                  bottom: 10
+                }
+              },
+              grid: {
+                drawBorder: false,
+                display: true,
+                drawOnChartArea: true,
+                drawTicks: false,
+                borderDash: [5, 5]
+              },
+              ticks: {
+                padding: 10,
+                color: '#000000',
+                font: {
+                  size: 11,
+                  family: "Open Sans"
+                }
+              }
+            },
+            x: {
+              grid: {
+                drawBorder: false,
+                display: false
+              },
+              ticks: {
+                color: '#000000',
+                padding: 20,
+                font: {
+                  size: 11,
+                  family: "Open Sans"
+                }
+              }
+            }
+          }
         }
-    });
+      });
 
-    // Chart TSS
-    var ctx6 = document.getElementById("chart-tss").getContext("2d");
+      var ctx = document.getElementById("chart-bars2").getContext("2d");
 
-    var tssLabels = {!! json_encode($tssLabels) !!};
-    var tssData = {!! json_encode($tssValues) !!};
-    var bmTssValue = {{ $bmTss }};
-
-    new Chart(ctx6, {
-        type: "line",
+      new Chart(ctx, {
+        type: "bar",
         data: {
-            labels: tssLabels,
-            datasets: [
-                {
-                    label: "Kadar TSS (mg/L)",
-                    data: tssData,
-                    borderColor: "#2dce89", // Hijau
-                    backgroundColor: "rgba(45, 206, 137, 0.2)",
-                    borderWidth: 3,
-                    fill: true,
-                    pointRadius: 4,
-                    tension: 0.4,
-                    zIndex: 3
-                },
-                {
-                    label: "Baku Mutu (" + bmTssValue + " mg/L)",
-                    data: Array(tssLabels.length).fill(bmTssValue),
-                    borderColor: "#f5365c", // Merah sebagai peringatan batas
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    fill: false,
-                    pointRadius: 0
-                }
-            ]
+          labels: ["Lokasi 1", "Lokasi 2", "Lokasi 3", "Lokasi 4"],
+          datasets: [
+            {
+              label: "Grafik Kumulatif",
+              data: [8, 12, 16, 4],
+              backgroundColor: [
+                "#11cdef", // biru
+                "#2dce89", // hijau
+                "#f5365c",  // merah
+                "#800080"  // 
+              ],
+              borderRadius: 6,
+              maxBarThickness: 40
+            }
+          ]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { color: "#fff" }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    // Kita beri space sedikit di atas garis baku mutu agar terlihat jelas
-                    max: Math.max(...tssData, bmTssValue) + 50, 
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255, 255, 255, 0.1)", drawBorder: false }
-                },
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { display: false }
-                }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
             }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Luas (Ha)",
+                color: "#fff",
+                font: {
+                  size: 14,
+                  family: "Open Sans",
+                  weight: "bold"
+                },
+                padding: {
+                  bottom: 10
+                }
+              },
+              grid: {
+                drawBorder: false,
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                padding: 10,
+                font: {
+                  size: 13,
+                  family: "Open Sans"
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                font: {
+                  size: 12,
+                  family: "Open Sans"
+                }
+              }
+            }
+          }
         }
-    });
-});
-</script>
+      });
+
+      var ctx3 = document.getElementById("chart-pie").getContext("2d");
+      new Chart(ctx3, {
+        type: "pie",
+        data: {
+          labels: ["Aktif", "Selesai", "Batal"],
+          datasets: [{
+              label: "Status Kontrak",
+              weight: 9,
+              cutout: 0, // Set 0 untuk Pie Chart penuh, atau >0 untuk Donut Chart
+              tension: 0.9,
+              pointRadius: 2,
+              borderWidth: 2,
+              backgroundColor: ["#11cdef", "#2dce89", "#f5365c"], // Sesuaikan warna info, success, danger
+              data: [
+                  {{ $statuscount['aktif'] }}, 
+                  {{ $statuscount['selesai'] }}, 
+                  {{ $statuscount['batal'] }}
+              ],
+              fill: false
+          }],
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: {
+                  display: false, // Kita sudah buat legend manual di atas
+              }
+          }
+      }
+      });
+
+      var ctx4 = document.getElementById("chart-ritase").getContext("2d");
+      new Chart(ctx4, {
+        type: "bar",
+        data: {
+          labels: {!! json_encode($labels) !!},
+          datasets: [
+            @foreach ($kodealat as $id => $kode)
+            {
+              label: "{{ $kode }}",
+              data: {!! json_encode($chartData[$kode]) ?? [] !!}, // Ganti dengan data ritase sebenarnya
+              backgroundColor: 
+                @php
+                  $colors = ['#11cdef', '#2dce89', '#f5365c', '#ffd600', '#9c27b0', '#8e24aa'];
+                  echo "'" . $colors[$loop->index % count($colors)] . "'";
+                @endphp
+              ,
+              borderRadius: 6,
+              maxBarThickness: 40
+            },
+            @endforeach
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Jam",
+                color: "#fff",
+                font: {
+                  size: 14,
+                  family: "Open Sans",
+                  weight: "bold"
+                },
+                padding: {
+                  bottom: 10
+                }
+              },
+              grid: {
+                drawBorder: false,
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                padding: 10,
+                font: {
+                  size: 13,
+                  family: "Open Sans"
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: "#fff",
+                font: {
+                  size: 12,
+                  family: "Open Sans"
+                }
+              }
+            }
+          }
+        }
+      });
+      
+    }
+  </script>
 @endpush
+

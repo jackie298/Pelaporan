@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DokumentasiKegiatan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class DokumentasiKegiatanController extends Controller
 {
@@ -40,24 +41,29 @@ class DokumentasiKegiatanController extends Controller
             'lokasi'            => 'required|string|max:255',
             'deskripsi'         => 'required|string',
             'jenis_kegiatan'    => 'required|string|max:100',
-            'file_dokumentasi'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            
+            // PERBAIKAN DI SINI:
+            'file_dokumentasi'   => 'required|array', // Pastikan input adalah array
+            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Validasi tiap file di dalam array
         ]);
 
-        // Handle upload file (jika ada)
-        $filePath = null;
+        // Handle upload multiple files
+        $filePath = [];
         if ($request->hasFile('file_dokumentasi')) {
-            $filePath = $request->file('file_dokumentasi')->store('dokumentasi', 'public');
+            foreach ($request->file('file_dokumentasi') as $file) {
+                $path = $file->store('dokumentasi', 'public');
+                $filePath[] = $path;
+            }
         }
 
-        // Simpan ke database
         DokumentasiKegiatan::create([
             'judul'             => $request->judul,
             'tanggal'           => $request->tanggal,
             'lokasi'            => $request->lokasi,
             'deskripsi'         => $request->deskripsi,
             'jenis_kegiatan'    => $request->jenis_kegiatan,
-            'file_dokumentasi'  => $filePath,
-            'created_by'        => Auth::id(), // Otomatis ambil user login
+            'file_dokumentasi'  => $filePath, // Model akan otomatis mengubah array ke JSON karena casting
+            'created_by'        => Auth::id(),
         ]);
 
         return redirect()
@@ -96,16 +102,28 @@ class DokumentasiKegiatanController extends Controller
             'lokasi'            => 'required|string|max:255',
             'deskripsi'         => 'required|string',
             'jenis_kegiatan'    => 'required|string|max:100',
-            'file_dokumentasi'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            
+            // PERBAIKAN DI SINI JUGA:
+            'file_dokumentasi'   => 'nullable|array',
+            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Handle upload file baru (opsional: ganti file lama)
         $filePath = $dokumentasi->file_dokumentasi;
-        if ($request->hasFile('file_dokumentasi')) {
-            // Hapus file lama jika perlu (opsional)
-            // Storage::disk('public')->delete($dokumentasi->file_dokumentasi);
 
-            $filePath = $request->file('file_dokumentasi')->store('dokumentasi', 'public');
+        if ($request->hasFile('file_dokumentasi')) {
+            // Hapus file lama jika ada upload baru
+            if (is_array($filePath)) {
+                foreach ($filePath as $oldFile) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+            }
+
+            // Simpan file baru
+            $filePath = [];
+            foreach ($request->file('file_dokumentasi') as $file) {
+                $path = $file->store('dokumentasi', 'public');
+                $filePath[] = $path;
+            }
         }
 
         $dokumentasi->update([
@@ -115,14 +133,12 @@ class DokumentasiKegiatanController extends Controller
             'deskripsi'         => $request->deskripsi,
             'jenis_kegiatan'    => $request->jenis_kegiatan,
             'file_dokumentasi'  => $filePath,
-            // created_by tidak diubah
         ]);
 
         return redirect()
             ->route('admin.dokumentasi-kegiatan')
             ->with('success', 'Dokumentasi kegiatan berhasil diperbarui.');
     }
-
     /**
      * Hapus data dokumentasi (soft delete)
      */
@@ -135,4 +151,6 @@ class DokumentasiKegiatanController extends Controller
             ->route('admin.dokumentasi-kegiatan')
             ->with('success', 'Dokumentasi kegiatan berhasil dihapus.');
     }
+
+    
 }
