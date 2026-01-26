@@ -76,7 +76,7 @@ class HomeController extends Controller
 
         $luasReklamasi = $reklamasiData->pluck('luas_direklamasi')->toArray();
 
-        return view('dashboard', compact('documentContracts', 'statuscount', 'kodealat', 'jamkerja', 'labels', 'chartData', 'reklamasi', 'labelsReklamasi', 'luasReklamasi', 'labelsPh', 'dataPh', 'lokasiPh', 'bukaanlahan', 'labelsbukaanlahan', 'luasbukaanlahan', 'labelstss', 'dataTss', 'lokasiTss'));
+        return view('dashboard', compact('documentContracts', 'statuscount', 'kodealat', 'labels', 'chartData', 'reklamasi', 'labelsReklamasi', 'luasReklamasi', 'labelsPh', 'dataPh', 'lokasiPh', 'bukaanlahan', 'labelsbukaanlahan', 'luasbukaanlahan', 'labelstss', 'dataTss', 'lokasiTss'));
     }
 
     public function getChartData(Request $request)
