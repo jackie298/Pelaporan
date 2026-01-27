@@ -305,247 +305,73 @@
 @push('dashboard')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // var ctx = document.getElementById("chart-bars").getContext("2d");
-
-    // new Chart(ctx, {
-    //     type: "bar",
-    //     data: {
-    //         labels: ["Bukaan Lahan", "Reklamasi", "Revegetasi"],
-    //         datasets: [
-    //             {
-    //                 label: "Grafik Kumulatif",
-    //                 data: [8, 12, 16],
-    //                 backgroundColor: [
-    //                     "#11cdef", // biru
-    //                     "#2dce89", // hijau
-    //                     "#f5365c"  // merah
-    //                 ],
-    //                 borderRadius: 6,
-    //                 maxBarThickness: 40
-    //             }
-    //         ]
-    //     },
-    //     options: {
-    //         responsive: true,
-    //         maintainAspectRatio: false,
-    //         plugins: {
-    //             legend: {
-    //                 display: false
-    //             }
-    //         },
-    //         scales: {
-    //             y: {
-    //                 beginAtZero: true,
-    //                 title: {
-    //                     display: true,
-    //                     text: "Luas (Ha)",
-    //                     color: "#fff",
-    //                     font: {
-    //                         size: 14,
-    //                         family: "Open Sans",
-    //                         weight: "bold"
-    //                     },
-    //                     padding: {
-    //                         bottom: 10
-    //                     }
-    //                 },
-    //                 grid: {
-    //                     drawBorder: false,
-    //                     display: false
-    //                 },
-    //                 ticks: {
-    //                     color: "#fff",
-    //                     padding: 10,
-    //                     font: {
-    //                         size: 13,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             },
-    //             x: {
-    //                 grid: {
-    //                     display: false
-    //                 },
-    //                 ticks: {
-    //                     color: "#fff",
-    //                     font: {
-    //                         size: 12,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-
-    // var ctx2 = document.getElementById("chart-line").getContext("2d");
-
-    // var gradientStroke1 = ctx2.createLinearGradient(0, 230, 0, 50);
-    // gradientStroke1.addColorStop(1, 'rgba(45,206,137,0.2)');
-    // gradientStroke1.addColorStop(0.2, 'rgba(45,206,137,0.0)');
-    // gradientStroke1.addColorStop(0, 'rgba(45,206,137,0)');
-
-    // var gradientStroke2 = ctx2.createLinearGradient(0, 230, 0, 50);
-    // gradientStroke2.addColorStop(1, 'rgba(245,54,92,0.2)');
-    // gradientStroke2.addColorStop(0.2, 'rgba(245,54,92,0.0)');
-    // gradientStroke2.addColorStop(0, 'rgba(245,54,92,0)');
-
-    // new Chart(ctx2, {
-    //     type: "line",
-    //     data: {
-    //         labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    //         datasets: [
-    //             {
-    //                 label: "Rencana",
-    //                 tension: 0.4,
-    //                 pointRadius: 0,
-    //                 borderColor: "#2dce89",
-    //                 borderWidth: 3,
-    //                 backgroundColor: gradientStroke1,
-    //                 fill: true,
-    //                 data: [50, 40, 300, 220, 500, 250, 400, 230, 500]
-    //             },
-    //             {
-    //                 label: "Realisasi",
-    //                 tension: 0.4,
-    //                 pointRadius: 0,
-    //                 borderColor: "#f5365c",
-    //                 borderWidth: 3,
-    //                 backgroundColor: gradientStroke2,
-    //                 fill: true,
-    //                 data: [30, 90, 40, 140, 290, 290, 340, 230, 400]
-    //             }
-    //         ]
-    //     },
-    //     options: {
-    //         responsive: true,
-    //         maintainAspectRatio: false,
-    //         plugins: {
-    //             legend: {
-    //                 display: false
-    //             }
-    //         },
-    //         interaction: {
-    //             intersect: false,
-    //             mode: 'index'
-    //         },
-    //         scales: {
-    //             y: {
-    //                 title: {
-    //                     display: true,
-    //                     text: "Luas (Ha)",
-    //                     color: "#000000",
-    //                     font: {
-    //                         size: 13,
-    //                         family: "Open Sans",
-    //                         weight: "bold"
-    //                     },
-    //                     padding: {
-    //                         bottom: 10
-    //                     }
-    //                 },
-    //                 grid: {
-    //                     drawBorder: false,
-    //                     display: true,
-    //                     drawOnChartArea: true,
-    //                     drawTicks: false,
-    //                     borderDash: [5, 5]
-    //                 },
-    //                 ticks: {
-    //                     padding: 10,
-    //                     color: '#000000',
-    //                     font: {
-    //                         size: 11,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             },
-    //             x: {
-    //                 grid: {
-    //                     drawBorder: false,
-    //                     display: false
-    //                 },
-    //                 ticks: {
-    //                     color: '#000000',
-    //                     padding: 20,
-    //                     font: {
-    //                         size: 11,
-    //                         family: "Open Sans"
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    // });
-
-    // Chart Bukaan lahan dan reklamasiS
+    
+    // Chart Bukaan lahan dan reklamasi
     var ctxBR = document.getElementById("chart-bukaanlahan-reklamasi").getContext("2d");
     new Chart(ctxBR, {
-    type: "bar",
-    data: {
-        labels: {!! json_encode($reklamasiLabels) !!},
-        datasets: [
-        {
-            label: "Bukaan Lahan",
-            weight: 5,
-            borderWidth: 0,
-            borderRadius: 4,
-            backgroundColor: '#11cdef', // text-info
-            data: {!! json_encode($finalBukaanValues) !!},
-            fill: false,
-            maxBarThickness: 35
+        type: "bar",
+        data: {
+            labels: {!! json_encode($reklamasiLabels) !!},
+            datasets: [{
+                    label: "Bukaan Lahan",
+                    backgroundColor: '#11cdef', // text-info
+                    data: {!! json_encode($finalBukaanValues) !!},
+                    borderRadius: 4,
+                    maxBarThickness: 35
+                },
+                {
+                    label: "Reklamasi",
+                    backgroundColor: '#2dce89', // text-success
+                    data: {!! json_encode($finalReklamasiValues) !!},
+                    borderRadius: 4,
+                    maxBarThickness: 35
+                }
+            ],
         },
-        {
-            label: "Reklamasi",
-            weight: 5,
-            borderWidth: 0,
-            borderRadius: 4,
-            backgroundColor: '#2dce89', // text-success
-            data: {!! json_encode($finalReklamasiValues) !!},
-            fill: false,
-            maxBarThickness: 35
-        },
-        ],
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-        legend: { display: false }
-        },
-        scales: {
-        y: {
-            grid: {
-            drawBorder: false,
-            display: true,
-            drawOnChartArea: true,
-            drawTicks: false,
-            borderDash: [5, 5],
-            color: 'rgba(255, 255, 255, .2)'
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
             },
-            ticks: {
-            display: true,
-            padding: 10,
-            color: '#f8f9fa',
-            font: { size: 11, family: "Open Sans", style: 'normal', lineHeight: 2 },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: "Luas (Ha)",
+                        color: "#fff",
+                        font: { size: 14, family: "Open Sans", weight: "bold" },
+                        padding: { bottom: 10 }
+                    }, // <--- This was closing too late in your code
+                    grid: {
+                        drawBorder: false,
+                        display: true,
+                        drawOnChartArea: true,
+                        drawTicks: false,
+                        borderDash: [5, 5],
+                        color: 'rgba(255, 255, 255, .2)'
+                    },
+                    ticks: {
+                        display: true,
+                        padding: 10,
+                        color: '#f8f9fa',
+                        font: { size: 11, family: "Open Sans", lineHeight: 2 },
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        display: true,
+                        color: '#f8f9fa',
+                        padding: 10,
+                        font: { size: 11, family: "Open Sans", lineHeight: 2 },
+                    }
+                }
             }
-        },
-        x: {
-            grid: {
-            drawBorder: false,
-            display: false,
-            drawOnChartArea: false,
-            drawTicks: false
-            },
-            ticks: {
-            display: true,
-            color: '#f8f9fa',
-            padding: 10,
-            font: { size: 11, family: "Open Sans", style: 'normal', lineHeight: 2 },
-            }
-        },
-        },
-    },
+        }
     });
 
     var ctx3 = document.getElementById("chart-pie").getContext("2d");
@@ -584,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // CHART RITASE DAN JAM KERJA
     var ctx4 = document.getElementById("chart-ritase").getContext("2d");
     new Chart(ctx4, {
         type: "bar",
