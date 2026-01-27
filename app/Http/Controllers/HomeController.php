@@ -47,7 +47,7 @@ class HomeController extends Controller
 
         // 1. Ambil data 6 bulan terakhir
         $lastSixMonths = collect();
-        for ($i = 5; $i >= 0; $i--) {
+        for ($i = 11; $i >= 0; $i--) {
             $lastSixMonths->push(now()->subMonths($i)->format('Y-m'));
         }
 

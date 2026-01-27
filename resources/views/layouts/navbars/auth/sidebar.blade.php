@@ -38,23 +38,45 @@
                 </a>
             </li>
 
-            {{-- ================= Galeri Kegiatan ================= --}}
+            {{-- ================= MENU DOKUMENTASI ================= --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'active' : '' }}"
-                href="{{ route('admin.dokumentasi-kegiatan.gallery') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-
-                        <i class="fas fa-images
-                        {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'text-white' : 'text-dark' }}"></i>
+                <a data-bs-toggle="collapse" 
+                href="#dokumentasiMenu" 
+                class="nav-link {{ Request::is('admin/dokumentasi-kegiatan*') ? 'active' : '' }}" 
+                aria-controls="dokumentasiMenu" 
+                role="button" 
+                aria-expanded="{{ Request::is('admin/dokumentasi-kegiatan*') ? 'true' : 'false' }}">
+                    
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('admin/dokumentasi-kegiatan*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fas fa-folder-open {{ Request::is('admin/dokumentasi-kegiatan*') ? 'text-white' : 'text-dark' }}" 
+                        style="top: 0; font-size: 0.8rem;"></i>
                     </div>
-
-                    <span class="nav-link-text ms-1">Gallery Kegiatan</span>
+                    
+                    <span class="nav-link-text ms-1 {{ Request::is('admin/dokumentasi-kegiatan*') ? 'font-weight-bold' : '' }}">Dokumentasi</span>
                 </a>
-            </li>
 
+                <div class="collapse {{ Request::is('admin/dokumentasi-kegiatan*') ? 'show' : '' }}" id="dokumentasiMenu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/dokumentasi-kegiatan') ? 'active' : '' }}" 
+                            href="{{ route('admin.dokumentasi-kegiatan') }}">
+                                <span class="dot-indicator {{ Request::is('admin/dokumentasi-kegiatan') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> List Kegiatan </span>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'active' : '' }}" 
+                            href="{{ route('admin.dokumentasi-kegiatan.gallery') }}">
+                                <span class="dot-indicator {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Gallery Kegiatan </span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </li>
             {{-- ================= BUKAAN LAHAN ================= --}}
             <li class="nav-item">
                 <a class="nav-link {{ Request::is('bukaan-lahan*') ? 'active' : '' }}"
@@ -103,6 +125,23 @@
                     </div>
 
                     <span class="nav-link-text ms-1">Revegetasi</span>
+                </a>
+            </li>
+
+            {{-- ================= NURSERY ================= --}}
+            <li class="nav-item">
+                <a class="nav-link {{ Request::is('nursery*') ? 'active' : '' }}"
+                href="{{ route('nursery') }}">
+
+                    <div class="icon icon-shape icon-sm shadow
+                        {{ Request::is('nursery*') ? 'bg-primary' : 'bg-white' }}
+                        text-center me-2 d-flex align-items-center justify-content-center">
+
+                        <i class="fa-solid fa-mountain
+                        {{ Request::is('nursery*') ? 'text-white' : 'text-dark' }}"></i>
+                    </div>
+
+                    <span class="nav-link-text ms-1">Nursery</span>
                 </a>
             </li>
 
@@ -194,23 +233,6 @@
                     <span class="nav-link-text ms-1">Jam Kerja</span>
                 </a>
             </li>
-
-            {{-- ================= DOKUMENTASI KEGIATAN ================= --}}
-            <li class="nav-item">
-                <a class="nav-link {{ Request::is('admin/dokumentasi-kegiatan*') ? 'active' : '' }}"
-                   href="{{ route('admin.dokumentasi-kegiatan') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('admin/dokumentasi-kegiatan*') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fas fa-clipboard-list
-                            {{ Request::is('admin/dokumentasi-kegiatan*') ? 'text-white' : 'text-dark' }}"></i>
-                    </div>
-
-                    <span class="nav-link-text ms-1">Dokumentasi Kegiatan</span>
-                </a>
-            </li>
-
         </ul>
     </div>
 </aside>

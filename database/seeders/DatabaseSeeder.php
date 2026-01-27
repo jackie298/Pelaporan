@@ -8,6 +8,7 @@ use Database\Seeders\DokumentasiKegiatanSeeder;
 use Database\Seeders\WasteWaterManagementSeeder;
 use Database\Seeders\BukaanLahanSeeder;
 use Database\Seeders\ReklamasiSeeder;
+use Database\Seeders\NurserySeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -29,6 +30,7 @@ class DatabaseSeeder extends Seeder
             WasteWaterManagementSeeder::class,
             BukaanLahanSeeder::class,
             ReklamasiSeeder::class,
+            NurserySeeder::class,
         ]);
     }
 }

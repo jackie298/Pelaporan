@@ -11,6 +11,7 @@ use App\Http\Controllers\RevegetasiController;
 use App\Http\Controllers\BukaanLahanController;
 use App\Http\Controllers\ReklamasiController;
 use App\Http\Controllers\ComplienceController;
+use App\Http\Controllers\NurseryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -260,6 +261,29 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('reklamasi/{id}', [ReklamasiController::class, 'destroy'])
         ->name('reklamasi.destroy');
     // END REKLAMASI
+
+    // ROUTING NURSERY
+    Route::get('nursery', [NurseryController::class, 'index'])
+        ->name('nursery');
+
+    // ADD DATA
+    Route::get('nursery/create', [NurseryController::class, 'create'])
+        ->name('nursery.create');
+
+    Route::post('nursery', [NurseryController::class, 'store'])
+        ->name('nursery.store');
+
+    // EDIT DATA
+    Route::get('nursery/{id}/edit', [NurseryController::class, 'edit'])
+        ->name('nursery.edit');
+
+    Route::put('nursery/{id}', [NurseryController::class, 'update'])
+        ->name('nursery.update');
+
+    // DELETE DATA
+    Route::delete('reklamasi/{id}', [NurseryController::class, 'destroy'])
+        ->name('reklamasi.destroy');
+    // END NURSERY
 
     // ROUTING complience
     Route::get('complience', [ComplienceController::class, 'index'])
