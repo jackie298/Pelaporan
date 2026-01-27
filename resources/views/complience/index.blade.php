@@ -28,11 +28,16 @@
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">No</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Judul</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jenis</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Reported By</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Departemen</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Incident Type</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Compliance Type</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date Reported</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Status</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">Berlaku</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Action</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">Severity</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Resolved By</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -43,45 +48,51 @@
                                     </td>
                                     <td>
                                         <p class="text-xs font-weight-bold mb-0 text-wrap" style="min-width: 150px;">
-                                            {{ $data->judul ?? '—' }}
+                                            {{ $data->ReportedBy ?? '—' }}
                                         </p>
                                     </td>
                                     <td>
                                         <p class="text-xs font-weight-bold mb-0">
-                                            {{ $data->jenis ?? '—' }}
+                                            {{ $data->Departemen ?? '—' }}
                                         </p>
                                     </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-sm 
-                                            @if($data->status === 'Aktif') bg-success
-                                            @elseif($data->status === 'Kadaluarsa') bg-danger
-                                            @elseif($data->status === 'Menunggu') bg-warning text-dark
-                                            @else bg-secondary @endif">
-                                            {{ $data->status }}
-                                        </span>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->Location ?? '—' }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->IncidentType ?? '—' }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->ComplianceType ?? '—' }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->Date_reported ? \Carbon\Carbon::parse($data->Date_reported)->format('d M Y') : '—' }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->Status ?? '—' }}
+                                        </p>
                                     </td>
                                     <td class="text-center d-none d-md-table-cell">
                                         <p class="text-xs font-weight-bold mb-0">
-                                            {{ $data->tanggal_terbit ? $data->tanggal_terbit->format('d M Y') : '—' }}
-                                            @if($data->tanggal_kadaluarsa)
-                                                s/d {{ $data->tanggal_kadaluarsa->format('d M Y') }}
-                                            @endif
+                                            {{ $data->Severity ?? '—' }}
                                         </p>
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('complience.edit', $data->id) }}" class="mx-1" title="Edit">
-                                            <i class="fas fa-edit text-info"></i>
-                                        </a>
-                                        <button 
-                                            type="button" 
-                                            class="mx-1 delete-btn" 
-                                            data-id="{{ $data->id }}"
-                                            data-nama="{{ $data->judul }}"
-                                            title="Hapus">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </button>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->ResolvedBy ?? '—' }}
+                                        </p>
                                     </td>
-                                </tr>
+                                    
+                                    
                                 @empty
                                 <tr>
                                     <td colspan="6" class="text-center text-muted py-4">

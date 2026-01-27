@@ -15,14 +15,15 @@ class Complience extends Model
      * Kolom yang bisa diisi mass assignment.
      */
     protected $fillable = [
-        'judul',
-        'jenis',
-        'nomor_dokumen',
-        'tanggal_terbit',
-        'tanggal_kadaluarsa',
-        'status',
-        'keterangan',
-        'file_dokumen',
+        'ReportedBy',
+        'Departemen',
+        'Location',
+        'IncidentType',
+        'ComplianceType',
+        'Date_reported',
+        'Status',
+        'Severity',
+        'ResolvedBy',
     ];
 
     /**

@@ -35,33 +35,29 @@ class ComplienceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul' => 'required|string|max:255',
-            'jenis' => 'required|string|max:100',
-            'nomor_dokumen' => 'nullable|string|max:100',
-            'tanggal_terbit' => 'required|date',
-            'tanggal_kadaluarsa' => 'nullable|date|after_or_equal:tanggal_terbit',
-            'status' => 'required|in:Aktif,Kadaluarsa,Menunggu,Ditolak',
-            'keterangan' => 'nullable|string',
-            'file_dokumen' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240', // max 10MB
+            'ReportedBy' => 'required|string|max:255',
+            'Departemen' => 'required|string|max:100',
+            'Location' => 'nullable|string|max:100',
+            'IncidentType' => 'required|string|max:100',
+            'ComplianceType' => 'required|string|max:100',
+            'Date_reported' => 'required|date',
+            'Status' => 'required|in:Escalated,Pending,Resolved,Open',
+            'Severity' => 'required|in:Low,Medium,High,Critical',
+            'ResolvedBy' => 'nullable|string|max:255',
         ]);
 
         $data = [
-            'judul' => $request->judul,
-            'jenis' => $request->jenis,
-            'nomor_dokumen' => $request->nomor_dokumen,
-            'tanggal_terbit' => $request->tanggal_terbit,
-            'tanggal_kadaluarsa' => $request->tanggal_kadaluarsa,
-            'status' => $request->status,
-            'keterangan' => $request->keterangan,
-            'file_dokumen' => '#', // default placeholder
+            'ReportedBy' => $request->ReportedBy,
+            'Departemen' => $request->Departemen,
+            'Location' => $request->Location,
+            'IncidentType' => $request->IncidentType,
+            'ComplianceType' => $request->ComplianceType,
+            'Date_reported' => $request->Date_reported,
+            'Status' => $request->Status, 
+            'Severity' => $request->Severity,
+            'ResolvedBy' => $request->ResolvedBy,
             'created_by' => Auth::id(),
         ];
-
-        // Jika ada file diupload
-        if ($request->hasFile('file_dokumen')) {
-            $path = $request->file('file_dokumen')->store('complience', 'public');
-            $data['file_dokumen'] = $path;
-        }
 
         Complience::create($data);
 
@@ -87,35 +83,29 @@ class ComplienceController extends Controller
         $complience = Complience::findOrFail($id);
 
         $request->validate([
-            'judul' => 'required|string|max:255',
-            'jenis' => 'required|string|max:100',
-            'nomor_dokumen' => 'nullable|string|max:100',
-            'tanggal_terbit' => 'required|date',
-            'tanggal_kadaluarsa' => 'nullable|date|after_or_equal:tanggal_terbit',
-            'status' => 'required|in:Aktif,Kadaluarsa,Menunggu,Ditolak',
-            'keterangan' => 'nullable|string',
-            'file_dokumen' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'ReportedBy' => 'required|string|max:255',
+            'Departemen' => 'required|string|max:100',
+            'Location' => 'nullable|string|max:100',
+            'IncidentType' => 'required|string|max:100',
+            'ComplianceType' => 'required|string|max:100',
+            'Date_reported' => 'required|date',
+            'Status' => 'required|in:Escalated,Pending,Resolved,Open',
+            'Severity' => 'required|in:Low,Medium,High,Critical',
+            'ResolvedBy' => 'nullable|string|max:255',
         ]);
-
         $data = [
-            'judul' => $request->judul,
-            'jenis' => $request->jenis,
-            'nomor_dokumen' => $request->nomor_dokumen,
-            'tanggal_terbit' => $request->tanggal_terbit,
-            'tanggal_kadaluarsa' => $request->tanggal_kadaluarsa,
-            'status' => $request->status,
-            'keterangan' => $request->keterangan,
+            'ReportedBy' => $request->ReportedBy,
+            'Departemen' => $request->Departemen,
+            'Location' => $request->Location,
+            'IncidentType' => $request->IncidentType,
+            'ComplianceType' => $request->ComplianceType,
+            'Date_reported' => $request->Date_reported,
+            'Status' => $request->Status,
+            'Severity' => $request->Severity,
+            'ResolvedBy' => $request->ResolvedBy,
         ];
 
-        // Handle upload file baru
-        if ($request->hasFile('file_dokumen')) {
-            // Hapus file lama jika bukan placeholder
-            if ($complience->file_dokumen !== '#' && Storage::disk('public')->exists($complience->file_dokumen)) {
-                Storage::disk('public')->delete($complience->file_dokumen);
-            }
-            $data['file_dokumen'] = $request->file('file_dokumen')->store('complience', 'public');
-        }
-
+       
         $complience->update($data);
 
         return redirect()
@@ -129,11 +119,6 @@ class ComplienceController extends Controller
     public function destroy($id)
     {
         $complience = Complience::findOrFail($id);
-
-        // Hapus file fisik jika ada
-        if ($complience->file_dokumen !== '#' && Storage::disk('public')->exists($complience->file_dokumen)) {
-            Storage::disk('public')->delete($complience->file_dokumen);
-        }
 
         $complience->delete();
 

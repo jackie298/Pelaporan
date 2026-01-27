@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('complience', function (Blueprint $table) {
             $table->id();
-            $table->string('judul');
-            $table->string('jenis');
-            $table->string('nomor_dokumen')->nullable();
-            $table->date('tanggal_terbit');
-            $table->date('tanggal_kadaluarsa')->nullable();
-            $table->enum('status', ['Aktif', 'Kadaluarsa', 'Menunggu', 'Ditolak']);
-            $table->text('keterangan')->nullable();
-            $table->string('file_dokumen');
+            $table->string('ReportedBy');
+            $table->string('Departemen');
+            $table->string('Location');
+            $table->string('IncidentType');
+            $table->string('ComplianceType');
+            $table->date('Date_reported');;
+            $table->enum('Status', ['Escalated', 'Pending', 'Resolved','Open']);
+            $table->enum('Severity', ['Low', 'Medium', 'High', 'Critical']);
+            $table->string('ResolvedBy');
             $table->timestamps();
         });
     }

@@ -7,124 +7,162 @@
 @endphp
 
 <style>
-    /* Indikator jumlah foto tambahan seperti tampilan WA (+2) */
-    .image-overlay-count {
+    /* 1. STYLE KARTU AWAL DENGAN HOVER OVERLAY */
+    .gallery-container {
+        position: relative;
+        border-radius: 1rem;
+        overflow: hidden;
+        background: #202940;
+        cursor: pointer;
+    }
+
+    .gallery-image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 300px; /* Sesuaikan tinggi awal Anda */
+    }
+
+    .gallery-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: filter 0.3s ease;
+    }
+
+    /* Overlay View More yang muncul saat Hover */
+    .hover-overlay {
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
         color: white;
-        font-size: 1.5rem;
         font-weight: bold;
-        border-radius: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .gallery-container:hover .hover-overlay {
+        opacity: 1;
+    }
+
+    .gallery-container:hover .gallery-img {
+        filter: blur(2px);
+    }
+
+    /* 2. STYLE MODAL GRID (Tanpa Slide) */
+    .modal-gallery-content {
+        background-color: #013220 !important; /* Hijau Tua */
+        border-radius: 1rem !important;
+    }
+
+    .image-grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+        padding: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 8px;
+    }
+
+    .grid-item-img {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 2px solid transparent;
+        transition: border 0.3s;
+    }
+
+    .grid-item-img:hover {
+        border-color: #2dce89;
+    }
+
+    .label-green {
+        color: #2dce89;
+        font-weight: bold;
+        text-decoration: underline;
     }
 </style>
 
-<div class="container-fluid py-4">
+<div class="row mx-2">
+    @forelse ($dokumentasiData as $data)
+        @php
+            $files = $data->file_dokumentasi ?? [];
+            $firstFile = count($files) > 0 ? $files[0] : null;
+            $formattedDate = $data->tanggal ? $data->tanggal->format('d/m/Y') : '-';
+        @endphp
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="gallery-container shadow" 
+                 onclick="openGridModal({{ json_encode($files) }}, '{{ addslashes($data->judul) }}', '{{ $data->jenis_kegiatan }}', '{{ $data->lokasi }}', '{{ $formattedDate }}')">
+                
+                <div class="gallery-image-wrapper">
+                    @if($firstFile)
+                        <img src="{{ asset('storage/' . $firstFile) }}" class="gallery-img">
+                    @else
+                        <div class="gallery-img bg-dark d-flex align-items-center justify-content-center">
+                            <i class="fas fa-image fa-3x text-secondary"></i>
+                        </div>
+                    @endif
 
-    {{-- ALERT HEADER --}}
-    <div class="alert alert-secondary mx-4 d-flex justify-content-between align-items-center" role="alert">
-        <span class="text-white font-weight-bold">
-            <i class="fas fa-images me-2"></i> Gallery Dokumentasi Kegiatan
-        </span>
-        <a href="{{ route('admin.dokumentasi-kegiatan.create') }}" class="btn btn-sm btn-white mb-0">
-            + Tambah Data
-        </a>
-    </div>
+                    <div class="hover-overlay">
+                        <span>VIEW MORE</span>
+                    </div>
+                </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4 mx-4 shadow-none bg-transparent">
-                <div class="card-body p-0">
-                    <div class="row">
-                        @forelse ($dokumentasiData as $data)
-                            <div class="col-xl-3 col-md-6 mb-4">
-                                <div class="card h-100 border-radius-xl shadow-sm border-0">
-                                    <div class="position-relative p-2">
-                                        <a href="{{ route('admin.dokumentasi-kegiatan.edit', $data->id) }}" class="d-block border-radius-xl overflow-hidden">
-                                            @if($data->file_dokumentasi && count($data->file_dokumentasi) > 0)
-                                                {{-- AMBIL FOTO PERTAMA SEBAGAI THUMBNAIL --}}
-                                                @php
-                                                    $firstFile = $data->file_dokumentasi[0];
-                                                    $count = count($data->file_dokumentasi);
-                                                    $ext = pathinfo($firstFile, PATHINFO_EXTENSION);
-                                                @endphp
+                <div class="p-3">
+                    <h6 class="text-white mb-1">{{ Str::limit($data->judul, 25) }}</h6>
+                    <small class="text-secondary">{{ $data->jenis_kegiatan }}</small>
+                    <small class="text-secondary d-block">Lokasi: {{ Str::limit($data->lokasi, 30) }}</small>
+                    <small class="text-secondary d-block">Tanggal: {{ $formattedDate }}</small>
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">Belum ada dokumentasi.</p>
+        </div>
+    @endforelse
+</div>
 
-                                                <div class="position-relative">
-                                                    @if(in_array(strtolower($ext), ['jpg', 'jpeg', 'png']))
-                                                        <img src="{{ asset('storage/' . $firstFile) }}"
-                                                             alt="{{ $data->judul }}"
-                                                             class="img-fluid border-radius-xl w-100"
-                                                             style="height: 200px; object-fit: cover;">
-                                                        
-                                                        {{-- INDIKATOR JIKA ADA LEBIH DARI 1 FOTO --}}
-                                                        @if($count > 1)
-                                                            <div class="image-overlay-count">
-                                                                +{{ $count - 1 }}
-                                                            </div>
-                                                        @endif
-                                                    @else
-                                                        {{-- JIKA FILE PERTAMA ADALAH PDF --}}
-                                                        <div class="bg-gradient-primary d-flex flex-column align-items-center justify-content-center"
-                                                             style="height: 200px; border-radius: 0.75rem;">
-                                                            <i class="fa-solid fa-file-pdf text-white fa-3x mb-2"></i>
-                                                            <span class="text-white text-xs">{{ $count }} File (Termasuk PDF)</span>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @else
-                                                <div class="bg-gradient-secondary d-flex align-items-center justify-content-center"
-                                                     style="height: 200px; border-radius: 0.75rem;">
-                                                    <i class="fa-solid fa-image text-white fa-3x"></i>
-                                                </div>
-                                            @endif
-                                        </a>
-                                    </div>
-
-                                    <div class="card-body px-3 pt-2 pb-3">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <span class="badge badge-sm bg-gradient-info">{{ $data->jenis_kegiatan }}</span>
-                                            <div class="dropdown">
-                                                <a href="javascript:;" class="text-secondary" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    <i class="fas fa-ellipsis-v text-xs"></i>
-                                                </a>
-                                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-                                                    <li><a class="dropdown-item" href="{{ route('admin.dokumentasi-kegiatan.edit', $data->id) }}">Edit</a></li>
-                                                    <li><a class="dropdown-item text-danger delete-btn" href="javascript:;" data-id="{{ $data->id }}" data-judul="{{ $data->judul }}">Hapus</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        
-                                        <h6 class="mb-1 text-dark">{{ Str::limit($data->judul, 40) }}</h6>
-                                        
-                                        <div class="d-flex align-items-center text-sm text-muted mb-1">
-                                            <i class="fas fa-map-marker-alt me-2 text-xs"></i>
-                                            {{ $data->lokasi ?? '—' }}
-                                        </div>
-                                        <div class="d-flex align-items-center text-sm text-muted">
-                                            <i class="fas fa-calendar-alt me-2 text-xs"></i>
-                                            {{ $data->tanggal ? $data->tanggal->format('d M Y') : '—' }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="col-12 text-center py-5">
-                                <i class="fa-solid fa-folder-open fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">Belum ada dokumentasi kegiatan.</p>
-                                <a href="{{ route('admin.dokumentasi-kegiatan.create') }}" class="btn btn-primary mt-2">+ Tambah Dokumentasi</a>
-                            </div>
-                        @endforelse
+<div class="modal fade" id="gridGalleryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content modal-gallery-content shadow-lg border-0">
+            <div class="modal-body p-0">
+                
+                <div class="image-grid-container" id="modalGridContent">
                     </div>
 
-                    {{-- Pagination --}}
-                    <div class="d-flex justify-content-center mt-4">
-                        {{ $dokumentasiData->links() }}
+                <div class="p-4 text-white">
+                    <h4 class="text-white text-uppercase font-weight-bolder mb-3" id="modalGridJudul"></h4>
+                    
+                    <div class="mb-1 text-sm">
+                        <span class="label-green">Unit / Jenis:</span>
+                        <span class="ms-2" id="modalGridJenis"></span>
+                    </div>
+                    
+                    <div class="mb-3 text-sm">
+                        <span class="label-green">Lokasi:</span>
+                        <span class="ms-2" id="modalGridLokasi"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 border-top pt-3 border-secondary">
+                        <small class="opacity-7">
+                            <i class="fas fa-calendar-alt me-1"></i> <span id="modalGridTanggal"></span>
+                        </small>
+                        <small class="font-weight-bold opacity-7">PT NUSA KARYA ARINDO</small>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-white btn-sm px-5" data-bs-dismiss="modal">TUTUP</button>
                     </div>
                 </div>
             </div>
@@ -132,42 +170,35 @@
     </div>
 </div>
 
-{{-- MODAL HAPUS --}}
-<div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Konfirmasi Hapus</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                Apakah Anda yakin ingin menghapus dokumentasi: <br>
-                <strong id="dokumenJudul" class="text-danger"></strong>?
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                <form id="deleteForm" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Hapus Permanen</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.body.addEventListener('click', function (e) {
-        if (e.target.closest('.delete-btn')) {
-            const btn = e.target.closest('.delete-btn');
-            document.getElementById('dokumenJudul').textContent = btn.getAttribute('data-judul');
-            document.getElementById('deleteForm').action = '/admin/dokumentasi-kegiatan/' + btn.getAttribute('data-id');
-            new bootstrap.Modal(document.getElementById('deleteModal')).show();
-        }
-    });
-});
+function openGridModal(files, judul, jenis, lokasi, tanggal) {
+    const gridContent = document.getElementById('modalGridContent');
+    gridContent.innerHTML = ''; // Reset isi grid
+
+    if (files && files.length > 0) {
+        files.forEach((file) => {
+            // Menambahkan setiap gambar ke dalam container grid
+            gridContent.innerHTML += `
+                <a href="/storage/${file}" target="_blank">
+                    <img src="/storage/${file}" class="grid-item-img" title="Klik untuk memperbesar">
+                </a>
+            `;
+        });
+    } else {
+        gridContent.innerHTML = '<div class="w-100 text-center p-4 text-white">Tidak ada foto tersedia</div>';
+    }
+
+    // Update Text Detail
+    document.getElementById('modalGridJudul').innerText = judul;
+    document.getElementById('modalGridJenis').innerText = jenis;
+    document.getElementById('modalGridLokasi').innerText = lokasi;
+    document.getElementById('modalGridTanggal').innerText = tanggal;
+
+    // Tampilkan Modal
+    var myModal = new bootstrap.Modal(document.getElementById('gridGalleryModal'));
+    myModal.show();
+}
 </script>
 @endpush
 
