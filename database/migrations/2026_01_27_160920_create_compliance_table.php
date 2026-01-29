@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('complience', function (Blueprint $table) {
+        Schema::create('compliance', function (Blueprint $table) {
             $table->id();
             $table->string('ReportedBy');
             $table->string('Departemen');
@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('Severity', ['Low', 'Medium', 'High', 'Critical']);
             $table->string('ResolvedBy');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('complience');
+        Schema::dropIfExists('compliance');
     }
 };

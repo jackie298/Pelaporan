@@ -111,21 +111,46 @@
                 </a>
             </li>
 
-            {{-- ================= REVEGETASI ================= --}}
+            {{-- ================= MENU REVEGETASI (COLLAPSE) ================= --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('revegetasi') ? 'active' : '' }}"
-                   href="{{ url('revegetasi') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('revegetasi') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-
-                        <i class="fa-solid fa-tree
-                           {{ Request::is('revegetasi') ? 'text-white' : 'text-dark' }}"></i>
+                <a data-bs-toggle="collapse" 
+                   href="#revegetasiMenu" 
+                   class="nav-link {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'active' : '' }}" 
+                   aria-controls="revegetasiMenu" 
+                   role="button" 
+                   aria-expanded="{{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'true' : 'false' }}">
+                    
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'bg-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-tree {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'text-white' : 'text-dark' }}" 
+                           style="top: 0; font-size: 0.8rem;"></i>
                     </div>
-
-                    <span class="nav-link-text ms-1">Revegetasi</span>
+                    
+                    <span class="nav-link-text ms-1 {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'font-weight-bold' : '' }}">Revegetasi</span>
                 </a>
+
+                <div class="collapse {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'show' : '' }}" id="revegetasiMenu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
+                        
+                        {{-- SUBMENU: REALISASI --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('revegetasi') || Request::is('revegetasi/create') || Request::is('revegetasi/*/edit') ? 'active' : '' }}" 
+                               href="{{ route('revegetasi') }}">
+                                <span class="dot-indicator {{ Request::is('revegetasi') || Request::is('revegetasi/create') || Request::is('revegetasi/*/edit') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Realisasi Lapangan </span>
+                            </a>
+                        </li>
+
+                        {{-- SUBMENU: RENCANA --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('rencana-revegetasi*') ? 'active' : '' }}" 
+                               href="{{ route('rencana-revegetasi') }}">
+                                <span class="dot-indicator {{ Request::is('rencana-revegetasi*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Rencana Bulanan </span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
             </li>
 
             {{-- ================= NURSERY ================= --}}
@@ -163,15 +188,15 @@
             </li>
             {{-- ================= COMPLIANCE ================= --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('complience*') ? 'active' : '' }}"
-                href="{{ route('complience') }}">
+                <a class="nav-link {{ Request::is('compliance*') ? 'active' : '' }}"
+                href="{{ route('compliance') }}">
 
                     <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('complience*') ? 'bg-primary' : 'bg-white' }}
+                        {{ Request::is('compliance*') ? 'bg-primary' : 'bg-white' }}
                         text-center me-2 d-flex align-items-center justify-content-center">
 
                         <i class="fa-solid fa-clipboard-check
-                        {{ Request::is('complience*') ? 'text-white' : 'text-dark' }}"></i>
+                        {{ Request::is('compliance*') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
 
                     <span class="nav-link-text ms-1">Compliance</span>
@@ -202,36 +227,46 @@
                 </a>
             </li>
 
-            {{-- ================= DAFTAR ALAT ================= --}}
+            {{-- ================= MENU MANAJEMEN ALAT ================= --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('admin/equipment-list*') ? 'active' : '' }}"
-                   href="{{ route('admin.equipment-list') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('admin/equipment-list*') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fa-solid fa-truck-monster
-                            {{ Request::is('admin/equipment-list*') ? 'text-white' : 'text-dark' }}"></i>
+                <a data-bs-toggle="collapse" 
+                href="#alatMenu" 
+                class="nav-link {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'active' : '' }}" 
+                aria-controls="alatMenu" 
+                role="button" 
+                aria-expanded="{{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'true' : 'false' }}">
+                    
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-screwdriver-wrench {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'text-white' : 'text-dark' }}" 
+                        style="top: 0; font-size: 0.8rem;"></i>
                     </div>
-
-                    <span class="nav-link-text ms-1">Daftar Alat</span>
+                    
+                    <span class="nav-link-text ms-1 {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'font-weight-bold' : '' }}">Manajemen Alat</span>
                 </a>
-            </li>
 
-            {{-- ================= JAM KERJA ================= --}}
-            <li class="nav-item">
-                <a class="nav-link {{ Request::is('admin/work-hours*') ? 'active' : '' }}"
-                   href="{{ route('admin.work-hours') }}">
+                <div class="collapse {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'show' : '' }}" id="alatMenu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
+                        
+                        {{-- SUBMENU: DAFTAR ALAT --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/equipment-list*') ? 'active' : '' }}" 
+                            href="{{ route('admin.equipment-list') }}">
+                                <span class="dot-indicator {{ Request::is('admin/equipment-list*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Daftar Alat </span>
+                            </a>
+                        </li>
 
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('admin/work-hours*') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="fas fa-clock
-                            {{ Request::is('admin/work-hours*') ? 'text-white' : 'text-dark' }}"></i>
-                    </div>
-
-                    <span class="nav-link-text ms-1">Jam Kerja</span>
-                </a>
+                        {{-- SUBMENU: JAM KERJA --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('admin/work-hours*') ? 'active' : '' }}" 
+                            href="{{ route('admin.work-hours') }}">
+                                <span class="dot-indicator {{ Request::is('admin/work-hours*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Jam Kerja </span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
             </li>
         </ul>
     </div>

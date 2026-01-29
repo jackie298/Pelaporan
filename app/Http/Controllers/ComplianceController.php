@@ -2,23 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Complience;
+use App\Models\Compliance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 
-class ComplienceController extends Controller
+class ComplianceController extends Controller
 {
     /**
      * Tampilkan daftar dokumen compliance
      */
     public function index()
     {
-        $compliences = Complience::with('creator')
-            ->latest()
-            ->get();
-
-        return view('complience.index', compact('compliences'));
+        $compliances = Compliance::latest()->get();
+        
+        return view('compliance.index', compact('compliances'));
     }
 
     /**
@@ -26,74 +23,27 @@ class ComplienceController extends Controller
      */
     public function create()
     {
-        return view('complience.create');
+        return view('compliance.create');
     }
 
     /**
-     * Simpan dokumen compliance baru
+     * Simpan dokumen compliance
      */
     public function store(Request $request)
     {
         $request->validate([
             'ReportedBy' => 'required|string|max:255',
-            'Departemen' => 'required|string|max:100',
-            'Location' => 'nullable|string|max:100',
-            'IncidentType' => 'required|string|max:100',
-            'ComplianceType' => 'required|string|max:100',
+            'Departemen' => 'required|in:HSE,Produksi,HRD,Maintenance,Lainnya',
+            'Location' => 'required|string|max:255',
+            'IncidentType' => 'required|string|max:255',
+            'ComplianceType' => 'required|in:Internal,"Eksternal/Regulasi",Audit',
             'Date_reported' => 'required|date',
             'Status' => 'required|in:Escalated,Pending,Resolved,Open',
             'Severity' => 'required|in:Low,Medium,High,Critical',
-            'ResolvedBy' => 'nullable|string|max:255',
+            'ResolvedBy' => 'required|string|max:255',
         ]);
 
-        $data = [
-            'ReportedBy' => $request->ReportedBy,
-            'Departemen' => $request->Departemen,
-            'Location' => $request->Location,
-            'IncidentType' => $request->IncidentType,
-            'ComplianceType' => $request->ComplianceType,
-            'Date_reported' => $request->Date_reported,
-            'Status' => $request->Status, 
-            'Severity' => $request->Severity,
-            'ResolvedBy' => $request->ResolvedBy,
-            'created_by' => Auth::id(),
-        ];
-
-        Complience::create($data);
-
-        return redirect()
-            ->route('complience')
-            ->with('success', 'Dokumen compliance berhasil ditambahkan.');
-    }
-
-    /**
-     * Tampilkan form edit
-     */
-    public function edit($id)
-    {
-        $complience = Complience::findOrFail($id);
-        return view('complience.edit', compact('complience'));
-    }
-
-    /**
-     * Perbarui data compliance
-     */
-    public function update(Request $request, $id)
-    {
-        $complience = Complience::findOrFail($id);
-
-        $request->validate([
-            'ReportedBy' => 'required|string|max:255',
-            'Departemen' => 'required|string|max:100',
-            'Location' => 'nullable|string|max:100',
-            'IncidentType' => 'required|string|max:100',
-            'ComplianceType' => 'required|string|max:100',
-            'Date_reported' => 'required|date',
-            'Status' => 'required|in:Escalated,Pending,Resolved,Open',
-            'Severity' => 'required|in:Low,Medium,High,Critical',
-            'ResolvedBy' => 'nullable|string|max:255',
-        ]);
-        $data = [
+        Compliance::create([
             'ReportedBy' => $request->ReportedBy,
             'Departemen' => $request->Departemen,
             'Location' => $request->Location,
@@ -103,27 +53,68 @@ class ComplienceController extends Controller
             'Status' => $request->Status,
             'Severity' => $request->Severity,
             'ResolvedBy' => $request->ResolvedBy,
-        ];
-
-       
-        $complience->update($data);
+        ]);
 
         return redirect()
-            ->route('complience')
+            ->route('compliance')
+            ->with('success', 'Dokumen compliance berhasil disimpan.');
+    }
+
+    /**
+     * Tampilkan form edit dokumen compliance
+     */
+    public function edit($id)
+    {
+        $data = Compliance::findOrFail($id);
+        return view('compliance.edit', compact('data'));
+    }
+
+    /**
+     * Perbarui dokumen compliance
+     */
+    public function update(Request $request, $id)
+    {
+        $data = Compliance::findOrFail($id);
+
+        $request->validate([
+            'ReportedBy' => 'required|string|max:255',
+            'Departemen' => 'required|in:HSE,Produksi,HRD,Maintenance,Lainnya',
+            'Location' => 'required|string|max:255',
+            'IncidentType' => 'required|string|max:255',
+            'ComplianceType' => 'required|in:Internal,"Eksternal/Regulasi",Audit',
+            'Date_reported' => 'required|date',
+            'Status' => 'required|in:Escalated,Pending,Resolved,Open',
+            'Severity' => 'required|in:Low,Medium,High,Critical',
+            'ResolvedBy' => 'required|string|max:255',
+        ]);
+
+        $data->update([
+            'ReportedBy' => $request->ReportedBy,
+            'Departemen' => $request->Departemen,
+            'Location' => $request->Location,
+            'IncidentType' => $request->IncidentType,
+            'ComplianceType' => $request->ComplianceType,
+            'Date_reported' => $request->Date_reported,
+            'Status' => $request->Status,
+            'Severity' => $request->Severity,
+            'ResolvedBy' => $request->ResolvedBy,
+        ]);
+
+        return redirect()
+            ->route('compliance')
             ->with('success', 'Dokumen compliance berhasil diperbarui.');
     }
 
     /**
-     * Hapus data (soft delete jika pakai softDeletes, atau hard delete)
+     * Hapus dokumen compliance
      */
     public function destroy($id)
     {
-        $complience = Complience::findOrFail($id);
-
-        $complience->delete();
+        $data = Compliance::findOrFail($id);
+        $data->delete();
 
         return redirect()
-            ->route('complience')
+            ->route('compliance')
             ->with('success', 'Dokumen compliance berhasil dihapus.');
     }
 }

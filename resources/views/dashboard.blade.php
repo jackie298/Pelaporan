@@ -168,6 +168,69 @@
     </div>
 </div>
 
+{{-- Revegetasi --}}
+<div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+        <div class="card z-index-2">
+            <div class="card-header pb-0">
+                <h6>Grafik Monitoring Revegetasi</h6>
+                <p class="text-sm mb-0">
+                    <i class="fa fa-arrow-up text-success"></i>
+                    <span class="font-weight-bold">Total Pohon</span> per Lokasi
+                </p>
+            </div>
+            <div class="card-body p-3">
+                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+                    <div class="chart">
+                        <canvas id="chart-revegetasi" class="chart-canvas" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Grafik Nursery --}}
+<div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+        <div class="card z-index-2">
+            <div class="card-header pb-0">
+                <h6>Status Pembibitan (Nursery)</h6>
+                <p class="text-sm mb-0">
+                    <i class="fa fa-leaf text-success"></i>
+                    <span class="font-weight-bold">Total Bibit</span> Berdasarkan Jenis Tanaman
+                </p>
+            </div>
+            <div class="card-body p-3">
+                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+                    <div class="chart">
+                        <canvas id="chart-nursery" class="chart-canvas" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{-- RENCANA DAN REALISASI --}}
+<div class="row mt-4">
+    <div class="col-lg-12">
+        <div class="card z-index-2">
+            <div class="card-header pb-0">
+                <h6>Performa Revegetasi Tahun {{ date('Y') }}</h6>
+                <p class="text-sm">
+                    <i class="fa fa-arrow-up text-success"></i>
+                    <span class="font-weight-bold">Rencana dan Realisasi</span> Penanaman Bibit
+                </p>
+            </div>
+            <div class="card-body p-3">
+                <div class="chart">
+                    <canvas id="chart-revegetasi-rencana" class="chart-canvas" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- RITASE DAN JAM KERJA ALAT --}}
 <div class="row mt-4">
     <div class="col-lg-12 mb-lg-0 mb-4">
@@ -239,68 +302,6 @@
   </div>
 </div>
 
-{{-- Detail Reklamasi --}}
-<div class="row mt-4">
-    <div class="col-lg-12 mb-lg-0 mb-4">
-        <div class="card z-index-2">
-            <div class="card-header pb-0">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0">Detail Reklamasi</h6>
-                </div>
-
-                <div class="row mt-2 mb-3">
-                    <div class="col-md-6">
-                        <label class="text-sm text-white">Tahun</label>
-                        <select class="form-control">
-                            <option value="">Pilih Tahun</option>
-                            <option>2022</option>
-                            <option>2023</option>
-                            <option>2024</option>
-                            <option>2025</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="text-sm text-white">Lokasi</label>
-                        <select class="form-control">
-                            <option value="">Pilih Lokasi</option>
-                            <option>Lokasi 1</option>
-                            <option>Lokasi 2</option>
-                            <option>Lokasi 3</option>
-                            <option>Lokasi 4</option>
-                        </select>
-                    </div>
-                </div>
-                <p class="text-sm mt-2 mb-0">
-                    <span class="me-3">
-                        <i class="fa-solid fa-circle text-info"></i>
-                        <span class="ms-1">Lokasi 1</span>
-                    </span>
-                    <span>
-                        <i class="fa-solid fa-circle text-success"></i>
-                        <span class="ms-1">Lokasi 2</span>
-                    </span>
-                    <span>
-                        <i class="fa-solid fa-circle text-danger"></i>
-                        <span class="ms-1">Lokasi 3</span>
-                    </span>
-                    <span>
-                        <i class="fa-solid fa-circle text-primary"></i>
-                        <span class="ms-1">Lokasi 4</span>
-                    </span>
-                </p>
-            </div>
-            <div class="card-body p-3">
-                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
-                    <div class="chart">
-                        <canvas id="chart-bars2" class="chart-canvas" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 @endsection
 @push('dashboard')
 <script>
@@ -342,7 +343,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         color: "#fff",
                         font: { size: 14, family: "Open Sans", weight: "bold" },
                         padding: { bottom: 10 }
-                    }, // <--- This was closing too late in your code
+                    }, 
                     grid: {
                         drawBorder: false,
                         display: true,
@@ -409,13 +410,234 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    // CHART REVEGETASI 
+    var ctxRev = document.getElementById("chart-revegetasi").getContext("2d");
+
+    new Chart(ctxRev, {
+        type: "bar",
+        data: {
+            labels: {!! json_encode($revegetasiLabels) !!},
+            datasets: [{
+                label: "Jumlah Pohon",
+                tension: 0.4,
+                borderWidth: 0,
+                borderRadius: 4,
+                borderSkipped: false,
+                backgroundColor: "rgba(255, 255, 255, .8)",
+                data: {!! json_encode($revegetasiValues) !!},
+                maxBarThickness: 50
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false,
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            },
+            scales: {
+                y: {
+                    // PENAMBAHAN NAMA LABEL SUMBU Y
+                    title: {
+                        display: true,
+                        text: 'Jumlah Pohon (Batang)',
+                        color: '#fff',
+                        font: {
+                            size: 14,
+                            family: "Open Sans",
+                            weight: "bold"
+                        }
+                    },
+                    grid: {
+                        drawBorder: false,
+                        display: true,
+                        drawOnChartArea: true,
+                        drawTicks: false,
+                        borderDash: [5, 5],
+                        color: 'rgba(255, 255, 255, .2)'
+                    },
+                    ticks: {
+                        suggestedMin: 0,
+                        beginAtZero: true,
+                        padding: 10,
+                        font: {
+                            size: 11,
+                            family: "Open Sans",
+                        },
+                        color: "#fff"
+                    },
+                },
+                x: {
+                    // PENAMBAHAN NAMA LABEL SUMBU X
+                    title: {
+                        display: true,
+                        text: 'Lokasi Revegetasi',
+                        color: '#fff',
+                        font: {
+                            size: 14,
+                            family: "Open Sans",
+                            weight: "bold"
+                        }
+                    },
+                    grid: {
+                        drawBorder: false,
+                        display: false,
+                        drawOnChartArea: false,
+                        drawTicks: false
+                    },
+                    ticks: {
+                        display: true,
+                        color: '#f8f9fa',
+                        padding: 10,
+                        font: {
+                            size: 11,
+                            family: "Open Sans",
+                        },
+                    }
+                },
+            },
+        },
+    });
+
+    // CHART RENCANA DAN REALISASI REVEGETASI
+    var ctx3 = document.getElementById("chart-revegetasi-rencana").getContext("2d");
+
+    // Membuat gradien untuk area di bawah garis
+    var gradientStroke1 = ctx3.createLinearGradient(0, 230, 0, 50);
+    gradientStroke1.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
+    gradientStroke1.addColorStop(0.2, 'rgba(94, 114, 228, 0.0)');
+    gradientStroke1.addColorStop(0, 'rgba(94, 114, 228, 0)');
+
+    new Chart(ctx3, {
+    type: "line",
+    data: {
+        labels: @json($monthsFull),
+        datasets: [
+        {
+            label: "Realisasi Aktual",
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 4,
+            pointBackgroundColor: "#5e72e4",
+            pointBorderColor: "#fff",
+            borderColor: "#5e72e4", // Warna Biru Terang
+            fill: true,
+            backgroundColor: gradientStroke1, // Menggunakan gradien
+            data: @json($dataChartRealisasi),
+        },
+        {
+            label: "Target Rencana",
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 0,
+            borderColor: "#adb5bd", // Warna Abu-abu
+            borderDash: [5, 5], // Garis Putus-putus
+            fill: false,
+            data: @json($dataChartRencana),
+        },
+        ],
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+        legend: { display: true, position: 'top', align: 'end' }
+        },
+        scales: {
+        y: {
+            title: {
+            display: true,
+            text: 'Jumlah Bibit', // Label Sumbu Y
+            color: '#8898aa',
+            font: {
+                size: 12,
+                family: 'Open Sans',
+                style: 'italic'
+            },
+            padding: { bottom: 10 }
+            },
+            grid: { drawBorder: false, display: true, drawOnChartArea: true, drawTicks: false, borderDash: [5, 5] },
+            ticks: { 
+                display: true, 
+                padding: 10, 
+                color: '#b2b9bf',
+                stepSize: 1000 // Menyesuaikan agar skala rapi (misal per 1000)
+            }
+        },
+        x: {
+            grid: { drawBorder: false, display: false, drawOnChartArea: false, drawTicks: false },
+            ticks: { display: true, color: '#b2b9bf', padding: 20 }
+        },
+        },
+    },
+    });
+
+    // CHART NURSERY
+    var ctxNur = document.getElementById("chart-nursery").getContext("2d");
+
+    new Chart(ctxNur, {
+        type: "bar",
+        data: {
+            labels: {!! json_encode($nurseryLabels ?? []) !!},
+            datasets: [{
+                label: "Jumlah Bibit",
+                tension: 0.4,
+                borderWidth: 0,
+                borderRadius: 4,
+                borderSkipped: false,
+                backgroundColor: "#2dce89", // Warna hijau sukses
+                data: {!! json_encode($nurseryValues ?? []) !!},
+                maxBarThickness: 50
+            }],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Jumlah (Batang)',
+                        color: '#fff',
+                        font: { size: 14, weight: 'bold' }
+                    },
+                    grid: {
+                        drawBorder: false,
+                        display: true,
+                        drawOnChartArea: true,
+                        borderDash: [5, 5],
+                        color: 'rgba(255, 255, 255, .2)'
+                    },
+                    ticks: { color: "#fff" }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Jenis Tanaman',
+                        color: '#fff',
+                        font: { size: 14, weight: 'bold' }
+                    },
+                    ticks: { color: '#f8f9fa' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
 
     // CHART RITASE DAN JAM KERJA
     var ctx4 = document.getElementById("chart-ritase").getContext("2d");
     new Chart(ctx4, {
         type: "bar",
         data: {
-            labels: {!! json_encode($labels) !!},
+            labels: {!! json_encode($ritaseLabels) !!},
             datasets: [
                 @foreach ($kodealat as $id => $kode)
                 {

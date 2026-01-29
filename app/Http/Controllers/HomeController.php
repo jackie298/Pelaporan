@@ -9,8 +9,11 @@ use App\Models\Equipment;
 use App\Models\WasteWaterManagement;
 use App\Models\Reklamasi;
 use App\Models\BukaanLahan;
+use App\Models\Revegetasi;
+use App\Models\Nursery;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class HomeController extends Controller
@@ -30,7 +33,7 @@ class HomeController extends Controller
         $kodealat = Equipment::pluck('kode', 'id')->toArray();
 
         // Data Work Hours (Grafik Existing)
-        $labels = workhours::orderBy('tanggal')
+        $ritaseLabels = workhours::orderBy('tanggal')
                 ->pluck('tanggal')
                 ->unique()
                 ->map(function ($item) {
@@ -89,11 +92,54 @@ class HomeController extends Controller
         $tssValues = $wasteWaterRaw->pluck('tss'); // Mengambil kolom tss
         $bmTss = 200; // Baku Mutu TSS adalah 200 mg/L
 
+        // Mengambil data jumlah tanaman dikelompokkan berdasarkan lokasi
+        $dataRevegetasi = Revegetasi::select('lokasi_revegetasi')
+            ->selectRaw('SUM(jumlah_tanaman) as total_pohon')
+            ->groupBy('lokasi_revegetasi')
+            ->get();
+
+        $revegetasiLabels = $dataRevegetasi->pluck('lokasi_revegetasi'); // Sumbu X
+        $revegetasiValues = $dataRevegetasi->pluck('total_pohon');      // Sumbu Y
+
+        // Ambil data Nursery
+        $nurseryData = Nursery::selectRaw('jenis_tanaman, SUM(jumlah_bibit) as total_bibit')
+            ->groupBy('jenis_tanaman')
+            ->get();
+
+        $nurseryLabels = $nurseryData->pluck('jenis_tanaman')->toArray();
+        $nurseryValues = $nurseryData->pluck('total_bibit')->toArray();
+
+        $currentYear = date('Y');
+
+        // Ambil data rencana 12 bulan (Jan-Des)
+        $rencanaRevegetasi = DB::table('rencana_revegetasis')
+            ->where('tahun', $currentYear)
+            ->orderBy('bulan', 'asc')
+            ->pluck('target_bibit', 'bulan')
+            ->toArray();
+
+        // Ambil data realisasi bulanan (SUM jumlah_tanaman)
+        $realisasiBulanan = Revegetasi::selectRaw('MONTH(tanggal_monitoring) as bulan, SUM(jumlah_tanaman) as total')
+            ->whereYear('tanggal_monitoring', $currentYear)
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan')
+            ->toArray();
+
+        // Mapping data untuk 12 Bulan (Januari s/d Desember)
+        $monthsFull = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        $dataChartRencana = [];
+        $dataChartRealisasi = [];
+
+        for ($m = 1; $m <= 12; $m++) {
+            $dataChartRencana[] = $rencanaRevegetasi[$m] ?? 0;
+            $dataChartRealisasi[] = $realisasiBulanan[$m] ?? 0;
+        }
+
         return view('dashboard', compact(
             'documentContracts', 
             'statuscount', 
             'kodealat', 
-            'labels', 
+            'ritaseLabels', 
             'chartData',
             'reklamasiLabels',
             'finalBukaanValues',
@@ -104,7 +150,14 @@ class HomeController extends Controller
             'bmBawah',
             'tssLabels', 
             'tssValues', 
-            'bmTss'   
+            'bmTss',
+            'revegetasiLabels',
+            'revegetasiValues',
+            'nurseryLabels',
+            'nurseryValues',
+            'monthsFull',
+            'dataChartRencana',
+            'dataChartRealisasi'   
         ));
     }
 }

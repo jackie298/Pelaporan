@@ -17,7 +17,7 @@
                         <div>
                             <h5 class="mb-0">Daftar Dokumen Compliance</h5>
                         </div>
-                        <a href="{{ route('complience.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
+                        <a href="{{ route('compliance.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
                             +&nbsp; Tambah Data
                         </a>
                     </div>
@@ -32,22 +32,19 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Departemen</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Location</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Incident Type</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Compliance Type</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date Reported</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Status</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">Severity</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Resolved By</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Aksi</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($compliences as $data)
+                                @forelse ($compliances as $data)
                                 <tr>
                                     <td class="ps-3">
                                         <p class="text-xs font-weight-bold mb-0">{{ $loop->iteration }}</p>
                                     </td>
                                     <td>
-                                        <p class="text-xs font-weight-bold mb-0 text-wrap" style="min-width: 150px;">
+                                        <p class="text-xs font-weight-bold mb-0 text-wrap" style="min-width: 120px;">
                                             {{ $data->ReportedBy ?? '—' }}
                                         </p>
                                     </td>
@@ -66,36 +63,41 @@
                                             {{ $data->IncidentType ?? '—' }}
                                         </p>
                                     </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">
-                                            {{ $data->ComplianceType ?? '—' }}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">
-                                            {{ $data->Date_reported ? \Carbon\Carbon::parse($data->Date_reported)->format('d M Y') : '—' }}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">
+                                    <td class="text-center">
+                                        <span class="badge badge-sm 
+                                            @if($data->Status === 'Resolved') bg-success
+                                            @elseif($data->Status === 'Open') bg-info
+                                            @elseif($data->Status === 'In Progress') bg-warning text-dark
+                                            @else bg-danger @endif">
                                             {{ $data->Status ?? '—' }}
-                                        </p>
+                                        </span>
                                     </td>
                                     <td class="text-center d-none d-md-table-cell">
-                                        <p class="text-xs font-weight-bold mb-0">
+                                        <span class="badge badge-sm 
+                                            @if($data->Severity === 'Low') bg-success
+                                            @elseif($data->Severity === 'Medium') bg-warning text-dark
+                                            @elseif($data->Severity === 'High') bg-danger
+                                            @else bg-danger @endif">
                                             {{ $data->Severity ?? '—' }}
-                                        </p>
+                                        </span>
                                     </td>
                                     <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0">
-                                            {{ $data->ResolvedBy ?? '—' }}
-                                        </p>
+                                        <a href="{{ route('compliance.edit', $data->id) }}" class="mx-1" title="Edit">
+                                            <i class="fas fa-edit text-info"></i>
+                                        </a>
+                                        <button 
+                                            type="button" 
+                                            class="mx-1 delete-btn" 
+                                            data-id="{{ $data->id }}"
+                                            data-nama="{{ $data->ReportedBy }}"
+                                            title="Hapus">
+                                            <i class="fas fa-trash text-danger"></i>
+                                        </button>
                                     </td>
-                                    
-                                    
+                                </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">
+                                    <td colspan="8" class="text-center text-muted py-4">
                                         Belum ada dokumen compliance.
                                     </td>
                                 </tr>
@@ -118,7 +120,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus dokumen compliance <strong id="equipmentName"></strong>?</p>
+                <p>Apakah Anda yakin ingin menghapus dokumen compliance dari <strong id="equipmentName"></strong>?</p>
                 <p class="text-muted">Ini akan menghapus data secara permanen.</p>
             </div>
             <div class="modal-footer">
@@ -165,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const nama = button.getAttribute('data-nama');
 
             document.getElementById('equipmentName').textContent = nama;
-            document.getElementById('deleteForm').action = '/complience/' + id;
+            document.getElementById('deleteForm').action = '/compliance/' + id;
 
             const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
             modal.show();
@@ -177,10 +179,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const successModal = new bootstrap.Modal(document.getElementById('successModal'));
         successModal.show();
 
-        // Opsional: reload setelah tutup (atau biarkan tanpa reload)
-        // document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
-        //     window.location.reload();
-        // });
+        document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+            window.location.reload();
+        });
     @endif
 });
 </script>
