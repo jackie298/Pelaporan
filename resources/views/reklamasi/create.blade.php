@@ -95,6 +95,54 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            {{-- JENIS TANAMAN --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Jenis Tanaman</label>
+                                <select name="jenis_tanaman"
+                                        class="form-select @error('jenis_tanaman') is-invalid @enderror">
+                                    <option value="">-- Pilih Jenis Tanaman --</option>
+                                    <option value="pionir" {{ old('jenis_tanaman') == 'pionir' ? 'selected' : '' }}>
+                                        Pionir
+                                    </option>
+                                    <option value="lokal" {{ old('jenis_tanaman') == 'lokal' ? 'selected' : '' }}>
+                                        Lokal
+                                    </option>
+                                    <option value="covercrop" {{ old('jenis_tanaman') == 'covercrop' ? 'selected' : '' }}>
+                                        Covercrop
+                                    </option>
+                                </select>
+                                @error('jenis_tanaman')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- PUPUK --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Pupuk</label>
+                                <input type="text"
+                                       name="pupuk"
+                                       value="{{ old('pupuk') }}"
+                                       class="form-control @error('pupuk') is-invalid @enderror"
+                                       placeholder="Contoh: Urea, SP36">
+
+                                @error('pupuk')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- JUMLAH TANAMAN --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Jumlah Tanaman</label>
+                                <input type="number"
+                                       name="jumlah_tanaman"
+                                       value="{{ old('jumlah_tanaman') }}"
+                                       class="form-control @error('jumlah_tanaman') is-invalid @enderror"
+                                       placeholder="Contoh: 100">
+
+                                @error('jumlah_tanaman')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
 
                             {{-- ALAT BERAT DIGUNAKAN --}}
                             <div class="col-md-6 mb-3">

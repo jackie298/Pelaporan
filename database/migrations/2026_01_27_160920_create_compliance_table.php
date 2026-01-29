@@ -22,6 +22,7 @@ return new class extends Migration
             $table->enum('Status', ['Escalated', 'Pending', 'Resolved','Open']);
             $table->enum('Severity', ['Low', 'Medium', 'High', 'Critical']);
             $table->string('ResolvedBy');
+            $table->text('file_dokumentasi')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -18,6 +18,9 @@ return new class extends Migration
             $table->decimal('luas_direklamasi', 10, 2);
             $table->string('jenis_kegiatan');
             $table->string('metode_reklamasi');
+            $table->enum('jenis_tanaman', ['pionir', 'lokal', 'covercrop']);
+            $table->string('pupuk');
+            $table->integer('jumlah_tanaman');
             $table->text('alat_berat_digunakan')->nullable();
             $table->string('izin_lingkungan')->nullable();
             $table->enum('status_kesesuaian', ['sesuai', 'tidak_sesuai']);
