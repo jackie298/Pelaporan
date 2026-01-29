@@ -10,7 +10,7 @@ class RencanaRevegetasi extends Model
     use HasFactory;
 
     // Menentukan nama tabel secara eksplisit sesuai file migrasi Anda
-    protected $table = 'rencana_revegetasis';
+    protected $table = 'rencana_revegetasi';
 
     // Kolom yang boleh diisi secara massal
     protected $fillable = [

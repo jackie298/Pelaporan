@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rencana_revegetasis', function (Blueprint $table) {
+        Schema::create('rencana_revegetasi', function (Blueprint $table) {
             $table->id();
             $table->integer('tahun');
             $table->integer('bulan'); // 1-12
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rencana_revegetasis');
+        Schema::dropIfExists('rencana_revegetasi');
     }
 };
