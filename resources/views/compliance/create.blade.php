@@ -26,16 +26,16 @@
 
                         <div class="row g-3">
 
-                            {{-- REPORTED BY --}}
+                            {{-- NAMA PELAPOR --}}
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Reported By</label>
+                                <label class="form-label">Nama Pelapor</label>
                                 <input type="text"
                                        name="ReportedBy"
                                        value="{{ old('ReportedBy') }}"
                                        class="form-control @error('ReportedBy') is-invalid @enderror"
                                        placeholder="Nama pelapor">
 
-                                @error('ReportedBy')
+                                @error('NAMA PELAPOR')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -68,53 +68,53 @@
                                 @enderror
                             </div>
 
-                            {{-- LOCATION --}}
+                            {{-- LOKASI --}}
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Location</label>
+                                <label class="form-label">lokasi</label>
                                 <input type="text"
                                        name="Location"
                                        value="{{ old('Location') }}"
                                        class="form-control @error('Location') is-invalid @enderror"
                                        placeholder="Lokasi kejadian">
 
-                                @error('Location')
+                                @error('LOKASI')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            {{-- DATE REPORTED --}}
+                            {{-- TANGGAL PELAPORAN --}}
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Date Reported</label>
+                                <label class="form-label">Tanggal Pelaporan</label>
                                 <input type="date"
                                        name="Date_reported"
                                        value="{{ old('Date_reported', date('Y-m-d')) }}"
                                        class="form-control @error('Date_reported') is-invalid @enderror">
 
-                                @error('Date_reported')
+                                @error('TANGGAL PELAPORAN')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            {{-- INCIDENT TYPE --}}
+                            {{-- JENIS INSIDEN --}}
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Incident Type</label>
+                                <label class="form-label">Jenis Insiden</label>
                                 <input type="text"
                                        name="IncidentType"
                                        value="{{ old('IncidentType') }}"
                                        class="form-control @error('IncidentType') is-invalid @enderror"
                                        placeholder="Contoh: Kecelakaan Kerja, Tumpahan Minyak">
 
-                                @error('IncidentType')
+                                @error('JENIS INSIDEN')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            {{-- COMPLIANCE TYPE --}}
+                            {{-- JENIS ISNPEKSI --}}
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Compliance Type</label>
                                 <select name="ComplianceType"
                                         class="form-select @error('ComplianceType') is-invalid @enderror">
-                                    <option value="">-- Pilih Tipe Kepatuhan --</option>
+                                    <option value="">-- Pilih Tipe Inspeksi --</option>
                                     <option value="Internal" {{ old('ComplianceType') == 'Internal' ? 'selected' : '' }}>
                                         Internal
                                     </option>
@@ -126,31 +126,31 @@
                                     </option>
                                 </select>
 
-                                @error('ComplianceType')
+                                @error('JENIS INSPEKSI')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
-                            {{-- SEVERITY --}}
+                            {{-- TINGKAT KEPARAHAN --}}
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Severity</label>
+                                <label class="form-label">Tingkat Keparahan</label>
                                 <select name="Severity"
                                         class="form-select @error('Severity') is-invalid @enderror">
                                     <option value="Low" {{ old('Severity') == 'Low' ? 'selected' : '' }}>
-                                        Low
+                                        Rendah
                                     </option>
                                     <option value="Medium" {{ old('Severity') == 'Medium' ? 'selected' : '' }}>
-                                        Medium
+                                        Sedang
                                     </option>
                                     <option value="High" {{ old('Severity') == 'High' ? 'selected' : '' }}>
-                                        High
+                                        Tinggi
                                     </option>
                                     <option value="Critical" {{ old('Severity') == 'Critical' ? 'selected' : '' }}>
-                                        Critical
+                                        Kritis
                                     </option>
                                 </select>
 
-                                @error('Severity')
+                                @error('TINGKAT KEPARAHAN')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

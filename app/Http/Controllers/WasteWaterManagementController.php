@@ -36,7 +36,7 @@ class WasteWaterManagementController extends Controller
     {
         $request->validate([
             'tanggal_sampling'   => 'required|date',
-            'lokasi_sampling'    => 'required|string|max:255',
+            'lokasi_sampling'    => 'required|in:Settling Pond Rey Nabila,Settling Pond Jetty Lama',
             'ph'                 => 'nullable|numeric|min:0|max:14',
             'tss'                => 'nullable|numeric|min:0',
             'status_kesesuaian'  => 'required|in:memenuhi,tidak_memenuhi',
@@ -76,7 +76,7 @@ class WasteWaterManagementController extends Controller
 
         $request->validate([
             'tanggal_sampling'   => 'required|date',
-            'lokasi_sampling'    => 'required|string|max:255',
+            'lokasi_sampling'    => 'required|in:Settling Pond Rey Nabila,Settling Pond Jetty Lama',
             'ph'                 => 'nullable|numeric|min:0|max:14',
             'tss'                => 'nullable|numeric|min:0',
             'status_kesesuaian'  => 'required|in:memenuhi,tidak_memenuhi',

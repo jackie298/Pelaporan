@@ -16,7 +16,7 @@ return new class extends Migration
             $table->date('tanggal_monitoring');
             $table->string('lokasi_revegetasi');
             $table->decimal('luas_area', 10, 2);
-            $table->string('jenis_vegetasi');
+            $table->enum('jenis_vegetasi', ['pionir', 'lokal', 'covercrop']);
             $table->integer('jumlah_tanaman')->nullable();
             $table->enum('tingkat_keberhasilan', ['rendah', 'sedang', 'tinggi']);
             $table->string('kondisi_tanah')->nullable();

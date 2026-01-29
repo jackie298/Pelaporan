@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('waste_water_management', function (Blueprint $table) {
             $table->id();
             $table->date('tanggal_sampling');
-            $table->string('lokasi_sampling');
+            $table->enum('lokasi_sampling', ['Settling Pond Rey Nabila', 'Settling Pond Jetty Lama']);
             $table->decimal('ph', 3, 1)->nullable();
             $table->decimal('tss', 8, 2)->nullable();
             $table->enum('status_kesesuaian', ['memenuhi', 'tidak_memenuhi']);

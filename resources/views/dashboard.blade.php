@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data: {!! json_encode($chartData[$kode] ?? []) !!},
                     backgroundColor: 
                         @php
-                            $colors = ['#11cdef', '#2dce89', '#f5365c', '#ffd600', '#9c27b0', '#8e24aa'];
+                            $colors = ['#11cdef', '#2dce89', '#f5365c', '#9c27b0', '#ffd600', '#8e24aa'];
                             echo "'" . $colors[$loop->index % count($colors)] . "'";
                         @endphp
                     ,

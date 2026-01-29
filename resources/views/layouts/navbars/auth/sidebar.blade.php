@@ -199,7 +199,7 @@
                         {{ Request::is('compliance*') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
 
-                    <span class="nav-link-text ms-1">Compliance</span>
+                    <span class="nav-link-text ms-1">Inspeksi</span>
                 </a>
             </li>
 

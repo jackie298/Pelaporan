@@ -71,11 +71,19 @@
                             {{-- JENIS VEGETASI --}}
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Jenis Vegetasi</label>
-                                <input type="text"
-                                       name="jenis_vegetasi"
-                                       value="{{ old('jenis_vegetasi') }}"
-                                       class="form-control @error('jenis_vegetasi') is-invalid @enderror"
-                                       placeholder="Contoh: Akasia, Rumput Vetiver">
+                                <select name="jenis_vegetasi"
+                                        class="form-select @error('jenis_vegetasi') is-invalid @enderror">
+                                    <option value="">-- Pilih Jenis --</option>
+                                    <option value="pionir" {{ old('jenis_vegetasi') == 'pionir' ? 'selected' : '' }}>
+                                        Pionir
+                                    </option>
+                                    <option value="lokal" {{ old('jenis_vegetasi') == 'lokal' ? 'selected' : '' }}>
+                                        Lokal
+                                    </option>
+                                    <option value="covercrop" {{ old('jenis_vegetasi') == 'covercrop' ? 'selected' : '' }}>
+                                        Covercrop
+                                    </option>
+                                </select>
 
                                 @error('jenis_vegetasi')
                                     <div class="invalid-feedback">{{ $message }}</div>

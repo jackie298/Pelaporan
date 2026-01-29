@@ -42,11 +42,16 @@
                             {{-- LOKASI SAMPLING --}}
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Lokasi Sampling</label>
-                                <input type="text"
-                                       name="lokasi_sampling"
-                                       value="{{ old('lokasi_sampling') }}"
-                                       class="form-control @error('lokasi_sampling') is-invalid @enderror"
-                                       placeholder="Contoh: Outfall IPAL, Sungai Hilir">
+                                <select name="lokasi_sampling"
+                                        class="form-select @error('lokasi_sampling') is-invalid @enderror">
+                                    <option value="">-- Pilih Lokasi --</option>
+                                    <option value="Settling Pond Rey Nabila" {{ old('lokasi_sampling') == 'Settling Pond Rey Nabila' ? 'selected' : '' }}>
+                                        Settling Pond Rey Nabila
+                                    </option>
+                                    <option value="Settling Pond Jetty Lama" {{ old('lokasi_sampling') == 'Settling Pond Jetty Lama' ? 'selected' : '' }}>
+                                        Settling Pond Jetty Lama
+                                    </option>
+                                </select>
 
                                 @error('lokasi_sampling')
                                     <div class="invalid-feedback">{{ $message }}</div>
