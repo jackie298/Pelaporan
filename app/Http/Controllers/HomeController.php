@@ -112,7 +112,7 @@ class HomeController extends Controller
         $currentYear = date('Y');
 
         // Ambil data rencana 12 bulan (Jan-Des)
-        $rencanaRevegetasi = DB::table('rencana_revegetasis')
+        $rencanaRevegetasi = DB::table('rencana_revegetasi')
             ->where('tahun', $currentYear)
             ->orderBy('bulan', 'asc')
             ->pluck('target_bibit', 'bulan')
