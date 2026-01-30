@@ -103,7 +103,7 @@
         </div>
     </div>
     <div class="col-lg-6 mb-lg-0 mb-4">
-        <div class "card z-index-2">
+        <div class="card z-index-2">
             <div class="card-header pb-0">
                 <h6>Grafik Status Dokumen</h6>
                 <p class="text-sm mb-0">
@@ -190,6 +190,28 @@
     </div>
 </div>
 
+{{-- Grafik Rata-rata Pertumbuhan Per Triwulan + Rata-rata Tahunan --}}
+<div class="row mt-4">
+    <div class="col-lg-12 mb-lg-0 mb-4">
+        <div class="card z-index-2">
+            <div class="card-header pb-0">
+                <h6>Pertumbuhan Rata² Tanaman Tahun {{ $currentYear }}</h6>
+                <p class="text-sm mb-0">
+                    <i class="fa fa-arrow-up text-success"></i>
+                    <span class="font-weight-bold">Nilai dalam cm</span>
+                </p>
+            </div>
+            <div class="card-body p-3">
+                <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
+                    <div class="chart">
+                        <canvas id="chart-monitoring-rata2" class="chart-canvas" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Grafik Nursery --}}
 <div class="row mt-4">
     <div class="col-lg-12 mb-lg-0 mb-4">
@@ -211,6 +233,7 @@
         </div>
     </div>
 </div>
+
 {{-- RENCANA DAN REALISASI --}}
 <div class="row mt-4">
     <div class="col-lg-12">
@@ -263,7 +286,6 @@
 </div>
 
 {{-- Report Ph air dan TSs --}}
-{{-- Report Ph air --}}
 <div class="row mt-4">
     <div class="col-lg-6 mb-lg-0 mb-4">
         <div class="card z-index-2">
@@ -279,7 +301,6 @@
             </div>
         </div>
     </div>
-    {{-- Report TSs --}}
     <div class="col-lg-6">
       <div class="card z-index-2">
           <div class="card-header pb-0">
@@ -303,94 +324,58 @@
 </div>
 
 @endsection
+
 @push('dashboard')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Chart Bukaan lahan dan reklamasi
-    var ctxBR = document.getElementById("chart-bukaanlahan-reklamasi").getContext("2d");
-    new Chart(ctxBR, {
-        type: "bar",
-        data: {
-            labels: {!! json_encode($reklamasiLabels) !!},
-            datasets: [{
-                    label: "Bukaan Lahan",
-                    backgroundColor: '#11cdef', // text-info
-                    data: {!! json_encode($finalBukaanValues) !!},
-                    borderRadius: 4,
-                    maxBarThickness: 35
-                },
-                {
-                    label: "Reklamasi",
-                    backgroundColor: '#2dce89', // text-success
-                    data: {!! json_encode($finalReklamasiValues) !!},
-                    borderRadius: 4,
-                    maxBarThickness: 35
-                }
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
+document.addEventListener('DOMContentLoaded', function () {
+    // === CHART BUKAAN LAHAN & REKLAMASI ===
+    var ctxBR = document.getElementById("chart-bukaanlahan-reklamasi");
+    if (ctxBR) {
+        new Chart(ctxBR.getContext("2d"), {
+            type: "bar",
+            data: {
+                labels: {!! json_encode($reklamasiLabels) !!},
+                datasets: [
+                    {
+                        label: "Bukaan Lahan",
+                        backgroundColor: '#11cdef',
+                        data: {!! json_encode($finalBukaanValues) !!},
+                        borderRadius: 4,
+                        maxBarThickness: 35
+                    },
+                    {
+                        label: "Reklamasi",
+                        backgroundColor: '#2dce89',
+                        data: {!! json_encode($finalReklamasiValues) !!},
+                        borderRadius: 4,
+                        maxBarThickness: 35
+                    }
+                ]
             },
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: "Luas (Ha)",
-                        color: "#fff",
-                        font: { size: 14, family: "Open Sans", weight: "bold" },
-                        padding: { bottom: 10 }
-                    }, 
-                    grid: {
-                        drawBorder: false,
-                        display: true,
-                        drawOnChartArea: true,
-                        drawTicks: false,
-                        borderDash: [5, 5],
-                        color: 'rgba(255, 255, 255, .2)'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        title: { display: true, text: "Luas (Ha)", color: "#fff", font: { size: 14 } },
+                        grid: { drawBorder: false, color: 'rgba(255,255,255,0.2)' },
+                        ticks: { color: '#f8f9fa', font: { size: 11 } }
                     },
-                    ticks: {
-                        display: true,
-                        padding: 10,
-                        color: '#f8f9fa',
-                        font: { size: 11, family: "Open Sans", lineHeight: 2 },
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        display: true,
-                        color: '#f8f9fa',
-                        padding: 10,
-                        font: { size: 11, family: "Open Sans", lineHeight: 2 },
-                    }
+                    x: { grid: { display: false }, ticks: { color: '#f8f9fa' } }
                 }
             }
-        }
-    });
+        });
+    }
 
-    var ctx3 = document.getElementById("chart-pie").getContext("2d");
     // === CHART PIE (Status Dokumen) ===
-    var ctx3 = document.getElementById("chart-pie");
-    if (ctx3) {
-        new Chart(ctx3.getContext("2d"), {
+    var ctxPie = document.getElementById("chart-pie");
+    if (ctxPie) {
+        new Chart(ctxPie.getContext("2d"), {
             type: "pie",
             data: {
                 labels: ["Open", "Close", "Pending", "Proses Finance", "Hold"],
                 datasets: [{
-                    label: "Status Kontrak",
-                    weight: 9,
-                    cutout: 0,
-                    tension: 0.9,
-                    pointRadius: 2,
-                    borderWidth: 2,
-                    backgroundColor: ["#11cdef", "#2dce89", "#fb6340", "#5e72e4", "#f5365c"],
                     data: [
                         {{ $statuscount['open'] ?? 0 }},
                         {{ $statuscount['close'] ?? 0 }},
@@ -398,442 +383,339 @@ document.addEventListener('DOMContentLoaded', function() {
                         {{ $statuscount['proses finance'] ?? 0 }},
                         {{ $statuscount['hold'] ?? 0 }}
                     ],
-                    fill: false
-                }],
+                    backgroundColor: ["#11cdef", "#2dce89", "#fb6340", "#5e72e4", "#f5365c"]
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+    }
+
+    // === CHART REVEGETASI (Jumlah Pohon per Lokasi) ===
+    var ctxRev = document.getElementById("chart-revegetasi");
+    if (ctxRev) {
+        new Chart(ctxRev.getContext("2d"), {
+            type: "bar",
+            data: {
+                labels: {!! json_encode($revegetasiLabels) !!},
+                datasets: [{
+                    label: "Jumlah Pohon",
+                    backgroundColor: "rgba(255, 255, 255, .8)",
+                    data: {!! json_encode($revegetasiValues) !!},
+                    borderRadius: 4,
+                    maxBarThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { title: { display: true, text: "Jumlah Pohon" }, ticks: { color: "#fff" } },
+                    x: { title: { display: true, text: "Lokasi" }, ticks: { color: "#f8f9fa" } }
+                }
+            }
+        });
+    }
+
+    // === CHART: RATA-RATA PERTUMBUHAN PER TRIWULAN (MODEL GAMBAR KE-2) ===
+    var ctxRata2 = document.getElementById("chart-monitoring-rata2");
+    if (ctxRata2) {
+        new Chart(ctxRata2.getContext("2d"), {
+            type: "line",
+            data: {
+                // Sumbu X: 0, 1, 2, 3, 4 (numerik)
+                labels: [0, 1, 2, 3, 4],
+                datasets: [{
+                    label: "Rata-rata Tinggi Tanaman (cm)",
+                    data: {!! json_encode($values) !!},
+                    borderColor: "#11cdef",      // Biru Soft UI
+                    backgroundColor: "rgba(17, 205, 223, 0.2)",
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: "#fff",
+                    pointBorderWidth: 2,
+                    pointHoverRadius: 8,
+                    // Tampilkan nilai di atas titik
+                    datalabels: {
+                        display: true,
+                        color: "#fff",
+                        font: {
+                            weight: "bold",
+                            size: 12
+                        },
+                        formatter: function(value) {
+                            return value.toFixed(2);
+                        },
+                        anchor: 'top',
+                        align: 'top'
+                    }
+                }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false }
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ": " + context.parsed.y + " cm";
+                            }
+                        }
+                    },
+                    // Plugin datalabels — pastikan Anda sudah load plugin ini
+                    datalabels: {
+                        display: true,
+                        color: "#fff",
+                        font: {
+                            weight: "bold",
+                            size: 12
+                        },
+                        formatter: function(value) {
+                            return value.toFixed(2);
+                        },
+                        anchor: 'top',
+                        align: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Tinggi (cm)",
+                            color: "#fff",
+                            font: { size: 14, family: "Open Sans", weight: "bold" }
+                        },
+                        grid: {
+                            drawBorder: false,
+                            color: "rgba(255,255,255,0.1)"
+                        },
+                        ticks: {
+                            color: "#fff",
+                            font: { size: 12, family: "Open Sans" }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Triwulan",
+                            color: "#fff",
+                            font: { size: 14, family: "Open Sans", weight: "bold" }
+                        },
+                        grid: { display: false },
+                        ticks: {
+                            color: "#fff",
+                            font: { size: 12, family: "Open" },
+                            callback: function(value) {
+                                const labels = ["Triwulan 1", "Triwulan 2", "Triwulan 3", "Triwulan 4", "Rata-rata Tahun"];
+                                return labels[value] || value;
+                            }
+                        }
+                    }
+                }
+            },
+        });
+    }
+
+    // === CHART RENCANA vs REALISASI ===
+    var ctxRencana = document.getElementById("chart-revegetasi-rencana");
+    if (ctxRencana) {
+        var gradient = ctxRencana.getContext("2d").createLinearGradient(0, 230, 0, 50);
+        gradient.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
+        gradient.addColorStop(0, 'rgba(94, 114, 228, 0)');
+
+        new Chart(ctxRencana.getContext("2d"), {
+            type: "line",
+            data: {
+                labels: {!! json_encode($monthsFull) !!},
+                datasets: [
+                    {
+                        label: "Realisasi Aktual",
+                        data: {!! json_encode($dataChartRealisasi) !!},
+                        borderColor: "#5e72e4",
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: "Target Rencana",
+                        data: {!! json_encode($dataChartRencana) !!},
+                        borderColor: "#adb5bd",
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true } },
+                scales: {
+                    y: { title: { display: true, text: "Jumlah Bibit" } },
+                    x: { ticks: { color: "#b2b9bf" } }
                 }
             }
         });
     }
-    // CHART REVEGETASI 
-    var ctxRev = document.getElementById("chart-revegetasi").getContext("2d");
 
-    new Chart(ctxRev, {
-        type: "bar",
-        data: {
-            labels: {!! json_encode($revegetasiLabels) !!},
-            datasets: [{
-                label: "Jumlah Pohon",
-                tension: 0.4,
-                borderWidth: 0,
-                borderRadius: 4,
-                borderSkipped: false,
-                backgroundColor: "rgba(255, 255, 255, .8)",
-                data: {!! json_encode($revegetasiValues) !!},
-                maxBarThickness: 50
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false,
+    // === CHART NURSERY ===
+    var ctxNursery = document.getElementById("chart-nursery");
+    if (ctxNursery) {
+        new Chart(ctxNursery.getContext("2d"), {
+            type: "bar",
+            data: {
+                labels: {!! json_encode($nurseryLabels ?? []) !!},
+                datasets: [{
+                    label: "Jumlah Bibit",
+                    backgroundColor: "#2dce89",
+                    data: {!! json_encode($nurseryValues ?? []) !!},
+                    borderRadius: 4,
+                    maxBarThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { title: { display: true, text: "Jumlah (Batang)" }, ticks: { color: "#fff" } },
+                    x: { title: { display: true, text: "Jenis Tanaman" }, ticks: { color: "#f8f9fa" } }
                 }
-            },
-            interaction: {
-                intersect: false,
-                mode: 'index',
-            },
-            scales: {
-                y: {
-                    // PENAMBAHAN NAMA LABEL SUMBU Y
-                    title: {
-                        display: true,
-                        text: 'Jumlah Pohon (Batang)',
-                        color: '#fff',
-                        font: {
-                            size: 14,
-                            family: "Open Sans",
-                            weight: "bold"
-                        }
+            }
+        });
+    }
+
+    // === CHART RITASE ===
+    var ctxRitase = document.getElementById("chart-ritase");
+    if (ctxRitase) {
+        new Chart(ctxRitase.getContext("2d"), {
+            type: "bar",
+            data: {
+                labels: {!! json_encode($ritaseLabels) !!},
+                datasets: [
+                    @foreach ($kodealat as $id => $kode)
+                    {
+                        label: "{{ $kode }}",
+                        data: {!! json_encode($chartData[$kode] ?? []) !!},
+                        backgroundColor: 
+                            @php
+                                $colors = ['#11cdef', '#2dce89', '#f5365c', '#9c27b0', '#ffd600', '#8e24aa'];
+                                echo "'" . $colors[$loop->index % count($colors)] . "'";
+                            @endphp,
+                        borderRadius: 6,
+                        maxBarThickness: 40
                     },
-                    grid: {
-                        drawBorder: false,
-                        display: true,
-                        drawOnChartArea: true,
-                        drawTicks: false,
+                    @endforeach
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, title: { display: true, text: "Jam" } },
+                    x: { ticks: { color: "#fff" } }
+                }
+            }
+        });
+    }
+
+    // === CHART PH AIR ===
+    var ctxPh = document.getElementById("chart-air");
+    if (ctxPh) {
+        new Chart(ctxPh.getContext("2d"), {
+            type: "line",
+            data: {
+                labels: {!! json_encode($phLabels) !!},
+                datasets: [
+                    {
+                        label: "PH Air",
+                        data: {!! json_encode($phValues) !!},
+                        borderColor: "#11cdef",
+                        backgroundColor: "rgba(17, 205, 223, 0.2)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: "BM Atas ({{ $bmAtas }})",
+                        data: Array({{ count($phLabels) }}).fill({{ $bmAtas }}),
+                        borderColor: "#f5365c",
                         borderDash: [5, 5],
-                        color: 'rgba(255, 255, 255, .2)'
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
                     },
-                    ticks: {
-                        suggestedMin: 0,
-                        beginAtZero: true,
-                        padding: 10,
-                        font: {
-                            size: 11,
-                            family: "Open Sans",
-                        },
-                        color: "#fff"
-                    },
-                },
-                x: {
-                    // PENAMBAHAN NAMA LABEL SUMBU X
-                    title: {
-                        display: true,
-                        text: 'Lokasi Revegetasi',
-                        color: '#fff',
-                        font: {
-                            size: 14,
-                            family: "Open Sans",
-                            weight: "bold"
-                        }
-                    },
-                    grid: {
-                        drawBorder: false,
-                        display: false,
-                        drawOnChartArea: false,
-                        drawTicks: false
-                    },
-                    ticks: {
-                        display: true,
-                        color: '#f8f9fa',
-                        padding: 10,
-                        font: {
-                            size: 11,
-                            family: "Open Sans",
-                        },
-                    }
-                },
-            },
-        },
-    });
-
-    // CHART RENCANA DAN REALISASI REVEGETASI
-    var ctx3 = document.getElementById("chart-revegetasi-rencana").getContext("2d");
-
-    // Membuat gradien untuk area di bawah garis
-    var gradientStroke1 = ctx3.createLinearGradient(0, 230, 0, 50);
-    gradientStroke1.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
-    gradientStroke1.addColorStop(0.2, 'rgba(94, 114, 228, 0.0)');
-    gradientStroke1.addColorStop(0, 'rgba(94, 114, 228, 0)');
-
-    new Chart(ctx3, {
-    type: "line",
-    data: {
-        labels: @json($monthsFull),
-        datasets: [
-        {
-            label: "Realisasi Aktual",
-            tension: 0.4,
-            borderWidth: 3,
-            pointRadius: 4,
-            pointBackgroundColor: "#5e72e4",
-            pointBorderColor: "#fff",
-            borderColor: "#5e72e4", // Warna Biru Terang
-            fill: true,
-            backgroundColor: gradientStroke1, // Menggunakan gradien
-            data: @json($dataChartRealisasi),
-        },
-        {
-            label: "Target Rencana",
-            tension: 0.4,
-            borderWidth: 2,
-            pointRadius: 0,
-            borderColor: "#adb5bd", // Warna Abu-abu
-            borderDash: [5, 5], // Garis Putus-putus
-            fill: false,
-            data: @json($dataChartRencana),
-        },
-        ],
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-        legend: { display: true, position: 'top', align: 'end' }
-        },
-        scales: {
-        y: {
-            title: {
-            display: true,
-            text: 'Jumlah Bibit', // Label Sumbu Y
-            color: '#8898aa',
-            font: {
-                size: 12,
-                family: 'Open Sans',
-                style: 'italic'
-            },
-            padding: { bottom: 10 }
-            },
-            grid: { drawBorder: false, display: true, drawOnChartArea: true, drawTicks: false, borderDash: [5, 5] },
-            ticks: { 
-                display: true, 
-                padding: 10, 
-                color: '#b2b9bf',
-                stepSize: 1000 // Menyesuaikan agar skala rapi (misal per 1000)
-            }
-        },
-        x: {
-            grid: { drawBorder: false, display: false, drawOnChartArea: false, drawTicks: false },
-            ticks: { display: true, color: '#b2b9bf', padding: 20 }
-        },
-        },
-    },
-    });
-
-    // CHART NURSERY
-    var ctxNur = document.getElementById("chart-nursery").getContext("2d");
-
-    new Chart(ctxNur, {
-        type: "bar",
-        data: {
-            labels: {!! json_encode($nurseryLabels ?? []) !!},
-            datasets: [{
-                label: "Jumlah Bibit",
-                tension: 0.4,
-                borderWidth: 0,
-                borderRadius: 4,
-                borderSkipped: false,
-                backgroundColor: "#2dce89", // Warna hijau sukses
-                data: {!! json_encode($nurseryValues ?? []) !!},
-                maxBarThickness: 50
-            }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Jumlah (Batang)',
-                        color: '#fff',
-                        font: { size: 14, weight: 'bold' }
-                    },
-                    grid: {
-                        drawBorder: false,
-                        display: true,
-                        drawOnChartArea: true,
+                    {
+                        label: "BM Bawah ({{ $bmBawah }})",
+                        data: Array({{ count($phLabels) }}).fill({{ $bmBawah }}),
+                        borderColor: "#ffd600",
                         borderDash: [5, 5],
-                        color: 'rgba(255, 255, 255, .2)'
-                    },
-                    ticks: { color: "#fff" }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Jenis Tanaman',
-                        color: '#fff',
-                        font: { size: 14, weight: 'bold' }
-                    },
-                    ticks: { color: '#f8f9fa' },
-                    grid: { display: false }
-                }
-            }
-        }
-    });
-
-    // CHART RITASE DAN JAM KERJA
-    var ctx4 = document.getElementById("chart-ritase").getContext("2d");
-    new Chart(ctx4, {
-        type: "bar",
-        data: {
-            labels: {!! json_encode($ritaseLabels) !!},
-            datasets: [
-                @foreach ($kodealat as $id => $kode)
-                {
-                    label: "{{ $kode }}",
-                    data: {!! json_encode($chartData[$kode] ?? []) !!},
-                    backgroundColor: 
-                        @php
-                            $colors = ['#11cdef', '#2dce89', '#f5365c', '#9c27b0', '#ffd600', '#8e24aa'];
-                            echo "'" . $colors[$loop->index % count($colors)] . "'";
-                        @endphp
-                    ,
-                    borderRadius: 6,
-                    maxBarThickness: 40
-                },
-                @endforeach
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: "Jam",
-                        color: "#fff",
-                        font: {
-                            size: 14,
-                            family: "Open Sans",
-                            weight: "bold"
-                        },
-                        padding: {
-                            bottom: 10
-                        }
-                    },
-                    grid: {
-                        drawBorder: false,
-                        display: false
-                    },
-                    ticks: {
-                        color: "#fff",
-                        padding: 10,
-                        font: {
-                            size: 13,
-                            family: "Open Sans"
-                        }
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
                     }
-                },
-                x: {
-                    grid: {
-                        display: false
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true } },
+                scales: {
+                    y: { min: 0, max: 14, ticks: { color: "#fff" } },
+                    x: { ticks: { color: "#fff" } }
+                }
+            }
+        });
+    }
+
+    // === CHART TSS ===
+    var ctxTss = document.getElementById("chart-tss");
+    if (ctxTss) {
+        new Chart(ctxTss.getContext("2d"), {
+            type: "line",
+            data: {
+                labels: {!! json_encode($tssLabels) !!},
+                datasets: [
+                    {
+                        label: "TSS (mg/L)",
+                        data: {!! json_encode($tssValues) !!},
+                        borderColor: "#2dce89",
+                        backgroundColor: "rgba(45, 206, 137, 0.2)",
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
                     },
-                    ticks: {
-                        color: "#fff",
-                        font: {
-                            size: 12,
-                            family: "Open Sans"
-                        }
+                    {
+                        label: "Baku Mutu ({{ $bmTss }} mg/L)",
+                        data: Array({{ count($tssLabels) }}).fill({{ $bmTss }}),
+                        borderColor: "#f5365c",
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        fill: false
                     }
-                }
-            }
-        }
-    });
-
-    // CHART - PH AIR
-    var ctx5 = document.getElementById("chart-air").getContext("2d");
-    // Mengambil data dari Laravel
-    var phLabels = {!! json_encode($phLabels) !!};
-    var phData = {!! json_encode($phValues) !!};
-    var bmAtasValue = {{ $bmAtas }};
-    var bmBawahValue = {{ $bmBawah }};
-
-    new Chart(ctx5, {
-        type: "line",
-        data: {
-            labels: phLabels,
-            datasets: [
-                {
-                    label: "PH Air",
-                    data: phData,
-                    borderColor: "#11cdef",
-                    backgroundColor: "rgba(17, 205, 223, 0.2)",
-                    borderWidth: 3,
-                    fill: true,
-                    pointRadius: 4,
-                    tension: 0.4,
-                    zIndex: 3
-                },
-                {
-                    label: "BM Atas (Max " + bmAtasValue + ")",
-                    data: Array(phLabels.length).fill(bmAtasValue),
-                    borderColor: "#f5365c", // Merah
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    fill: false,
-                    pointRadius: 0
-                },
-                {
-                    label: "BM Bawah (Min " + bmBawahValue + ")",
-                    data: Array(phLabels.length).fill(bmBawahValue),
-                    borderColor: "#ffd600", // Kuning
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    fill: false,
-                    pointRadius: 0
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { color: "#fff" }
-                }
+                ]
             },
-            scales: {
-                y: {
-                    min: 0,
-                    max: 14, // pH scale 0-14
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255, 255, 255, 0.1)", drawBorder: false }
-                },
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { display: false }
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: true } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: "#fff" } },
+                    x: { ticks: { color: "#fff" } }
                 }
             }
-        }
-    });
-
-    // Chart TSS
-    var ctx6 = document.getElementById("chart-tss").getContext("2d");
-
-    var tssLabels = {!! json_encode($tssLabels) !!};
-    var tssData = {!! json_encode($tssValues) !!};
-    var bmTssValue = {{ $bmTss }};
-
-    new Chart(ctx6, {
-        type: "line",
-        data: {
-            labels: tssLabels,
-            datasets: [
-                {
-                    label: "Kadar TSS (mg/L)",
-                    data: tssData,
-                    borderColor: "#2dce89", // Hijau
-                    backgroundColor: "rgba(45, 206, 137, 0.2)",
-                    borderWidth: 3,
-                    fill: true,
-                    pointRadius: 4,
-                    tension: 0.4,
-                    zIndex: 3
-                },
-                {
-                    label: "Baku Mutu (" + bmTssValue + " mg/L)",
-                    data: Array(tssLabels.length).fill(bmTssValue),
-                    borderColor: "#f5365c", // Merah sebagai peringatan batas
-                    borderWidth: 2,
-                    borderDash: [5, 5],
-                    fill: false,
-                    pointRadius: 0
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: true,
-                    labels: { color: "#fff" }
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    // Kita beri space sedikit di atas garis baku mutu agar terlihat jelas
-                    max: Math.max(...tssData, bmTssValue) + 50, 
-                    ticks: { color: "#fff" },
-                    grid: { color: "rgba(255, 255, 255, 0.1)", drawBorder: false }
-                },
-                x: {
-                    ticks: { color: "#fff" },
-                    grid: { display: false }
-                }
-            }
-        }
-    });
+        });
+    }
 });
 </script>
 @endpush

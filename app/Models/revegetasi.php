@@ -24,6 +24,7 @@ class Revegetasi extends Model
         'lokasi_revegetasi',
         'luas_area',
         'jenis_vegetasi',
+        'jenis_tanaman',
         'jumlah_tanaman',
         'tingkat_keberhasilan',
         'kondisi_tanah',

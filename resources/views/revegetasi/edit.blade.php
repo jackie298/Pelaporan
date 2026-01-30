@@ -155,11 +155,25 @@
                                 @enderror
                             </div>
 
-                            {{-- CATATAN --}}
+                            {{-- JENIS TANAMAN --}}
                             <div class="col-md-6 mb-3">
+                                <label class="form-label">Jenis Tanaman</label>
+                                <input type="text"
+                                    name="jenis_tanaman"
+                                    value="{{ old('jenis_tanaman', $data->jenis_tanaman) }}"
+                                    class="form-control @error('jenis_tanaman') is-invalid @enderror"
+                                    placeholder="Contoh: Sengon, Jati, Mahoni, Angsana">
+
+                                @error('jenis_tanaman')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- CATATAN --}}
+                            <div class="col-md-12 mb-3">
                                 <label class="form-label">Catatan</label>
                                 <textarea name="catatan"
-                                          rows="2"
+                                          rows="3"
                                           class="form-control @error('catatan') is-invalid @enderror"
                                           placeholder="Catatan inspeksi">{{ old('catatan', $data->catatan) }}</textarea>
 
@@ -215,11 +229,14 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    new bootstrap.Modal(document.getElementById('errorModal')).show();
+    var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+    errorModal.show();
 });
 </script>
+@endpush
 @endif
 
 @endsection

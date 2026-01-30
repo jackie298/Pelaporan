@@ -135,6 +135,31 @@ class HomeController extends Controller
             $dataChartRealisasi[] = $realisasiBulanan[$m] ?? 0;
         }
 
+        // === GRAFIK: RATA-RATA PERTUMBUHAN PER TRIWULAN + RATA-RATA TAHUNAN ===
+        $currentYear = date('Y');
+
+        $monitoringTahunan = \App\Models\MonitoringVegetasi::selectRaw('
+            AVG(tinggi_triwulan1) as avg_tw1,
+            AVG(tinggi_triwulan2) as avg_tw2,
+            AVG(tinggi_triwulan3) as avg_tw3,
+            AVG(tinggi_triwulan4) as avg_tw4
+        ')
+        ->where('tahun', $currentYear)
+        ->first();
+
+        $avgTw1 = $monitoringTahunan->avg_tw1 ?? 0;
+        $avgTw2 = $monitoringTahunan->avg_tw2 ?? 0;
+        $avgTw3 = $monitoringTahunan->avg_tw3 ?? 0;
+        $avgTw4 = $monitoringTahunan->avg_tw4 ?? 0;
+
+        // Hitung rata-rata tahunan (rata-rata dari 4 triwulan)
+        $total = $avgTw1 + $avgTw2 + $avgTw3 + $avgTw4;
+        $count = count(array_filter([$avgTw1, $avgTw2, $avgTw3, $avgTw4], fn($v) => $v !== null && $v > 0));
+        $avgTahunan = $count > 0 ? round($total / $count, 2) : 0;
+
+        // Data untuk chart: [TW1, TW2, TW3, TW4, Rata-rata Tahun]
+        $values = [$avgTw1, $avgTw2, $avgTw3, $avgTw4, $avgTahunan];
+
         return view('dashboard', compact(
             'documentContracts', 
             'statuscount', 
@@ -157,7 +182,9 @@ class HomeController extends Controller
             'nurseryValues',
             'monthsFull',
             'dataChartRencana',
-            'dataChartRealisasi'   
+            'dataChartRealisasi',
+            'values',
+            'currentYear'   
         ));
     }
 }

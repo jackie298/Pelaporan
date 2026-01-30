@@ -5,7 +5,7 @@
 <div>
     <div class="alert alert-secondary mx-4" role="alert">
         <span class="text-white">
-            <strong>Trash Management (Limbah B3)</strong>
+            <strong>Monitoring Vegetasi</strong>
         </span>
     </div>
 
@@ -13,12 +13,12 @@
         <div class="col-12">
             <div class="card mb-4 mx-4">
                 <div class="card-header pb-0">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                    <div class="d-flex flex-column flex-md-row justify-content-betriwulaneen align-items-start align-items-md-center gap-2">
                         <div>
-                            <h5 class="mb-0">Daftar Logbook Limbah B3</h5>
+                            <h5 class="mb-0">Daftar Data Monitoring Vegetasi</h5>
                         </div>
-                        <a href="{{ route('trash-management.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
-                            +&nbsp; Tambah Log Masuk
+                        <a href="{{ route('monitoring-vegetasi.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
+                            +&nbsp; Tambah Data
                         </a>
                     </div>
                 </div>
@@ -28,59 +28,72 @@
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">No</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jenis & Kode</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tanggal Masuk</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Masuk (Ton)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Sisa (Ton)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Maks. Simpan</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lokasi</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Titik Pantau</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jenis Tanaman</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">triwulan1 (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">triwulan2 (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">triwulan3 (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">triwulan4 (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tahun</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($trashData as $data)
+                                @forelse ($monitoringData as $data)
                                 <tr>
                                     <td class="ps-3">
                                         <p class="text-xs font-weight-bold mb-0">{{ $loop->iteration }}</p>
                                     </td>
                                     <td>
-                                        <div class="d-flex flex-column">
-                                            <h6 class="mb-0 text-xs">{{ $data->jenis_limbah_masuk }}</h6>
-                                            <p class="text-xs text-secondary mb-0">{{ $data->kode_limbah }}</p>
-                                        </div>
+                                        <p class="text-xs font-weight-bold mb-0 text-wrap" style="min-width: 120px;">
+                                            {{ $data->lokasi ?? '—' }}
+                                        </p>
                                     </td>
                                     <td>
                                         <p class="text-xs font-weight-bold mb-0">
-                                            {{ $data->tanggal_masuk ? $data->tanggal_masuk->format('d/m/Y') : '—' }}
+                                            {{ $data->titik_pantau ?? '—' }}
                                         </p>
-                                        <p class="text-xxs text-secondary mb-0">{{ $data->sumber_limbah }}</p>
                                     </td>
-                                    <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0 text-success">
-                                            +{{ number_format($data->jumlah_masuk_ton, 3) }}
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->jenis_tanaman ?? '—' }}
                                         </p>
                                     </td>
                                     <td class="text-center">
                                         <p class="text-xs font-weight-bold mb-0">
-                                            {{ number_format($data->sisa_limbah_ton, 3) }}
+                                            {{ $data->tinggi_triwulan1 ?? '—' }}
                                         </p>
                                     </td>
                                     <td class="text-center">
-                                        @php
-                                            $isOverdue = $data->maksimal_penyimpanan < now() && $data->sisa_limbah_ton > 0;
-                                        @endphp
-                                        <span class="badge badge-sm {{ $isOverdue ? 'bg-danger' : 'bg-secondary' }}">
-                                            {{ $data->maksimal_penyimpanan ? $data->maksimal_penyimpanan->format('d M Y') : '—' }}
-                                        </span>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->tinggi_triwulan2 ?? '—' }}
+                                        </p>
+                                    </td>
+                                    <td class="text-center d-none d-md-table-cell">
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->tinggi_triwulan3 ?? '—' }}
+                                        </p>
+                                    </td>
+                                    <td class="text-center d-none d-md-table-cell">
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->tinggi_triwulan4 ?? '—' }}
+                                        </p>
+                                    </td>
+                                    <td class="text-center d-none d-md-table-cell">
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            {{ $data->tahun ?? '—' }}
+                                        </p>
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('trash-management.edit', $data->id) }}" class="mx-1" title="Edit/Update Keluar">
+                                        <a href="{{ route('monitoring-vegetasi.edit', $data->id) }}" class="mx-1" title="Edit">
                                             <i class="fas fa-edit text-info"></i>
                                         </a>
                                         <button 
                                             type="button" 
-                                            class="mx-1 delete-btn border-0 bg-transparent" 
+                                            class="mx-1 delete-btn" 
                                             data-id="{{ $data->id }}"
-                                            data-nama="{{ $data->jenis_limbah_masuk }} ({{ $data->kode_limbah }})"
+                                            data-nama="{{ $data->lokasi }}"
                                             title="Hapus">
                                             <i class="fas fa-trash text-danger"></i>
                                         </button>
@@ -88,8 +101,8 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        Belum ada data logbook limbah B3.
+                                    <td colspan="9" class="text-center text-muted py-4">
+                                        Belum ada data monitoring vegetasi.
                                     </td>
                                 </tr>
                                 @endforelse
@@ -102,16 +115,17 @@
     </div>
 </div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Konfirmasi Hapus</h5>
+                <h5 class="modal-title text-white" id="deleteModalLabel">Konfirmasi Hapus</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus data limbah <strong id="wasteName"></strong>?</p>
-                <p class="text-muted text-sm">Tindakan ini akan menghapus log secara permanen dari sistem.</p>
+                <p>Apakah Anda yakin ingin menghapus data monitoring vegetasi dari lokasi <strong id="equipmentName"></strong>?</p>
+                <p class="text-muted">Ini akan menghapus data secara permanen.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -125,6 +139,7 @@
     </div>
 </div>
 
+{{-- Modal Sukses --}}
 @if (session('success'))
 <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -148,22 +163,22 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Tombol Hapus
+    // Event delegation untuk tombol hapus
     document.body.addEventListener('click', function (e) {
         if (e.target.closest('.delete-btn')) {
             const button = e.target.closest('.delete-btn');
             const id = button.getAttribute('data-id');
             const nama = button.getAttribute('data-nama');
 
-            document.getElementById('wasteName').textContent = nama;
-            document.getElementById('deleteForm').action = '/trash-management/' + id;
+            document.getElementById('equipmentName').textContent = nama;
+            document.getElementById('deleteForm').action = '/monitoring-vegetasi/' + id;
 
             const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
             modal.show();
         }
     });
 
-    // Modal Sukses
+    // Tampilkan modal sukses
     @if(session('success'))
         const successModal = new bootstrap.Modal(document.getElementById('successModal'));
         successModal.show();
