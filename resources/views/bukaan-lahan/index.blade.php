@@ -3,10 +3,15 @@
 @section('content')
 
 <div>
+    
     <div class="alert alert-secondary mx-4" role="alert">
-        <span class="text-white">
-            <strong>Bukaan Lahan</strong>
+        <div>
+            <span class="text-white">
+            <strong class="mb-0">Bukaan Lahan</strong>
+            <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('api.export.bukaanlahan') }}">Export Data</a>
         </span>
+    </div>
+        
     </div>
 
     <div class="row">

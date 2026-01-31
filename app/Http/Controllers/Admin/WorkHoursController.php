@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\workhours; // Sesuai dengan nama file dan class Anda
+use App\Exports\JamKerjaExport;
 use App\Models\Equipment;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -125,5 +126,11 @@ class WorkHoursController extends Controller
         return redirect()
             ->route('admin.work-hours')
             ->with('success', 'Data jam kerja berhasil dihapus.');
+    }
+
+    // Export data jam kerja
+    public function export()
+    {
+        return (new JamKerjaExport())->download('jam_kerja.xlsx');
     }
 }

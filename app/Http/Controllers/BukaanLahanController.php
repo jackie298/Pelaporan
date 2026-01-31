@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\BukaanLahan;
+use App\Exports\BukaanLahanExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -115,5 +116,11 @@ class BukaanLahanController extends Controller
         return redirect()
             ->route('bukaan-lahan')
             ->with('success', 'Data bukaan lahan berhasil dihapus.');
+    }
+
+    // Export data bukaan lahan
+    public function export()
+    {
+        return (new BukaanLahanExport())->download('bukaan_lahan_export.xlsx');
     }
 }

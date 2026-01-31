@@ -70,6 +70,12 @@
         line-height: 1.4;
     }
 </style>
+<div class="alert alert-secondary mx-4" role="alert">
+    <span class="text-white">
+        <strong>Dokumentasi Kegiatan</strong>
+    </span>
+    <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('api.export.dokumentasi-kegiatan') }}">Export Data</a>
+</div>
 
 <div class="container-fluid py-4">
     <div class="card mb-4">

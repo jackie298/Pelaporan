@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\RencanaRevegetasi;
+use App\Exports\RencanaRevegetasiExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -104,5 +105,11 @@ class RencanaRevegetasiController extends Controller
         return redirect()
             ->route('rencana-revegetasi')
             ->with('success', 'Rencana revegetasi berhasil dihapus.');
+    }
+
+    // Export data rencana revegetasi
+    public function export()
+    {
+        return (new RencanaRevegetasiExport())->download('rencana_revegetasi.xlsx');
     }
 }

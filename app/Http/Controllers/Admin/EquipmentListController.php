@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Equipment;
+use App\Exports\AlatExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -128,4 +129,11 @@ class EquipmentListController extends Controller
             ->route('admin.equipment-list')
             ->with('success', 'Data alat berhasil dihapus.');
     }
+
+    // Export data alat
+    public function export()
+    {
+        return (new AlatExport())->download('alat_export.xlsx');
+    }
+
 }

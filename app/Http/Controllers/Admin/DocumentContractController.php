@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\DocumentContract;
 use App\Http\Controllers\Controller;
+use App\Exports\RekapAnggaranExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -136,5 +137,11 @@ class DocumentContractController extends Controller
         $contract->delete();
 
         return back()->with('success', 'Document Contract berhasil dihapus.');
+    }
+
+    // Export data document contract
+    public function export()    
+    {
+        return (new RekapAnggaranExport())->download('rekap_anggaran_export.xlsx');
     }
 }

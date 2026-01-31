@@ -7,6 +7,7 @@
         <span class="text-white">
             <strong>Waste Water Management</strong>
         </span>
+        <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('api.export.wastewater') }}">Export Data</a>
     </div>
 
     <div class="row">

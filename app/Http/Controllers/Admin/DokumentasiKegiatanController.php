@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\DokumentasiKegiatan;
+use App\Exports\DokumentasiKegiatanExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -151,6 +152,14 @@ class DokumentasiKegiatanController extends Controller
             ->route('admin.dokumentasi-kegiatan')
             ->with('success', 'Dokumentasi kegiatan berhasil dihapus.');
     }
+
+    // Export data dokumentasi kegiatan
+    public function export()    
+    {
+        return (new DokumentasiKegiatanExport())->download('dokumentasi_kegiatan_export.xlsx');
+    }
+
+
 
     
 }

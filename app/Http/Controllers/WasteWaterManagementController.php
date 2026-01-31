@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\WasteWaterManagement;
+use App\Exports\WasteWaterExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -109,5 +110,11 @@ class WasteWaterManagementController extends Controller
         return redirect()
             ->route('waste-water-management')
             ->with('success', 'Data pengelolaan air limbah berhasil dihapus.');
+    }
+
+    // Export data pengelolaan air limbah
+    public function export()
+    {
+        return (new WasteWaterExport())->download('wastewater.xlsx');
     }
 }

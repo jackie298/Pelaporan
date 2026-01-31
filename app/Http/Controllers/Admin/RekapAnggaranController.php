@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 use App\Models\RekapAnggaran;
+use App\Models\RekapAnggaranExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -135,5 +136,11 @@ class RekapAnggaranController extends Controller
         $rekap_anggaran->delete();
 
         return back()->with('success', 'Document Rekap Anggaran berhasil dihapus.');
+    }
+
+    // Export data rekap anggaran
+    public function export()
+    {
+        return (new RekapAnggaranExport())->download('rekap_anggaran.xlsx');
     }
 }

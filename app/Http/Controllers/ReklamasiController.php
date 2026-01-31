@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reklamasi;
+use App\Exports\ReklamasiExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -131,5 +132,11 @@ class ReklamasiController extends Controller
         return redirect()
             ->route('reklamasi')
             ->with('success', 'Data reklamasi berhasil dihapus.');
+    }
+
+    // Export data reklamasi
+    public function export()
+    {
+        return (new ReklamasiExport())->download('reklamasi_export.xlsx');
     }
 }

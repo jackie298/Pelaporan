@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Compliance;
+use App\Exports\ComplianceExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -116,5 +117,10 @@ class ComplianceController extends Controller
         return redirect()
             ->route('compliance')
             ->with('success', 'Dokumen compliance berhasil dihapus.');
+    }
+    // Export data compliance
+    public function export()
+    {
+        return (new ComplianceExport())->download('compliance.xlsx');
     }
 }

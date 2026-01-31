@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Nursery;
+use App\Exports\NurseryExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -115,5 +116,11 @@ class NurseryController extends Controller
         return redirect()
             ->route('nursery')
             ->with('success', 'Data pembibitan berhasil dihapus.');
+    }
+
+    // Export data pembibitan
+    public function export()
+    {
+        return (new NurseryExport())->download('nursery_export.xlsx');
     }
 }

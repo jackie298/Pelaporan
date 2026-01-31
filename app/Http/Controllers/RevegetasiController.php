@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Revegetasi;
 use App\Http\Controllers\Controller;
+use App\Exports\RevegetasiExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -120,5 +121,11 @@ class RevegetasiController extends Controller
         return redirect()
             ->route('revegetasi')
             ->with('success', 'Data revegetasi berhasil dihapus.');
+    }
+
+    // Export data revegetasi
+    public function export()
+    {
+        return (new RevegetasiExport())->download('revegetasi.xlsx');
     }
 }

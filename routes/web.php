@@ -354,6 +354,15 @@ Route::group(['middleware' => 'guest'], function () {
 
 });
 
+// Route::get('/export/compliance', [App\Http\Controllers\ComplianceController::class, 'export'])->name('api.export.compliance');
+// Route::get('/export/revegetasi', [App\Http\Controllers\RevegetasiController::class, 'export'])->name('api.export.revegetasi');
+// Route::get('/export/rencana-revegetasi', [App\Http\Controllers\RencanaRevegetasiController::class, 'export'])->name('api.export.rencana-revegetasi');
+// Route::get('/export/bukaan-lahan', [App\Http\Controllers\BukaanLahanController::class, 'export'])->name('api.export.bukaan-lahan');
+// Route::get('/export/rekap-anggaran', [App\Http\Controllers\Admin\RekapAnggaranController::class, 'export'])->name('api.export.rekap-anggaran');
+// Route::get('/export/equipment-list', [App\Http\Controllers\Admin\EquipmentListController::class, 'export'])->name('api.export.equipment-list');
+// Route::get('/export/dokumentasi-kegiatan', [App\Http\Controllers\Admin\DokumentasiKegiatanController::class, 'export'])->name('api.export.dokumentasi-kegiatan');
+// Route::get('/export/document-contract', [App\Http\Controllers\Admin\DocumentContractController::class, 'export'])->name('api.export.document-contract');
+
 Route::get('/login', function () {
     return view('session/login-session');
 })->name('login');
