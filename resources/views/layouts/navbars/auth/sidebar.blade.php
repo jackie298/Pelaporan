@@ -148,6 +148,15 @@
                                 <span class="sidenav-normal text-xs ps-2"> Rencana Bulanan </span>
                             </a>
                         </li>
+
+                        {{-- SUBMENU: MONITORING VEGETASI --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('monitoring-vegetasi*') ? 'active' : '' }}" 
+                               href="{{ route('monitoring-vegetasi') }}">
+                                <span class="dot-indicator {{ Request::is('monitoring-vegetasi*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Monitoring Vegetasi </span>
+                            </a>
+                        </li>
                         
                     </ul>
                 </div>
@@ -170,21 +179,46 @@
                 </a>
             </li>
 
-            {{-- ================= Waste Water Management ================= --}}
+            {{-- ================= MENU MANAJEMEN LIMBAH (COLLAPSE) ================= --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('waste-water-management') ? 'active' : '' }}"
-                   href="{{ url('waste-water-management') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('waste-water-management') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-
-                        <i class="fa-solid fa-water
-                           {{ Request::is('waste-water-management') ? 'text-white' : 'text-dark' }}"></i>
+                <a data-bs-toggle="collapse" 
+                href="#limbahMenu" 
+                class="nav-link {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'active' : '' }}" 
+                aria-controls="limbahMenu" 
+                role="button" 
+                aria-expanded="{{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'true' : 'false' }}">
+                    
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'bg-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-recycle {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'text-white' : 'text-dark' }}" 
+                        style="top: 0; font-size: 0.8rem;"></i>
                     </div>
-
-                    <span class="nav-link-text ms-1">Waste Water</span>
+                    
+                    <span class="nav-link-text ms-1 {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'font-weight-bold' : '' }}">Manajemen Limbah</span>
                 </a>
+
+                <div class="collapse {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'show' : '' }}" id="limbahMenu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
+                        
+                        {{-- SUBMENU: WASTE WATER --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('waste-water-management*') ? 'active' : '' }}" 
+                            href="{{ url('waste-water-management') }}">
+                                <span class="dot-indicator {{ Request::is('waste-water-management*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Air Limbah </span>
+                            </a>
+                        </li>
+
+                        {{-- SUBMENU: TRASH MANAGEMENT (LIMBAH B3) --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('trash-management*') ? 'active' : '' }}" 
+                            href="{{ route('trash-management') }}">
+                                <span class="dot-indicator {{ Request::is('trash-management*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Limbah B3 </span>
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
             </li>
             {{-- ================= COMPLIANCE ================= --}}
             <li class="nav-item">

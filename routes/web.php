@@ -13,6 +13,8 @@ use App\Http\Controllers\BukaanLahanController;
 use App\Http\Controllers\ReklamasiController;
 use App\Http\Controllers\complianceController;
 use App\Http\Controllers\NurseryController;
+use App\Http\Controllers\TrashManagementController;
+use App\Http\Controllers\MonitoringVegetasiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +24,7 @@ use App\Http\Controllers\Admin\DocumentContractController;
 use App\Http\Controllers\Admin\EquipmentListController;
 use App\Http\Controllers\Admin\WorkHoursController;
 use App\Http\Controllers\Admin\DokumentasiKegiatanController;
+use App\Http\Controllers\ImportController;
 use App\Models\compliance;
 
 /*
@@ -147,10 +150,6 @@ Route::group(['middleware' => 'auth'], function () {
 		return view('dashboard');
 	})->name('dashboard');
 
-	Route::get('billing', function () {
-		return view('billing');
-	})->name('billing');
-
 	Route::get('profile', function () {
 		return view('profile');
 	})->name('profile');
@@ -159,9 +158,6 @@ Route::group(['middleware' => 'auth'], function () {
 		return view('laravel-examples/user-management');
 	})->name('user-management');
 
-	Route::get('tables', function () {
-		return view('tables');
-	})->name('tables');
 
     Route::get('static-sign-in', function () {
 		return view('static-sign-in');
@@ -332,6 +328,52 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('compliance.destroy');
     // END compliance
 
+    // ROUTING TRASH MANAGEMENT (LIMBAH B3) 
+    Route::get('trash-management', [TrashManagementController::class, 'index'])
+        ->name('trash-management');
+
+    // CREATE
+    Route::get('trash-management/create', [TrashManagementController::class, 'create'])
+        ->name('trash-management.create');
+
+    Route::post('trash-management', [TrashManagementController::class, 'store'])
+        ->name('trash-management.store');
+
+    // EDIT
+    Route::get('trash-management/{id}/edit', [TrashManagementController::class, 'edit'])
+        ->name('trash-management.edit');
+
+    Route::put('trash-management/{id}', [TrashManagementController::class, 'update'])
+        ->name('trash-management.update');
+
+    // DELETE
+    Route::delete('trash-management/{id}', [TrashManagementController::class, 'destroy'])
+        ->name('trash-management.destroy');
+    // END TRASH MANAGEMENT (LIMBAH B3)
+
+    // ROUTING MONITORING VEGETASI
+    Route::get('monitoring-vegetasi', [MonitoringVegetasiController::class, 'index'])
+        ->name('monitoring-vegetasi');
+
+    // CREATE
+    Route::get('monitoring-vegetasi/create', [MonitoringVegetasiController::class, 'create'])
+        ->name('monitoring-vegetasi.create');
+
+    Route::post('monitoring-vegetasi', [MonitoringVegetasiController::class, 'store'])
+        ->name('monitoring-vegetasi.store');
+
+    // EDIT
+    Route::get('monitoring-vegetasi/{id}/edit', [MonitoringVegetasiController::class, 'edit'])
+        ->name('monitoring-vegetasi.edit');
+
+    Route::put('monitoring-vegetasi/{id}', [MonitoringVegetasiController::class, 'update'])
+        ->name('monitoring-vegetasi.update');
+
+    // DELETE
+    Route::delete('monitoring-vegetasi/{id}', [MonitoringVegetasiController::class, 'destroy'])
+        ->name('monitoring-vegetasi.destroy');
+    // END MONITORING VEGETASI
+
     Route::get('/logout', [SessionsController::class, 'destroy']);
 	Route::get('/user-profile', [InfoUserController::class, 'create']);
 	Route::post('/user-profile', [InfoUserController::class, 'store']);
@@ -354,14 +396,17 @@ Route::group(['middleware' => 'guest'], function () {
 
 });
 
-// Route::get('/export/compliance', [App\Http\Controllers\ComplianceController::class, 'export'])->name('api.export.compliance');
-// Route::get('/export/revegetasi', [App\Http\Controllers\RevegetasiController::class, 'export'])->name('api.export.revegetasi');
-// Route::get('/export/rencana-revegetasi', [App\Http\Controllers\RencanaRevegetasiController::class, 'export'])->name('api.export.rencana-revegetasi');
-// Route::get('/export/bukaan-lahan', [App\Http\Controllers\BukaanLahanController::class, 'export'])->name('api.export.bukaan-lahan');
-// Route::get('/export/rekap-anggaran', [App\Http\Controllers\Admin\RekapAnggaranController::class, 'export'])->name('api.export.rekap-anggaran');
-// Route::get('/export/equipment-list', [App\Http\Controllers\Admin\EquipmentListController::class, 'export'])->name('api.export.equipment-list');
-// Route::get('/export/dokumentasi-kegiatan', [App\Http\Controllers\Admin\DokumentasiKegiatanController::class, 'export'])->name('api.export.dokumentasi-kegiatan');
-// Route::get('/export/document-contract', [App\Http\Controllers\Admin\DocumentContractController::class, 'export'])->name('api.export.document-contract');
+
+
+Route::get('/import-user', function () {
+    return view('import.user');
+});
+
+
+
+
+Route::post('/import-user', [ImportController::class, 'import'])
+    ->name('import.user');
 
 Route::get('/login', function () {
     return view('session/login-session');

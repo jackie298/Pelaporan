@@ -11,6 +11,8 @@ use Database\Seeders\ReklamasiSeeder;
 use Database\Seeders\RevegetasiSeeder;
 use Database\Seeders\NurserySeeder;
 use Database\Seeders\ComplianceSeeder;
+use Database\Seeders\TrashManagementSeeder;
+use Database\Seeders\MonitoringVegetasiSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -35,6 +37,8 @@ class DatabaseSeeder extends Seeder
             RevegetasiSeeder::class,
             NurserySeeder::class,
             ComplianceSeeder::class,
+            TrashManagementSeeder::class,
+            MonitoringVegetasiSeeder::class,
         ]);
     }
 }
