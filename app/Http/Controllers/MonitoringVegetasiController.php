@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MonitoringVegetasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\MonitoringVegetasiExport;
 
 class MonitoringVegetasiController extends Controller
 {
@@ -119,5 +120,10 @@ class MonitoringVegetasiController extends Controller
         return redirect()
             ->route('monitoring-vegetasi')
             ->with('success', 'Data monitoring vegetasi berhasil dihapus.');
+    }
+
+    public function export()
+    {
+        return (new MonitoringVegetasiExport())->download('monitoring_vegetasi_export.xlsx');
     }
 }

@@ -70,7 +70,7 @@
         line-height: 1.4;
     }
 </style>
-<div class="alert alert-secondary mx-4" role="alert">
+<div class="alert alert-secondary mx-4 d-flex justify-content-between align-items-center" role="alert">
     <span class="text-white">
         <strong>Dokumentasi Kegiatan</strong>
     </span>

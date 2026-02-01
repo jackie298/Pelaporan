@@ -27,7 +27,6 @@ class DokumentasiKegiatanExport implements FromCollection, WithHeadings, WithMap
             'Lokasi',
             'Deskripsi',
             'Jenis Kegiatan',
-            'File Dokumentasi',
             'Created At',
             'Updated At',
         ];
@@ -42,7 +41,6 @@ class DokumentasiKegiatanExport implements FromCollection, WithHeadings, WithMap
             $dokumentasi->lokasi,
             $dokumentasi->deskripsi,
             $dokumentasi->jenis_kegiatan,
-            implode(', ', $dokumentasi->file_dokumentasi ?? []),
             $dokumentasi->created_at ? $dokumentasi->created_at->format('d-m-Y H:i') : '-',
             $dokumentasi->updated_at ? $dokumentasi->updated_at->format('d-m-Y H:i') : '-',
         ];

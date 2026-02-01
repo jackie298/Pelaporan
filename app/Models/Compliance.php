@@ -4,61 +4,52 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Compliance extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    /**
-     * Nama tabel di database.
-     */
-    protected $table = 'compliance'; 
+    protected $table = 'compliance';
 
-    /**
-     * Kolom yang bisa diisi mass assignment.
-     */
     protected $fillable = [
-        'ReportedBy',
+        'Nama_pelapor',
         'Departemen',
-        'Location',
-        'IncidentType',
-        'ComplianceType',
-        'Date_reported',
+        'Lokasi',
+        'Jenis_insiden',
+        'Jenis_inspeksi',
+        'Tanggal_lapor',
         'Status',
-        'Severity',
-        'ResolvedBy',
+        'Tingkat_keparahan',
+        'Diselesaikan_oleh',
+        'file_dokumentasi',
     ];
 
-    /**
-     * Kolom yang harus di-cast ke tipe tertentu.
-     */
     protected $casts = [
-        'Date_reported' => 'date:Y-m-d',
+        'Tanggal_lapor' => 'date:Y-m-d',
+        'file_dokumentasi' => 'array', // ← Casting ke array
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
-    /**
-     * Scope untuk dokumen dengan status tertentu.
-     */
     public function scopeStatus($query, $status)
     {
         return $query->where('Status', $status);
     }
 
-    /**
-     * Scope untuk dokumen dengan severity tertentu.
-     */
-    public function scopeSeverity($query, $severity)
+    public function scopeTingkatKeparahan($query, $tingkat_keparahan)
     {
-        return $query->where('Severity', $severity);
+        return $query->where('Tingkat_keparahan', $tingkat_keparahan);
     }
 
-    /**
-     * Scope untuk dokumen dari departemen tertentu.
-     */
     public function scopeDepartemen($query, $departemen)
     {
         return $query->where('Departemen', $departemen);
+    }
+
+    public function scopeLokasi($query, $lokasi)
+    {
+        return $query->where('Lokasi', $lokasi);
     }
 }

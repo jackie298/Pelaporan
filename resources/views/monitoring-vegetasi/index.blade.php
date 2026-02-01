@@ -3,17 +3,18 @@
 @section('content')
 
 <div>
-    <div class="alert alert-secondary mx-4" role="alert">
+    <div class="alert alert-secondary mx-4 d-flex justify-content-between align-items-center" role="alert">
         <span class="text-white">
             <strong>Monitoring Vegetasi</strong>
         </span>
+        <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('api.export.monitoring-vegetasi') }}">Export Data</a>
     </div>
 
     <div class="row">
         <div class="col-12">
             <div class="card mb-4 mx-4">
                 <div class="card-header pb-0">
-                    <div class="d-flex flex-column flex-md-row justify-content-betriwulaneen align-items-start align-items-md-center gap-2">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                         <div>
                             <h5 class="mb-0">Daftar Data Monitoring Vegetasi</h5>
                         </div>
@@ -31,11 +32,11 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Lokasi</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Titik Pantau</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jenis Tanaman</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">triwulan1 (cm)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">triwulan2 (cm)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">triwulan3 (cm)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">triwulan4 (cm)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tahun</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Triwulan I (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Triwulan II (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">Triwulan III (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center d-none d-md-table-cell">Triwulan IV (cm)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Tahun</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Action</th>
                                 </tr>
                             </thead>
@@ -80,7 +81,7 @@
                                             {{ $data->tinggi_triwulan4 ?? '—' }}
                                         </p>
                                     </td>
-                                    <td class="text-center d-none d-md-table-cell">
+                                    <td class="text-center">
                                         <p class="text-xs font-weight-bold mb-0">
                                             {{ $data->tahun ?? '—' }}
                                         </p>
@@ -101,7 +102,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted py-4">
+                                    <td colspan="10" class="text-center text-muted py-4">
                                         Belum ada data monitoring vegetasi.
                                     </td>
                                 </tr>
@@ -182,6 +183,10 @@ document.addEventListener('DOMContentLoaded', function () {
     @if(session('success'))
         const successModal = new bootstrap.Modal(document.getElementById('successModal'));
         successModal.show();
+
+        document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+            window.location.reload();
+        });
     @endif
 });
 </script>

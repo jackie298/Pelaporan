@@ -6,12 +6,11 @@ use App\Models\Compliance;
 use App\Exports\ComplianceExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 class ComplianceController extends Controller
 {
-    /**
-     * Tampilkan daftar dokumen compliance
-     */
     public function index()
     {
         $compliances = Compliance::latest()->get();
@@ -19,41 +18,47 @@ class ComplianceController extends Controller
         return view('compliance.index', compact('compliances'));
     }
 
-    /**
-     * Tampilkan form tambah dokumen compliance
-     */
     public function create()
     {
         return view('compliance.create');
     }
 
-    /**
-     * Simpan dokumen compliance
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'ReportedBy' => 'required|string|max:255',
+            'Nama_pelapor' => 'required|string|max:255',
             'Departemen' => 'required|in:HSE,Produksi,HRD,Maintenance,Lainnya',
-            'Location' => 'required|string|max:255',
-            'IncidentType' => 'required|string|max:255',
-            'ComplianceType' => 'required|in:Internal,"Eksternal/Regulasi",Audit',
-            'Date_reported' => 'required|date',
+            'Lokasi' => 'required|string|max:255',
+            'Jenis_insiden' => 'required|string|max:255',
+            'Jenis_inspeksi' => 'required|in:Internal,"Eksternal/Regulasi",Audit',
+            'Tanggal_lapor' => 'required|date',
             'Status' => 'required|in:Escalated,Pending,Resolved,Open',
-            'Severity' => 'required|in:Low,Medium,High,Critical',
-            'ResolvedBy' => 'required|string|max:255',
+            'Tingkat_keparahan' => 'required|in:Low,Medium,High,Critical',
+            'Diselesaikan_oleh' => 'required|string|max:255',
+            'file_dokumentasi' => 'nullable|array|max:10', // Maksimal 10 file
+            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Max 2MB per file
         ]);
 
+        $filePaths = [];
+
+        if ($request->hasFile('file_dokumentasi')) {
+            foreach ($request->file('file_dokumentasi') as $file) {
+                $path = $file->store('compliance', 'public');
+                $filePaths[] = $path;
+            }
+        }
+
         Compliance::create([
-            'ReportedBy' => $request->ReportedBy,
+            'Nama_pelapor' => $request->Nama_pelapor,
             'Departemen' => $request->Departemen,
-            'Location' => $request->Location,
-            'IncidentType' => $request->IncidentType,
-            'ComplianceType' => $request->ComplianceType,
-            'Date_reported' => $request->Date_reported,
+            'Lokasi' => $request->Lokasi,
+            'Jenis_insiden' => $request->Jenis_insiden,
+            'Jenis_inspeksi' => $request->Jenis_inspeksi,
+            'Tanggal_lapor' => $request->Tanggal_lapor,
             'Status' => $request->Status,
-            'Severity' => $request->Severity,
-            'ResolvedBy' => $request->ResolvedBy,
+            'Tingkat_keparahan' => $request->Tingkat_keparahan,
+            'Diselesaikan_oleh' => $request->Diselesaikan_oleh,
+            'file_dokumentasi' => $filePaths,
         ]);
 
         return redirect()
@@ -61,44 +66,59 @@ class ComplianceController extends Controller
             ->with('success', 'Dokumen compliance berhasil disimpan.');
     }
 
-    /**
-     * Tampilkan form edit dokumen compliance
-     */
     public function edit($id)
     {
         $data = Compliance::findOrFail($id);
         return view('compliance.edit', compact('data'));
     }
 
-    /**
-     * Perbarui dokumen compliance
-     */
     public function update(Request $request, $id)
     {
         $data = Compliance::findOrFail($id);
 
         $request->validate([
-            'ReportedBy' => 'required|string|max:255',
+            'Nama_pelapor' => 'required|string|max:255',
             'Departemen' => 'required|in:HSE,Produksi,HRD,Maintenance,Lainnya',
-            'Location' => 'required|string|max:255',
-            'IncidentType' => 'required|string|max:255',
-            'ComplianceType' => 'required|in:Internal,"Eksternal/Regulasi",Audit',
-            'Date_reported' => 'required|date',
+            'Lokasi' => 'required|string|max:255',
+            'Jenis_insiden' => 'required|string|max:255',
+            'Jenis_inspeksi' => 'required|in:Internal,"Eksternal/Regulasi",Audit',
+            'Tanggal_lapor' => 'required|date',
             'Status' => 'required|in:Escalated,Pending,Resolved,Open',
-            'Severity' => 'required|in:Low,Medium,High,Critical',
-            'ResolvedBy' => 'required|string|max:255',
+            'Tingkat_keparahan' => 'required|in:Low,Medium,High,Critical',
+            'Diselesaikan_oleh' => 'required|string|max:255',
+            'file_dokumentasi' => 'nullable|array|max:10',
+            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
+        $filePaths = $data->file_dokumentasi ?? [];
+
+        if ($request->hasFile('file_dokumentasi')) {
+            // Hapus file lama
+            if (is_array($filePaths)) {
+                foreach ($filePaths as $oldFile) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+            }
+
+            // Simpan file baru
+            $filePaths = [];
+            foreach ($request->file('file_dokumentasi') as $file) {
+                $path = $file->store('compliance', 'public');
+                $filePaths[] = $path;
+            }
+        }
+
         $data->update([
-            'ReportedBy' => $request->ReportedBy,
+            'Nama_pelapor' => $request->Nama_pelapor,
             'Departemen' => $request->Departemen,
-            'Location' => $request->Location,
-            'IncidentType' => $request->IncidentType,
-            'ComplianceType' => $request->ComplianceType,
-            'Date_reported' => $request->Date_reported,
+            'Lokasi' => $request->Lokasi,
+            'Jenis_insiden' => $request->Jenis_insiden,
+            'Jenis_inspeksi' => $request->Jenis_inspeksi,
+            'Tanggal_lapor' => $request->Tanggal_lapor,
             'Status' => $request->Status,
-            'Severity' => $request->Severity,
-            'ResolvedBy' => $request->ResolvedBy,
+            'Tingkat_keparahan' => $request->Tingkat_keparahan,
+            'Diselesaikan_oleh' => $request->Diselesaikan_oleh,
+            'file_dokumentasi' => $filePaths,
         ]);
 
         return redirect()
@@ -106,21 +126,26 @@ class ComplianceController extends Controller
             ->with('success', 'Dokumen compliance berhasil diperbarui.');
     }
 
-    /**
-     * Hapus dokumen compliance
-     */
     public function destroy($id)
     {
         $data = Compliance::findOrFail($id);
+        
+        // Hapus semua file
+        if (is_array($data->file_dokumentasi)) {
+            foreach ($data->file_dokumentasi as $file) {
+                Storage::disk('public')->delete($file);
+            }
+        }
+        
         $data->delete();
 
         return redirect()
             ->route('compliance')
             ->with('success', 'Dokumen compliance berhasil dihapus.');
     }
-    // Export data compliance
+
     public function export()
     {
-        return (new ComplianceExport())->download('compliance.xlsx');
+        return Excel::download(new ComplianceExport, 'compliance_export.xlsx');
     }
 }

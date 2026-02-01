@@ -30,3 +30,4 @@ Route::get('/export/reklamasi', [App\Http\Controllers\ReklamasiController::class
 Route::get('/export/nursery-monitoring', [App\Http\Controllers\NurseryController::class, 'export'])->name('api.export.nursery');
 Route::get('/export/wastewater-monitoring', [App\Http\Controllers\WasteWaterManagementController::class, 'export'])->name('api.export.wastewater');
 Route::get('/export/jamkerja', [App\Http\Controllers\Admin\WorkHoursController::class, 'export'])->name('api.export.jamkerja');
+Route::get('/export/monitoring-vegetasi', [App\Http\Controllers\MonitoringVegetasiController::class, 'export'])->name('api.export.monitoring-vegetasi');

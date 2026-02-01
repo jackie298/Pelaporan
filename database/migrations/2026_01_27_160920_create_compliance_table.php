@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('compliance', function (Blueprint $table) {
             $table->id();
-            $table->string('ReportedBy');
+            $table->string('Nama_pelapor');
             $table->string('Departemen');
-            $table->string('Location');
-            $table->string('IncidentType');
-            $table->string('ComplianceType');
-            $table->date('Date_reported');;
+            $table->string('Lokasi');
+            $table->string('Jenis_insiden');
+            $table->string('Jenis_inspeksi');
+            $table->date('Tanggal_lapor');
             $table->enum('Status', ['Escalated', 'Pending', 'Resolved','Open']);
-            $table->enum('Severity', ['Low', 'Medium', 'High', 'Critical']);
-            $table->string('ResolvedBy');
-            $table->text('file_dokumentasi')->nullable();
+            $table->enum('Tingkat_keparahan', ['Low', 'Medium', 'High', 'Critical']);
+            $table->string('Diselesaikan_oleh');
+             $table->json('file_dokumentasi')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
