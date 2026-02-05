@@ -1,232 +1,364 @@
 @extends('layouts.user_type.auth')
 
 @section('content')
+
 <div class="container-fluid py-4">
+
     {{-- ALERT HEADER --}}
     <div class="alert alert-secondary mx-4" role="alert">
         <span class="text-white">
-            <strong>Update Logbook Limbah B3</strong> (ID: #{{ $data->id }})
+            <strong>Edit Data Pengelolaan Sampah</strong> (ID: #{{ $data->id }})
         </span>
     </div>
 
     <div class="row">
         <div class="col-12">
+
             <div class="card mx-4">
                 <div class="card-header pb-0">
-                    <h5 class="mb-0">Form Update Data Logbook Limbah B3</h5>
+                    <h5 class="mb-0">Form Edit Data Pengelolaan Sampah</h5>
                 </div>
+
                 <div class="card-body">
-                    <form action="{{ route('trash-management.update', $data->id) }}" method="POST">
+                    <form action="{{ route('trash-management.update', $data->id) }}"
+                          method="POST"
+                          id="trashForm">
                         @csrf
                         @method('PUT')
-                        <input type="hidden" name="tanggal_masuk" value="{{ $data->tanggal_masuk }}">
-                        <input type="hidden" name="sumber_limbah" value="{{ $data->sumber_limbah }}">
-                        <input type="hidden" name="maksimal_penyimpanan" value="{{ $data->maksimal_penyimpanan }}">
-                        
-                        <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Data Penerimaan (Masuk)</h6>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Jenis Limbah B3</label>
-                                <input type="text" 
-                                       name="jenis_limbah_masuk" 
-                                       value="{{ old('jenis_limbah_masuk', $data->jenis_limbah_masuk) }}" 
-                                       class="form-control text-uppercase @error('jenis_limbah_masuk') is-invalid @enderror"
-                                       style="text-transform: uppercase;">
-                                @error('jenis_limbah_masuk')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Kode Limbah</label>
-                                <input type="text" 
-                                       name="kode_limbah" 
-                                       value="{{ old('kode_limbah', $data->kode_limbah) }}" 
-                                       class="form-control text-uppercase @error('kode_limbah') is-invalid @enderror"
-                                       style="text-transform: uppercase;">
-                                @error('kode_limbah')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Jumlah Masuk (Ton)</label>
-                                <input type="number" 
-                                       step="0.001" 
-                                       name="jumlah_masuk_ton" 
-                                       value="{{ old('jumlah_masuk_ton', $data->jumlah_masuk_ton) }}" 
-                                       class="form-control @error('jumlah_masuk_ton') is-invalid @enderror">
-                                @error('jumlah_masuk_ton')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
 
-                        <hr class="horizontal dark">
-                        <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3 text-primary">Data Pengeluaran (Keluar)</h6>
                         <div class="row g-3">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Tanggal Keluar</label>
-                                <input type="date" 
-                                       name="tanggal_keluar" 
-                                       value="{{ old('tanggal_keluar', $data->tanggal_keluar?->format('Y-m-d')) }}" 
-                                       class="form-control @error('tanggal_keluar') is-invalid @enderror" required>
-                                @error('tanggal_keluar')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Jumlah Keluar (Ton)</label>
-                                <input type="number" 
-                                       step="0.001" 
-                                       name="jumlah_keluar_ton" 
-                                       value="{{ old('jumlah_keluar_ton', $data->jumlah_keluar_ton) }}" 
-                                       class="form-control @error('jumlah_keluar_ton') is-invalid @enderror">
-                                @error('jumlah_keluar_ton')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Sisa di TPS (Ton)</label>
-                                <input type="number" 
-                                       step="0.001" 
-                                       name="sisa_limbah_ton" 
-                                       value="{{ old('sisa_limbah_ton', $data->sisa_limbah_ton) }}" 
-                                       class="form-control bg-light @error('sisa_limbah_ton') is-invalid @enderror" 
-                                       readonly>
-                                @error('sisa_limbah_ton')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+
+                            {{-- TANGGAL --}}
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Tujuan Penyerahan</label>
-                                <input type="text" 
-                                       name="tujuan_penyerahan" 
-                                       value="{{ old('tujuan_penyerahan', $data->tujuan_penyerahan) }}" 
-                                       class="form-control text-uppercase @error('tujuan_penyerahan') is-invalid @enderror"
-                                       style="text-transform: uppercase;"
-                                       placeholder="NAMA TRANSPORTER/PENGOLAH">
-                                @error('tujuan_penyerahan')
+                                <label class="form-label">Tanggal <span class="text-danger">*</span></label>
+                                <input type="date"
+                                       name="tanggal"
+                                       value="{{ old('tanggal', $data->tanggal?->format('Y-m-d')) }}"
+                                       class="form-control @error('tanggal') is-invalid @enderror"
+                                       required>
+
+                                @error('tanggal')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            {{-- SUMBER SAMPAH --}}
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Nomor Dokumen/Manifest</label>
-                                <input type="text" 
-                                       name="nomor_dokumen" 
-                                       value="{{ old('nomor_dokumen', $data->nomor_dokumen) }}" 
-                                       class="form-control text-uppercase @error('nomor_dokumen') is-invalid @enderror"
-                                       style="text-transform: uppercase;"
-                                       placeholder="CONTOH: MNF-001234">
-                                @error('nomor_dokumen')
+                                <label class="form-label">Sumber Sampah <span class="text-danger">*</span></label>
+                                <select name="sumber_sampah"
+                                        class="form-select @error('sumber_sampah') is-invalid @enderror"
+                                        required>
+                                    <option value="">-- Pilih Sumber Sampah --</option>
+                                    @foreach($sumberOptions as $value => $label)
+                                        <option value="{{ $value }}" {{ old('sumber_sampah', $data->sumber_sampah) == $value ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                @error('sumber_sampah')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            {{-- SAMPAH ORGANIK TERPILAH --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Sampah Organik Terpilah (kg)</label>
+                                <input type="number"
+                                       step="1"
+                                       name="sampah_organik_terpilah"
+                                       value="{{ old('sampah_organik_terpilah', $data->sampah_organik_terpilah ?? 0) }}"
+                                       class="form-control @error('sampah_organik_terpilah') is-invalid @enderror"
+                                       placeholder="Contoh: 50">
+
+                                @error('sampah_organik_terpilah')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- SAMPAH ANORGANIK TERPILAH --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Sampah Anorganik Terpilah (kg)</label>
+                                <input type="number"
+                                       step="1"
+                                       name="sampah_anorganik_terpilah"
+                                       value="{{ old('sampah_anorganik_terpilah', $data->sampah_anorganik_terpilah ?? 0) }}"
+                                       class="form-control @error('sampah_anorganik_terpilah') is-invalid @enderror"
+                                       placeholder="Contoh: 30">
+
+                                @error('sampah_anorganik_terpilah')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- SAMPAH LAINNYA DAN/ATAU RESIDU --}}
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Sampah Lainnya/Residu (kg)</label>
+                                <input type="number"
+                                       step="1"
+                                       name="sampah_lainnya_dan_atau_residu"
+                                       value="{{ old('sampah_lainnya_dan_atau_residu', $data->sampah_lainnya_dan_atau_residu ?? 0) }}"
+                                       class="form-control @error('sampah_lainnya_dan_atau_residu') is-invalid @enderror"
+                                       placeholder="Contoh: 20">
+
+                                @error('sampah_lainnya_dan_atau_residu')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- TOTAL (READONLY) --}}
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Total Sampah (kg) <span class="text-muted">(Otomatis Terhitung)</span></label>
+                                <input type="number"
+                                       name="total"
+                                       value="{{ old('sampah_organik_terpilah', $data->sampah_organik_terpilah ?? 0) + old('sampah_anorganik_terpilah', $data->sampah_anorganik_terpilah ?? 0) + old('sampah_lainnya_dan_atau_residu', $data->sampah_lainnya_dan_atau_residu ?? 0) }}"
+                                       class="form-control bg-light"
+                                       readonly
+                                       placeholder="0">
+
+                                <small class="text-muted">
+                                    Total = Sampah Organik + Sampah Anorganik + Sampah Residu
+                                </small>
+                            </div>
+
+                            {{-- CATATAN --}}
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Catatan</label>
+                                <textarea name="catatan"
+                                          rows="3"
+                                          class="form-control @error('catatan') is-invalid @enderror"
+                                          placeholder="Catatan khusus atau keterangan tambahan">{{ old('catatan', $data->catatan) }}</textarea>
+
+                                @error('catatan')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                         </div>
 
-                        <div class="d-flex justify-content-end mt-4">
-                            <a href="{{ route('trash-management') }}" class="btn btn-light me-2">Batal</a>
-                            <button type="submit" class="btn bg-gradient-primary">Update Data</button>
+                        {{-- ACTION --}}
+                        <div class="d-flex justify-content-end">
+                            <a href="{{ route('trash-management') }}"
+                               class="btn btn-light me-2">
+                                <i class="fas fa-times me-1"></i>Batal
+                            </a>
+
+                            <button type="submit" class="btn bg-gradient-primary">
+                                <i class="fas fa-save me-1"></i>Update Data
+                            </button>
                         </div>
+
                     </form>
                 </div>
+
             </div>
+
         </div>
     </div>
+
 </div>
 
-{{-- MODAL ERROR VALIDASI --}}
+{{-- MODAL ERROR VALIDASI - VERSI DIPERBAGUS --}}
 @if ($errors->any())
-<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-gradient-danger">
-                <h5 class="modal-title text-white">Validasi Gagal</h5>
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            
+            {{-- MODAL HEADER --}}
+            <div class="modal-header bg-gradient-danger border-0 py-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-white rounded-circle p-3 me-3">
+                        <i class="fas fa-exclamation-triangle text-danger fa-2x"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title text-white fw-bold" id="errorModalLabel">
+                            <i class="fas fa-times-circle me-2"></i>Validasi Gagal
+                        </h5>
+                        <p class="mb-0 text-white-50 small">Mohon perbaiki kesalahan berikut</p>
+                    </div>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="alert alert-danger p-3">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+
+            {{-- MODAL BODY --}}
+            <div class="modal-body p-4">
+                <div class="alert alert-danger border border-danger rounded-3 p-4 mb-0">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0 me-3 mt-1">
+                            <i class="fas fa-info-circle fa-lg text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="alert-heading fw-bold mb-3">Daftar Kesalahan:</h6>
+                            <div class="list-group list-group-flush">
+                                @foreach ($errors->all() as $error)
+                                    <div class="list-group-item list-group-item-action border-0 bg-transparent text-danger p-2 ps-0">
+                                        <div class="d-flex align-items-start">
+                                            <i class="fas fa-times-circle me-2 mt-1 text-danger"></i>
+                                            <span class="fw-medium">{{ $error }}</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+
+            {{-- MODAL FOOTER --}}
+            <div class="modal-footer bg-light border-0 py-3">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-2 mb-md-0">
+                            <div class="d-flex align-items-center text-muted small">
+                                <i class="fas fa-lightbulb me-2 text-warning"></i>
+                                <span>Periksa kembali data yang Anda masukkan sebelum menyimpan.</span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 text-end">
+                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                                <i class="fas fa-arrow-left me-1"></i>Kembali ke Form
+                            </button>
+                            <button type="button" class="btn btn-danger px-4 ms-2" onclick="window.location.reload()">
+                                <i class="fas fa-redo me-1"></i>Reset Form
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
         </div>
     </div>
 </div>
-@endif
 
-@endsection
-
-@push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // === KAPITALISASI OTOMATIS ===
-    const uppercaseFields = [
-        'jenis_limbah_masuk',
-        'kode_limbah',
-        'tujuan_penyerahan',
-        'nomor_dokumen'
-    ];
-
-    // Force uppercase saat input & saat load
-    uppercaseFields.forEach(fieldName => {
-        const field = document.querySelector(`input[name="${fieldName}"]`);
-        if (!field) return;
-
-        // Konversi nilai existing ke uppercase
-        if (field.value) {
-            field.value = field.value.toUpperCase();
-        }
-
-        // Force uppercase saat user mengetik
-        field.addEventListener('input', function () {
-            this.value = this.value.toUpperCase();
-        });
-
-        // Pastikan saat submit juga uppercase (safety net)
-        field.addEventListener('blur', function () {
-            this.value = this.value.toUpperCase();
-        });
+    // Show modal with animation
+    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'), {
+        backdrop: 'static',
+        keyboard: false
     });
-
-    // === KALKULASI SISA LIMBAH ===
-    const masukInput = document.querySelector('input[name="jumlah_masuk_ton"]');
-    const keluarInput = document.querySelector('input[name="jumlah_keluar_ton"]');
-    const sisaInput = document.querySelector('input[name="sisa_limbah_ton"]');
-
-    function hitungSisa() {
-        if (!masukInput || !keluarInput || !sisaInput) return;
-        
-        const masuk = parseFloat(masukInput.value) || 0;
-        const keluar = parseFloat(keluarInput.value) || 0;
-        let sisa = masuk - keluar;
-        
-        // Hindari nilai negatif
-        if (sisa < 0) sisa = 0;
-        
-        sisaInput.value = sisa.toFixed(3);
-    }
-
-    masukInput?.addEventListener('input', hitungSisa);
-    keluarInput?.addEventListener('input', hitungSisa);
     
-    // Hitung ulang saat halaman dimuat
-    setTimeout(hitungSisa, 100);
-
-    // === TAMPILKAN MODAL ERROR ===
-    @if ($errors->any())
-    setTimeout(function() {
-        const modalEl = document.getElementById('errorModal');
-        if (modalEl && typeof bootstrap !== 'undefined') {
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
-    }, 300);
-    @endif
+    // Add fade-in animation
+    document.getElementById('errorModal').addEventListener('shown.bs.modal', function () {
+        const modalContent = this.querySelector('.modal-content');
+        modalContent.style.animation = 'fadeInUp 0.3s ease-out';
+    });
+    
+    errorModal.show();
 });
 </script>
+
+<style>
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.list-group-item-action:hover {
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.modal-content {
+    border-radius: 12px !important;
+}
+
+.btn-close-white:hover {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+</style>
+@endif
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('trashForm');
+    const organikInput = document.querySelector('input[name="sampah_organik_terpilah"]');
+    const anorganikInput = document.querySelector('input[name="sampah_anorganik_terpilah"]');
+    const residuInput = document.querySelector('input[name="sampah_lainnya_dan_atau_residu"]');
+    const totalInput = document.querySelector('input[name="total"]');
+
+    // Fungsi kalkulasi total
+    function hitungTotal() {
+        const organik = parseInt(organikInput.value) || 0;
+        const anorganik = parseInt(anorganikInput.value) || 0;
+        const residu = parseInt(residuInput.value) || 0;
+        
+        const total = organik + anorganik + residu;
+        totalInput.value = total;
+    }
+
+    // Event listeners untuk kalkulasi otomatis
+    organikInput?.addEventListener('input', hitungTotal);
+    anorganikInput?.addEventListener('input', hitungTotal);
+    residuInput?.addEventListener('input', hitungTotal);
+
+    // Hitung saat halaman dimuat
+    setTimeout(hitungTotal, 100);
+
+    // Validasi sebelum submit
+    form?.addEventListener('submit', function(e) {
+        const organik = parseInt(organikInput.value) || 0;
+        const anorganik = parseInt(anorganikInput.value) || 0;
+        const residu = parseInt(residuInput.value) || 0;
+        const total = organik + anorganik + residu;
+
+        // Validasi minimal satu jenis sampah harus diisi
+        if (total === 0) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Peringatan!',
+                text: 'Minimal satu jenis sampah harus diisi!',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545'
+            });
+            return false;
+        }
+
+        // Konfirmasi sebelum submit
+        e.preventDefault();
+        Swal.fire({
+            title: 'Konfirmasi Update Data',
+            html: `
+                <div class="text-start">
+                    <p class="mb-2"><strong>ID:</strong> #{{ $data->id }}</p>
+                    <p class="mb-2"><strong>Tanggal:</strong> ${document.querySelector('input[name="tanggal"]').value}</p>
+                    <p class="mb-2"><strong>Sumber:</strong> ${document.querySelector('select[name="sumber_sampah"]').value}</p>
+                    <p class="mb-2"><strong>Sampah Organik:</strong> ${organik} kg</p>
+                    <p class="mb-2"><strong>Sampah Anorganik:</strong> ${anorganik} kg</p>
+                    <p class="mb-3"><strong>Sampah Residu:</strong> ${residu} kg</p>
+                    <hr>
+                    <p class="mb-0"><strong>Total:</strong> ${total} kg</p>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Update Data',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#198754',
+            cancelButtonColor: '#6c757d',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'btn btn-success me-2',
+                cancelButton: 'btn btn-secondary'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+});
+</script>
+
+{{-- SweetAlert2 CDN --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
+
+@endsection

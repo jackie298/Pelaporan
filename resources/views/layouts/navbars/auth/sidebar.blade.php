@@ -208,18 +208,28 @@
                             </a>
                         </li>
 
-                        {{-- SUBMENU: TRASH MANAGEMENT (LIMBAH B3) --}}
+                        {{-- SUBMENU: LIMBAH B3 --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ Request::is('waste-b3*') ? 'active' : '' }}" 
+                            href="{{ route('waste-b3') }}">
+                                <span class="dot-indicator {{ Request::is('waste-b3*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Limbah B3 </span>
+                            </a>
+                        </li>
+
+                        {{-- SUBMENU: TRASH MANAGEMENT --}}
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('trash-management*') ? 'active' : '' }}" 
                             href="{{ route('trash-management') }}">
                                 <span class="dot-indicator {{ Request::is('trash-management*') ? 'bg-primary' : 'bg-secondary' }}"></span>
-                                <span class="sidenav-normal text-xs ps-2"> Limbah B3 </span>
+                                <span class="sidenav-normal text-xs ps-2"> Pengelolaan Sampah </span>
                             </a>
                         </li>
                         
                     </ul>
                 </div>
             </li>
+
             {{-- ================= COMPLIANCE ================= --}}
             <li class="nav-item">
                 <a class="nav-link {{ Request::is('compliance*') ? 'active' : '' }}"

@@ -14,6 +14,7 @@ use App\Http\Controllers\ReklamasiController;
 use App\Http\Controllers\complianceController;
 use App\Http\Controllers\NurseryController;
 use App\Http\Controllers\TrashManagementController;
+use App\Http\Controllers\WasteB3Controller;
 use App\Http\Controllers\MonitoringVegetasiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -328,7 +329,7 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('compliance.destroy');
     // END compliance
 
-    // ROUTING TRASH MANAGEMENT (LIMBAH B3) 
+    // ROUTING TRASH MANAGEMENT 
     Route::get('trash-management', [TrashManagementController::class, 'index'])
         ->name('trash-management');
 
@@ -349,7 +350,30 @@ Route::group(['middleware' => 'auth'], function () {
     // DELETE
     Route::delete('trash-management/{id}', [TrashManagementController::class, 'destroy'])
         ->name('trash-management.destroy');
-    // END TRASH MANAGEMENT (LIMBAH B3)
+    // END TRASH MANAGEMENT
+
+    // ROUTING LIMBAH B3
+    Route::get('waste-b3', [WasteB3Controller::class, 'index'])
+        ->name('waste-b3');
+
+    // CREATE
+    Route::get('waste-b3/create', [WasteB3Controller::class, 'create'])
+        ->name('waste-b3.create');
+
+    Route::post('waste-b3', [WasteB3Controller::class, 'store'])
+        ->name('waste-b3.store');
+
+    // EDIT
+    Route::get('waste-b3/{id}/edit', [WasteB3Controller::class, 'edit'])
+        ->name('waste-b3.edit');
+
+    Route::put('waste-b3/{id}', [WasteB3Controller::class, 'update'])
+        ->name('waste-b3.update');
+
+    // DELETE
+    Route::delete('waste-b3/{id}', [WasteB3Controller::class, 'destroy'])
+        ->name('waste-b3.destroy');
+    // END LIMBAH B3
 
     // ROUTING MONITORING VEGETASI
     Route::get('monitoring-vegetasi', [MonitoringVegetasiController::class, 'index'])
@@ -402,11 +426,6 @@ Route::get('/import-user', function () {
     return view('import.user');
 });
 
-
-
-
-Route::post('/import-user', [ImportController::class, 'import'])
-    ->name('import.user');
 
 Route::get('/login', function () {
     return view('session/login-session');

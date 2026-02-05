@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class TrashManagementController extends Controller
 {
     /**
-     * Tampilkan daftar data pengelolaan limbah B3
+     * Tampilkan daftar data pengelolaan sampah
      */
     public function index()
     {
@@ -23,33 +23,63 @@ class TrashManagementController extends Controller
      */
     public function create()
     {
-        return view('trash-management.create');
+        $sumberOptions = TrashManagement::SUMBER_SAMPAH_OPTIONS;
+        return view('trash-management.create', compact('sumberOptions'));
     }
 
     /**
-     * Simpan data limbah B3
+     * Simpan data pengelolaan sampah
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'jenis_limbah_masuk'   => 'required|string',
-            'kode_limbah'          => 'required|string',
-            'tanggal_masuk'        => 'required|date',
-            'sumber_limbah'        => 'required|string',
-            'jumlah_masuk_ton'     => 'required|numeric|min:0',
-            'maksimal_penyimpanan' => 'required|date|after_or_equal:tanggal_masuk',
-            'tanggal_keluar'       => 'nullable|date|after_or_equal:tanggal_masuk',
-            'jumlah_keluar_ton'    => 'nullable|numeric|min:0',
-            'tujuan_penyerahan'    => 'nullable|string',
-            'nomor_dokumen'        => 'nullable|string',
-            'sisa_limbah_ton'      => 'required|numeric|min:0',
+        $validated = $request->validate([
+            'tanggal' => 'required|date|before_or_equal:today',
+            'sumber_sampah' => 'required|in:area kantor,area site',
+            'sampah_organik_terpilah' => 'nullable|integer|min:0',
+            'sampah_anorganik_terpilah' => 'nullable|integer|min:0',
+            'sampah_lainnya_dan_atau_residu' => 'nullable|integer|min:0',
+        ], [
+            'tanggal.required' => 'Tanggal harus diisi',
+            'tanggal.date' => 'Format tanggal tidak valid',
+            'tanggal.before_or_equal' => 'Tanggal tidak boleh di masa depan',
+            'sumber_sampah.required' => 'Sumber sampah harus dipilih',
+            'sumber_sampah.in' => 'Sumber sampah tidak valid',
+            'sampah_organik_terpilah.integer' => 'Sampah organik harus berupa angka',
+            'sampah_organik_terpilah.min' => 'Sampah organik minimal 0',
+            'sampah_anorganik_terpilah.integer' => 'Sampah anorganik harus berupa angka',
+            'sampah_anorganik_terpilah.min' => 'Sampah anorganik minimal 0',
+            'sampah_lainnya_dan_atau_residu.integer' => 'Sampah residu harus berupa angka',
+            'sampah_lainnya_dan_atau_residu.min' => 'Sampah residu minimal 0',
         ]);
 
-        TrashManagement::create($request->all());
+        // Pastikan minimal ada satu jenis sampah yang diisi
+        if (empty($validated['sampah_organik_terpilah']) && 
+            empty($validated['sampah_anorganik_terpilah']) && 
+            empty($validated['sampah_lainnya_dan_atau_residu'])) {
+            return back()
+                ->withErrors(['total' => 'Minimal satu jenis sampah harus diisi'])
+                ->withInput();
+        }
+
+        // Cek duplikasi data (tanggal + sumber sampah)
+        $exists = TrashManagement::where('tanggal', $validated['tanggal'])
+                                 ->where('sumber_sampah', $validated['sumber_sampah'])
+                                 ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors([
+                    'tanggal' => 'Data untuk tanggal ini dengan sumber sampah yang sama sudah ada'
+                ])
+                ->withInput();
+        }
+
+        // Simpan data
+        TrashManagement::create($validated);
 
         return redirect()
             ->route('trash-management')
-            ->with('success', 'Data limbah B3 berhasil disimpan.');
+            ->with('success', 'Data pengelolaan sampah berhasil disimpan.');
     }
 
     /**
@@ -58,39 +88,71 @@ class TrashManagementController extends Controller
     public function edit($id)
     {
         $data = TrashManagement::findOrFail($id);
-        return view('trash-management.edit', compact('data'));
+        $sumberOptions = TrashManagement::SUMBER_SAMPAH_OPTIONS;
+        
+        return view('trash-management.edit', compact('data', 'sumberOptions'));
     }
 
     /**
-     * Perbarui data limbah B3
+     * Perbarui data pengelolaan sampah
      */
     public function update(Request $request, $id)
     {
         $data = TrashManagement::findOrFail($id);
 
-        $request->validate([
-            'jenis_limbah_masuk'   => 'required|string',
-            'kode_limbah'          => 'required|string',
-            'tanggal_masuk'        => 'required|date',
-            'sumber_limbah'        => 'required|string',
-            'jumlah_masuk_ton'     => 'required|numeric|min:0',
-            'maksimal_penyimpanan' => 'required|date',
-            'tanggal_keluar'       => 'nullable|date',
-            'jumlah_keluar_ton'    => 'nullable|numeric|min:0',
-            'tujuan_penyerahan'    => 'nullable|string',
-            'nomor_dokumen'        => 'nullable|string',
-            'sisa_limbah_ton'      => 'required|numeric|min:0',
+        $validated = $request->validate([
+            'tanggal' => 'required|date|before_or_equal:today',
+            'sumber_sampah' => 'required|in:area kantor,area site',
+            'sampah_organik_terpilah' => 'nullable|integer|min:0',
+            'sampah_anorganik_terpilah' => 'nullable|integer|min:0',
+            'sampah_lainnya_dan_atau_residu' => 'nullable|integer|min:0',
+        ], [
+            'tanggal.required' => 'Tanggal harus diisi',
+            'tanggal.date' => 'Format tanggal tidak valid',
+            'tanggal.before_or_equal' => 'Tanggal tidak boleh di masa depan',
+            'sumber_sampah.required' => 'Sumber sampah harus dipilih',
+            'sumber_sampah.in' => 'Sumber sampah tidak valid',
+            'sampah_organik_terpilah.integer' => 'Sampah organik harus berupa angka',
+            'sampah_organik_terpilah.min' => 'Sampah organik minimal 0',
+            'sampah_anorganik_terpilah.integer' => 'Sampah anorganik harus berupa angka',
+            'sampah_anorganik_terpilah.min' => 'Sampah anorganik minimal 0',
+            'sampah_lainnya_dan_atau_residu.integer' => 'Sampah residu harus berupa angka',
+            'sampah_lainnya_dan_atau_residu.min' => 'Sampah residu minimal 0',
         ]);
 
-        $data->update($request->all());
+        // Pastikan minimal ada satu jenis sampah yang diisi
+        if (empty($validated['sampah_organik_terpilah']) && 
+            empty($validated['sampah_anorganik_terpilah']) && 
+            empty($validated['sampah_lainnya_dan_atau_residu'])) {
+            return back()
+                ->withErrors(['total' => 'Minimal satu jenis sampah harus diisi'])
+                ->withInput();
+        }
+
+        // Cek duplikasi data (kecuali data ini sendiri)
+        $exists = TrashManagement::where('tanggal', $validated['tanggal'])
+                                 ->where('sumber_sampah', $validated['sumber_sampah'])
+                                 ->where('id', '!=', $id)
+                                 ->exists();
+
+        if ($exists) {
+            return back()
+                ->withErrors([
+                    'tanggal' => 'Data untuk tanggal ini dengan sumber sampah yang sama sudah ada'
+                ])
+                ->withInput();
+        }
+
+        // Update data
+        $data->update($validated);
 
         return redirect()
             ->route('trash-management')
-            ->with('success', 'Data limbah B3 berhasil diperbarui.');
+            ->with('success', 'Data pengelolaan sampah berhasil diperbarui.');
     }
 
     /**
-     * Hapus data
+     * Hapus data (soft delete)
      */
     public function destroy($id)
     {
@@ -99,6 +161,6 @@ class TrashManagementController extends Controller
 
         return redirect()
             ->route('trash-management')
-            ->with('success', 'Data limbah B3 berhasil dihapus.');
+            ->with('success', 'Data pengelolaan sampah berhasil dihapus.');
     }
 }

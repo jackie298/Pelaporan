@@ -20,17 +20,12 @@ class TrashManagement extends Model
      * Kolom yang bisa diisi mass assignment.
      */
     protected $fillable = [
-        'jenis_limbah_masuk',
-        'kode_limbah',
-        'tanggal_masuk',
-        'sumber_limbah',
-        'jumlah_masuk_ton',
-        'maksimal_penyimpanan',
-        'tanggal_keluar',
-        'jumlah_keluar_ton',
-        'tujuan_penyerahan',
-        'nomor_dokumen',
-        'sisa_limbah_ton',
+        'tanggal',
+        'sumber_sampah',
+        'sampah_organik_terpilah',
+        'sampah_anorganik_terpilah',
+        'sampah_lainnya_dan_atau_residu',
+        'total',
         'created_by',
     ];
 
@@ -38,19 +33,27 @@ class TrashManagement extends Model
      * Kolom yang harus di-cast ke tipe tertentu.
      */
     protected $casts = [
-        'tanggal_masuk'        => 'date:Y-m-d',
-        'maksimal_penyimpanan' => 'date:Y-m-d',
-        'tanggal_keluar'       => 'date:Y-m-d',
-        'jumlah_masuk_ton'     => 'decimal:2',
-        'jumlah_keluar_ton'    => 'decimal:2',
-        'sisa_limbah_ton'      => 'decimal:2',
-        'created_at'           => 'datetime',
-        'updated_at'           => 'datetime',
-        'deleted_at'           => 'datetime',
+        'tanggal' => 'date:Y-m-d',
+        'sampah_organik_terpilah' => 'integer',
+        'sampah_anorganik_terpilah' => 'integer',
+        'sampah_lainnya_dan_atau_residu' => 'integer',
+        'total' => 'integer',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**
-     * Relasi: Data dimasukkan oleh User (Admin/Staff).
+     * Opsi nilai untuk enum sumber_sampah
+     * Digunakan untuk dropdown di form
+     */
+    public const SUMBER_SAMPAH_OPTIONS = [
+        'area kantor' => 'Area Kantor',
+        'area site' => 'Area Site',
+    ];
+
+    /**
+     * Relasi: Data dimasukkan oleh User.
      */
     public function creator(): BelongsTo
     {
@@ -58,46 +61,61 @@ class TrashManagement extends Model
     }
 
     /**
-     * Scope untuk filter berdasarkan Kode Limbah.
+     * Scope untuk filter berdasarkan sumber sampah.
      */
-    public function scopeKode($query, string $kode)
+    public function scopeSumber($query, string $sumber)
     {
-        return $query->where('kode_limbah', $kode);
+        return $query->where('sumber_sampah', $sumber);
     }
 
     /**
-     * Scope untuk mencari data yang belum keluar (masih di penyimpanan).
+     * Scope untuk filter berdasarkan rentang tanggal.
      */
-    public function scopeMasihDisimpan($query)
+    public function scopeTanggalAntara($query, string $dari, string $sampai)
     {
-        return $query->whereNull('tanggal_keluar');
+        return $query->whereBetween('tanggal', [$dari, $sampai]);
     }
 
     /**
-     * Scope untuk filter berdasarkan rentang tanggal masuk.
+     * Scope untuk filter berdasarkan tanggal tertentu.
      */
-    public function scopeTanggalMasukAntara($query, string $dari, string $sampai)
+    public function scopeTanggal($query, string $tanggal)
     {
-        return $query->whereBetween('tanggal_masuk', [$dari, $sampai]);
+        return $query->whereDate('tanggal', $tanggal);
     }
 
-    public function setJenisLimbahMasukAttribute($value)
+    /**
+     * Accessor untuk label sumber sampah yang mudah dibaca.
+     */
+    public function getSumberSampahLabelAttribute(): string
     {
-        $this->attributes['jenis_limbah_masuk'] = strtoupper(trim($value));
+        if (empty($this->sumber_sampah)) {
+            return '-';
+        }
+        
+        return self::SUMBER_SAMPAH_OPTIONS[$this->sumber_sampah] ?? $this->sumber_sampah;
     }
 
-    public function setKodeLimbahAttribute($value)
+    /**
+     * Accessor untuk format tanggal yang user-friendly.
+     */
+    public function getTanggalFormattedAttribute(): string
     {
-        $this->attributes['kode_limbah'] = strtoupper(trim($value));
+        return $this->tanggal ? $this->tanggal->format('d/m/Y') : '-';
     }
 
-    public function setTujuanPenyerahanAttribute($value)
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
     {
-        $this->attributes['tujuan_penyerahan'] = strtoupper(trim($value));
-    }
+        parent::boot();
 
-    public function setNomorDokumenAttribute($value)
-    {
-        $this->attributes['nomor_dokumen'] = strtoupper(trim($value));
+        // Hitung ulang total sebelum menyimpan
+        static::saving(function ($model) {
+            $model->total = ($model->sampah_organik_terpilah ?? 0) + 
+                            ($model->sampah_anorganik_terpilah ?? 0) + 
+                            ($model->sampah_lainnya_dan_atau_residu ?? 0);
+        });
     }
 }
