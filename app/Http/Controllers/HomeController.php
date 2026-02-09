@@ -11,6 +11,7 @@ use App\Models\Reklamasi;
 use App\Models\BukaanLahan;
 use App\Models\Revegetasi;
 use App\Models\Nursery;
+use App\Models\RencanaRevegetasi;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -111,54 +112,114 @@ class HomeController extends Controller
 
         $currentYear = date('Y');
 
-        // Ambil data rencana 12 bulan (Jan-Des)
-        $rencanaRevegetasi = DB::table('rencana_revegetasi')
-            ->where('tahun', $currentYear)
-            ->orderBy('bulan', 'asc')
-            ->pluck('target_bibit', 'bulan')
-            ->toArray();
+        // ========================================
+        // PERBAIKAN: DATA RENCANA & REALISASI REVEGETASI
+        // ========================================
+        
+        // 1. Definisikan urutan bulan yang konsisten
+        $bulanUrutan = [
+            'januari', 'februari', 'maret', 'april', 'mei', 'juni',
+            'juli', 'agustus', 'september', 'oktober', 'november', 'desember'
+        ];
 
-        // Ambil data realisasi bulanan (SUM jumlah_tanaman)
+        // 2. Ambil data rencana tahunan (dengan lokasi) - AGREGASI SEMUA LOKASI
+        $rencanaLokasi = RencanaRevegetasi::tahun($currentYear)
+            ->denganLokasi()
+            ->get();
+
+        // 3. Agregasi data rencana dari semua lokasi
+        if ($rencanaLokasi->isNotEmpty()) {
+            $totalBulan = array_fill(0, 12, 0);
+
+            foreach ($rencanaLokasi as $r) {
+                foreach ($bulanUrutan as $index => $bulan) {
+                    $totalBulan[$index] += (int) ($r->{$bulan} ?? 0);
+                }
+            }
+            
+            $dataChartRencana = $totalBulan;
+        } else {
+            // Jika tidak ada data lokasi, coba ambil rencana nasional (lokasi = NULL)
+            $rencanaNasional = RencanaRevegetasi::tahun($currentYear)
+                ->tanpaLokasi()
+                ->first();
+
+            if ($rencanaNasional) {
+                $dataChartRencana = [];
+                foreach ($bulanUrutan as $bulan) {
+                    $dataChartRencana[] = (int) $rencanaNasional->{$bulan};
+                }
+            } else {
+                $dataChartRencana = array_fill(0, 12, 0);
+            }
+        }
+
+        // 4. Ambil data realisasi bulanan
         $realisasiBulanan = Revegetasi::selectRaw('MONTH(tanggal_monitoring) as bulan, SUM(jumlah_tanaman) as total')
             ->whereYear('tanggal_monitoring', $currentYear)
             ->groupBy('bulan')
             ->pluck('total', 'bulan')
             ->toArray();
 
-        // Mapping data untuk 12 Bulan (Januari s/d Desember)
-        $monthsFull = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        $dataChartRencana = [];
+        // 5. Siapkan data realisasi dengan urutan bulan yang pasti
         $dataChartRealisasi = [];
-
         for ($m = 1; $m <= 12; $m++) {
-            $dataChartRencana[] = $rencanaRevegetasi[$m] ?? 0;
             $dataChartRealisasi[] = $realisasiBulanan[$m] ?? 0;
         }
+
+        // 6. Siapkan label bulan untuk chart
+        $monthsFull = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+        // ========================================
+        // END: PERBAIKAN DATA REVEGETASI
+        // ========================================
 
         // === GRAFIK: RATA-RATA PERTUMBUHAN PER TRIWULAN + RATA-RATA TAHUNAN ===
         $currentYear = date('Y');
 
+        // Ambil data monitoring vegetasi untuk tahun ini (hanya data aktif)
         $monitoringTahunan = \App\Models\MonitoringVegetasi::selectRaw('
             AVG(tinggi_triwulan1) as avg_tw1,
             AVG(tinggi_triwulan2) as avg_tw2,
             AVG(tinggi_triwulan3) as avg_tw3,
-            AVG(tinggi_triwulan4) as avg_tw4
+            AVG(tinggi_triwulan4) as avg_tw4,
+            COUNT(*) as total_data
         ')
         ->where('tahun', $currentYear)
+        ->whereNull('deleted_at') // Hanya data aktif (belum dihapus)
         ->first();
 
-        $avgTw1 = $monitoringTahunan->avg_tw1 ?? 0;
-        $avgTw2 = $monitoringTahunan->avg_tw2 ?? 0;
-        $avgTw3 = $monitoringTahunan->avg_tw3 ?? 0;
-        $avgTw4 = $monitoringTahunan->avg_tw4 ?? 0;
 
-        // Hitung rata-rata tahunan (rata-rata dari 4 triwulan)
-        $total = $avgTw1 + $avgTw2 + $avgTw3 + $avgTw4;
-        $count = count(array_filter([$avgTw1, $avgTw2, $avgTw3, $avgTw4], fn($v) => $v !== null && $v > 0));
-        $avgTahunan = $count > 0 ? round($total / $count, 2) : 0;
+        // Ambil rata-rata per triwulan (default 0 jika null)
+        $avgTw1 = $monitoringTahunan ? round($monitoringTahunan->avg_tw1 ?? 0, 2) : 0;
+        $avgTw2 = $monitoringTahunan ? round($monitoringTahunan->avg_tw2 ?? 0, 2) : 0;
+        $avgTw3 = $monitoringTahunan ? round($monitoringTahunan->avg_tw3 ?? 0, 2) : 0;
+        $avgTw4 = $monitoringTahunan ? round($monitoringTahunan->avg_tw4 ?? 0, 2) : 0;
+
+        // Hitung rata-rata tahunan (rata-rata dari 4 triwulan yang valid)
+        $valuesArray = [$avgTw1, $avgTw2, $avgTw3, $avgTw4];
+        $validValues = array_filter($valuesArray, fn($v) => $v !== null && $v > 0);
+
+        if (count($validValues) > 0) {
+            $avgTahunan = round(array_sum($validValues) / count($validValues), 2);
+        } else {
+            $avgTahunan = 0;
+        }
 
         // Data untuk chart: [TW1, TW2, TW3, TW4, Rata-rata Tahun]
         $values = [$avgTw1, $avgTw2, $avgTw3, $avgTw4, $avgTahunan];
+
+        // Label untuk chart
+        $growthLabels = ["TW1", "TW2", "TW3", "TW4", "Rata-rata Tahunan"];
+
+        // Warna untuk setiap bar
+        $growthColors = [
+            '#3498db', // TW1 - Biru
+            '#2ecc71', // TW2 - Hijau
+            '#f39c12', // TW3 - Orange
+            '#e74c3c', // TW4 - Merah
+            '#9b59b6'  // Rata-rata - Ungu
+        ];
 
         return view('dashboard', compact(
             'documentContracts', 
@@ -184,6 +245,7 @@ class HomeController extends Controller
             'dataChartRencana',
             'dataChartRealisasi',
             'values',
+            'growthLabels',
             'currentYear'   
         ));
     }

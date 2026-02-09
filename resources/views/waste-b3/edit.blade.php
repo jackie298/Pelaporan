@@ -5,7 +5,7 @@
     {{-- ALERT HEADER --}}
     <div class="alert alert-secondary mx-4" role="alert">
         <span class="text-white">
-            <strong>Update Logbook Limbah B3</strong> (ID: #{{ $data->id }})
+            <strong>Edit Data Limbah B3 Masuk</strong> (ID: #{{ $data->id }})
         </span>
     </div>
 
@@ -13,155 +13,203 @@
         <div class="col-12">
             <div class="card mx-4">
                 <div class="card-header pb-0">
-                    <h5 class="mb-0">Form Update Data Logbook Limbah B3</h5>
+                    <h5 class="mb-0">Form Edit Data Limbah B3 Masuk</h5>
+                    <p class="text-sm text-muted mb-0">
+                        <i class="fas fa-info-circle"></i> 
+                        Data limbah B3 yang masuk ke Tempat Penyimpanan Sementara (TPS)
+                    </p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('waste-b3.update', $data->id) }}" method="POST" id="wasteForm">
+                    <form action="{{ route('waste-b3-masuk.update', $data->id) }}" method="POST" id="wasteForm">
                         @csrf
                         @method('PUT')
                         
-                        {{-- Hidden fields untuk data yang tidak bisa diubah --}}
-                        <input type="hidden" name="jenis_limbah_masuk" value="{{ $data->jenis_limbah_masuk }}">
-                        <input type="hidden" name="kode_limbah" value="{{ $data->kode_limbah }}">
-                        <input type="hidden" name="tanggal_masuk" value="{{ $data->tanggal_masuk }}">
-                        <input type="hidden" name="sumber_limbah" value="{{ $data->sumber_limbah }}">
-                        <input type="hidden" name="jumlah_masuk_ton" value="{{ $data->jumlah_masuk_ton }}">
-                        <input type="hidden" name="maksimal_penyimpanan" value="{{ $data->maksimal_penyimpanan }}">
-                        
-                        <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Data Penerimaan (Masuk)</h6>
-                        <div class="row g3 mb-4">
+                        {{-- Informasi Status Pengeluaran --}}
+                        @if($data->pengeluaran->count() > 0)
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian:</strong>
+                            <ul class="mb-0 mt-2 ps-3">
+                                <li>Data ini sudah memiliki <strong>{{ $data->pengeluaran->count() }}</strong> riwayat pengeluaran limbah</li>
+                                <li><strong>Jumlah ton tidak dapat diubah</strong> karena sudah ada pengeluaran</li>
+                                <li>Hanya field lain yang dapat diedit</li>
+                            </ul>
+                        </div>
+                        @endif
+
+                        {{-- Informasi Sisa Limbah --}}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Jumlah Masuk:</strong> {{ $data->jumlah_ton_formatted }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Sudah Dikeluarkan:</strong> {{ number_format($data->jumlah_dikeluarkan, 2, ',', '.') }} ton
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Sisa Limbah:</strong> 
+                                    <span class="badge badge-sm bg-gradient-{{ $data->sisa_limbah > 0 ? 'warning' : 'success' }}">
+                                        {{ $data->sisa_limbah_formatted }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- SECTION 1: DATA LIMBAH --}}
+                        <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">
+                            <i class="fas fa-cube me-2"></i>Data Limbah B3
+                        </h6>
+                        <div class="row g-3 mb-4">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Jenis Limbah B3</label>
+                                <label class="form-label">Jenis Limbah B3 <span class="text-danger">*</span></label>
                                 <input type="text" 
-                                       value="{{ $data->jenis_limbah_masuk }}" 
-                                       class="form-control bg-light"
-                                       readonly>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Kode Limbah</label>
-                                <input type="text" 
-                                       value="{{ $data->kode_limbah }}" 
-                                       class="form-control bg-light"
-                                       readonly>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Tanggal Masuk</label>
-                                <input type="date" 
-                                       value="{{ $data->tanggal_masuk?->format('Y-m-d') }}" 
-                                       class="form-control bg-light"
-                                       readonly>
+                                       name="jenis_limbah" 
+                                       value="{{ old('jenis_limbah', $data->jenis_limbah) }}" 
+                                       class="form-control @error('jenis_limbah') is-invalid @enderror"
+                                       placeholder="Contoh: Oli Bekas, Baterai Bekas, dll"
+                                       maxlength="100"
+                                       required>
+                                @error('jenis_limbah')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Masukkan jenis limbah secara bebas</small>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Sumber Limbah B3</label>
+                                <label class="form-label">Kode Limbah <span class="text-danger">*</span></label>
                                 <input type="text" 
-                                       value="{{ $data->sumber_limbah }}" 
-                                       class="form-control bg-light"
-                                       readonly>
+                                       name="kode_limbah" 
+                                       value="{{ old('kode_limbah', $data->kode_limbah) }}" 
+                                       class="form-control @error('kode_limbah') is-invalid @enderror"
+                                       placeholder="Contoh: B3-OLI-001"
+                                       maxlength="50"
+                                       required>
+                                @error('kode_limbah')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Jumlah Masuk (Ton)</label>
-                                <input type="number" 
-                                       step="0.001" 
-                                       value="{{ number_format($data->jumlah_masuk_ton, 3, '.', '') }}" 
-                                       class="form-control bg-light"
-                                       readonly>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Sumber Limbah <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       name="sumber_limbah" 
+                                       value="{{ old('sumber_limbah', $data->sumber_limbah) }}" 
+                                       class="form-control @error('sumber_limbah') is-invalid @enderror"
+                                       placeholder="Contoh: Workshop, Area Kantor, Site Produksi"
+                                       maxlength="100"
+                                       required>
+                                @error('sumber_limbah')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Asal limbah dihasilkan</small>
                             </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Maks. Simpan S/D</label>
-                                <input type="date" 
-                                       value="{{ $data->maksimal_penyimpanan?->format('Y-m-d') }}" 
-                                       class="form-control bg-light"
-                                       readonly>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nomor Manifest</label>
+                                <input type="text" 
+                                       name="nomor_manifest" 
+                                       value="{{ old('nomor_manifest', $data->nomor_manifest) }}" 
+                                       class="form-control @error('nomor_manifest') is-invalid @enderror"
+                                       placeholder="Contoh: MNF-B3-2026-001"
+                                       maxlength="100">
+                                @error('nomor_manifest')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
                         <hr class="horizontal dark">
-                        <h6text-uppercase text-body text-xs font-weight-bolder mb-3 text-primary">Data Pengeluaran (Keluar)</h6>
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            <strong><i class="fas fa-info-circle me-2"></i>Info:</strong>
-                            Form ini digunakan untuk update data pengeluaran limbah B3. Data penerimaan tidak dapat diubah.
-                        </div>
-                        <div class="row g-3">
+
+                        {{-- SECTION 2: DATA WAKTU & JUMLAH --}}
+                        <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3 text-primary">
+                            <i class="fas fa-calendar-alt me-2"></i>Data Waktu & Jumlah
+                        </h6>
+                        <div class="row g-3 mb-4">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Tanggal Keluar <span class="text-danger">*</span></label>
+                                <label class="form-label">Tanggal Masuk <span class="text-danger">*</span></label>
                                 <input type="date" 
-                                       name="tanggal_keluar" 
-                                       value="{{ old('tanggal_keluar', $data->tanggal_keluar?->format('Y-m-d')) }}" 
-                                       class="form-control @error('tanggal_keluar') is-invalid @enderror"
+                                       name="tanggal_masuk" 
+                                       value="{{ old('tanggal_masuk', $data->tanggal_masuk?->format('Y-m-d')) }}" 
+                                       class="form-control @error('tanggal_masuk') is-invalid @enderror"
                                        required>
-                                @error('tanggal_keluar')
+                                @error('tanggal_masuk')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Jumlah Keluar (Ton) <span class="text-danger">*</span></label>
+                                <label class="form-label">Jumlah Limbah (Ton) <span class="text-danger">*</span></label>
                                 <input type="number" 
-                                       step="0.001" 
-                                       name="jumlah_keluar_ton" 
-                                       value="{{ old('jumlah_keluar_ton', $data->jumlah_keluar_ton ?? '0.000') }}" 
-                                       class="form-control @error('jumlah_keluar_ton') is-invalid @enderror"
-                                       placeholder="0.000"
+                                       step="0.01" 
+                                       name="jumlah_ton" 
+                                       value="{{ old('jumlah_ton', $data->jumlah_ton) }}" 
+                                       class="form-control @error('jumlah_ton') is-invalid @enderror"
+                                       placeholder="0.00"
+                                       {{ $data->pengeluaran->count() > 0 ? 'readonly' : '' }}
                                        required>
-                                @error('jumlah_keluar_ton')
+                                @error('jumlah_ton')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                @if($data->pengeluaran->count() > 0)
+                                    <small class="form-text text-warning">
+                                        <i class="fas fa-lock"></i> Tidak dapat diubah karena sudah ada pengeluaran
+                                    </small>
+                                @endif
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Sisa di TPS (Ton) <span class="text-danger">*</span></label>
-                                <input type="number" 
-                                       step="0.001" 
-                                       name="sisa_limbah_ton" 
-                                       value="{{ old('sisa_limbah_ton', $data->sisa_limbah_ton ?? number_format($data->jumlah_masuk_ton, 3, '.', '')) }}" 
-                                       class="form-control bg-light @error('sisa_limbah_ton') is-invalid @enderror" 
-                                       readonly
-                                       placeholder="0.000"
+                                <label class="form-label">Maks. Penyimpanan <span class="text-danger">*</span></label>
+                                <input type="date" 
+                                       name="maksimal_penyimpanan" 
+                                       value="{{ old('maksimal_penyimpanan', $data->maksimal_penyimpanan?->format('Y-m-d')) }}" 
+                                       class="form-control @error('maksimal_penyimpanan') is-invalid @enderror"
                                        required>
-                                @error('sisa_limbah_ton')
+                                @error('maksimal_penyimpanan')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                                <small class="form-text text-muted">
+                                    Tanggal maksimal penyimpanan limbah di TPS
+                                </small>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Tujuan Penyerahan <span class="text-danger">*</span></label>
-                                <input type="text" 
-                                       name="tujuan_penyerahan" 
-                                       value="{{ old('tujuan_penyerahan', $data->tujuan_penyerahan) }}" 
-                                       class="form-control text-uppercase @error('tujuan_penyerahan') is-invalid @enderror"
-                                       style="text-transform: uppercase;"
-                                       placeholder="NAMA TRANSPORTER/PENGOLAH"
-                                       required>
-                                @error('tujuan_penyerahan')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Nomor Dokumen/Manifest</label>
-                                <input type="text" 
-                                       name="nomor_dokumen" 
-                                       value="{{ old('nomor_dokumen', $data->nomor_dokumen) }}" 
-                                       class="form-control text-uppercase @error('nomor_dokumen') is-invalid @enderror"
-                                       style="text-transform: uppercase;"
-                                       placeholder="CONTOH: MNF-001234">
-                                @error('nomor_dokumen')
+                        </div>
+
+                        <hr class="horizontal dark">
+
+                        {{-- SECTION 3: CATATAN --}}
+                        <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3 text-secondary">
+                            <i class="fas fa-sticky-note me-2"></i>Catatan Tambahan
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Catatan</label>
+                                <textarea name="catatan" 
+                                          class="form-control @error('catatan') is-invalid @enderror" 
+                                          rows="3"
+                                          placeholder="Catatan tambahan atau keterangan lainnya...">{{ old('catatan', $data->catatan) }}</textarea>
+                                @error('catatan')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                         </div>
 
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Perhatian:</strong>
-                            <ul class="mb-0 mt-2 ps-3">
-                                <li>Jumlah keluar tidak boleh lebih besar dari jumlah masuk ({{ number_format($data->jumlah_masuk_ton, 3, '.', '') }} ton)</li>
-                                <li>Sisa limbah akan dihitung otomatis: Jumlah Masuk - Jumlah Keluar</li>
-                                <li>Data penerimaan tidak dapat diubah setelah tersimpan</li>
-                            </ul>
+                        {{-- STATUS INFO (Readonly) --}}
+                        <div class="alert alert-secondary mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <strong>Status:</strong> 
+                                    <span class="badge badge-sm bg-gradient-{{ $data->status_badge_color }}">
+                                        {{ $data->status_label }}
+                                    </span>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock"></i> 
+                                        Terakhir diupdate: {{ $data->updated_at?->format('d/m/Y H:i') }}
+                                    </small>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex justify-content-end mt-4">
-                            <a href="{{ route('waste-b3') }}" class="btn btn-light me-2">
+                            <a href="{{ route('waste-b3-masuk.index') }}" class="btn btn-light me-2">
                                 <i class="fas fa-times me-1"></i>Batal
                             </a>
                             <button type="submit" class="btn bg-gradient-primary">
-                                <i class="fas fa-save me-1"></i>Update Data
+                                <i class="fas fa-save me-1"></i>Simpan Perubahan
                             </button>
                         </div>
                     </form>
@@ -177,7 +225,9 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-gradient-danger">
-                <h5 class="modal-title text-white"><i class="fas fa-exclamation-triangle me-2"></i>Validasi Gagal</h5>
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Validasi Gagal
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -185,7 +235,7 @@
                     <p class="fw-bold mb-2">Mohon perbaiki kesalahan berikut:</p>
                     <ul class="mb-0 ps-3">
                         @foreach ($errors->all() as $error)
- <li>{{ $error }}</li>
+                            <li>{{ $error }}</li>
                         @endforeach
                     </ul>
                 </div>
@@ -205,83 +255,7 @@
 @push('js')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const form = document.getElementById('wasteForm');
-    const masukInput = document.querySelector('input[name="jumlah_masuk_ton"]');
-    const keluarInput = document.querySelector('input[name="jumlah_keluar_ton"]');
-    const sisaInput = document.querySelector('input[name="sisa_limbah_ton"]');
-    
-    // Ambil nilai jumlah masuk dari hidden field
-    let jumlahMasukValue = 0;
-    if (masukInput) {
-        jumlahMasukValue = parseFloat(masukInput.value) || 0;
-    } else {
-        // Fallback jika hidden field tidak ditemukan
-        const visibleMasukInput = document.querySelector('input[readonly][value]');
-        if (visibleMasukInput) {
-            jumlahMasukValue = parseFloat(visibleMasukInput.value) || 0;
-        }
-    }
-
-    // Fungsi kalkulasi yang sudah diperbaiki
-    function hitungSisa() {
-        // Pastikan semua input valid
-        const masuk = jumlahMasukValue;
-        const keluar = keluarInput && keluarInput.value ? parseFloat(keluarInput.value) : 0;
-        
-        // Validasi nilai tidak negatif
-        const validKeluar = isNaN(keluar) || keluar < 0 ? 0 : keluar;
-        
-        // Hitung sisa
-        let sisa = masuk - validKeluar;
-        if (sisa < 0) sisa = 0;
-        
-        // Pastikan 3 desimal
-        if (sisaInput) {
-            sisaInput.value = sisa.toFixed(3);
-        }
-    }
-
-    // Event listeners yang lebih andal
-    if (keluarInput) {
-        // Gunakan event delegation untuk memastikan kalkulasi berjalan
-        keluarInput.addEventListener('input', function() {
-            hitungSisa();
-        });
-        
-        keluarInput.addEventListener('blur', function() {
-            hitungSisa();
-        });
-        
-        keluarInput.addEventListener('change', function() {
-            hitungSisa();
-        });
-    }
-
-    // Kalkulasi saat halaman dimuat
-    setTimeout(hitungSisa, 100);
-
-    // Validasi sebelum submit
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            hitungSisa();
-            
-            // Validasi logika bisnis
-            const keluar = keluarInput && keluarInput.value ? parseFloat(keluarInput.value) : 0;
-            const sisa = sisaInput ? parseFloat(sisaInput.value) : 0;
-            
-            if (keluar > jumlahMasukValue) {
-                e.preventDefault();
-                alert('❌ Jumlah keluar tidak boleh lebih besar dari jumlah masuk!');
-                keluarInput.focus();
-            } else if (sisa > jumlahMasukValue) {
-                e.preventDefault();
-                alert('❌ Sisa limbah tidak boleh lebih besar dari jumlah masuk!');
-                sisaInput.focus();
-            }
-        });
-    }
-
-    // Tampilkan modal error
+    // Tampilkan modal error jika ada validasi gagal
     @if ($errors->any())
     setTimeout(function() {
         const modalEl = document.getElementById('errorModal');
@@ -291,6 +265,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }, 300);
     @endif
+
+    // Validasi tanggal maksimal penyimpanan harus setelah tanggal masuk
+    const tanggalMasukInput = document.querySelector('input[name="tanggal_masuk"]');
+    const maksimalPenyimpananInput = document.querySelector('input[name="maksimal_penyimpanan"]');
+
+    if (tanggalMasukInput && maksimalPenyimpananInput) {
+        tanggalMasukInput.addEventListener('change', function() {
+            if (this.value && maksimalPenyimpananInput.value) {
+                const tanggalMasuk = new Date(this.value);
+                const maksimalPenyimpanan = new Date(maksimalPenyimpananInput.value);
+                
+                if (maksimalPenyimpanan <= tanggalMasuk) {
+                    alert('⚠️ Tanggal maksimal penyimpanan harus setelah tanggal masuk!');
+                    maksimalPenyimpananInput.value = '';
+                }
+            }
+        });
+
+        maksimalPenyimpananInput.addEventListener('change', function() {
+            if (this.value && tanggalMasukInput.value) {
+                const tanggalMasuk = new Date(tanggalMasukInput.value);
+                const maksimalPenyimpanan = new Date(this.value);
+                
+                if (maksimalPenyimpanan <= tanggalMasuk) {
+                    alert('⚠️ Tanggal maksimal penyimpanan harus setelah tanggal masuk!');
+                    this.value = '';
+                }
+            }
+        });
+    }
 });
 </script>
 @endpush
@@ -313,18 +317,29 @@ document.addEventListener('DOMContentLoaded', function () {
         font-weight: bold;
     }
     
-    .alert-info, .alert-warning {
+    .alert-info, .alert-warning, .alert-secondary {
         font-size: 0.875rem;
     }
     
-    .alert-info ul, .alert-warning ul {
-        margin-bottom: 0;
+    .badge.bg-gradient-warning {
+        background: linear-gradient(310deg, #f53939, #fbcf33) !important;
     }
     
-    /* Tambahkan style khusus untuk field sisa */
-    input[name="sisa_limbah_ton"] {
-        font-weight: bold;
-        color: #1a73e8;
+    .badge.bg-gradient-success {
+        background: linear-gradient(310deg, #17ad37, #98ec2d) !important;
+    }
+    
+    .badge.bg-gradient-info {
+        background: linear-gradient(310deg, #2152ff, #21d4fd) !important;
+    }
+    
+    .badge.bg-gradient-danger {
+        background: linear-gradient(310deg, #ea0606, #ff667c) !important;
+    }
+    
+    .form-text.text-warning {
+        color: #f53939 !important;
+        font-weight: 500;
     }
 </style>
 @endpush

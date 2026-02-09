@@ -2,69 +2,6 @@
 
 @section('content')
 
-<div class="row">
-    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-        <div class="card">
-            <div class="card-body p-3">
-                <div class="row">
-                    <div class="col-8">
-                        <div class="numbers">
-                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Reklamasi</p>
-                            <h5 class="font-weight-bolder mb-0">
-                                80.000
-                                <span class="text-dark text-sm font-weight-bolder">Ha</span>
-                            </h5>
-                        </div>
-                    </div>
-                    <div class="col-4 text-end">
-                        <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                            <i class="fa-solid fa-land-mine-on text-lg opacity-10" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-        <div class="card">
-            <div class="card-body p-3">
-                <div class="row">
-                    <div class="col-8">
-                        <div class="numbers">
-                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Waste Management</p>
-                            <h5 class="font-weight-bolder mb-0">0</h5>
-                        </div>
-                    </div>
-                    <div class="col-4 text-end">
-                        <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                            <i class="fa-solid fa-bars-progress text-lg opacity-10" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-xl-3 col-sm-6 mb-xl-0 mb-4">
-        <div class="card">
-            <div class="card-body p-3">
-                <div class="row">
-                    <div class="col-8">
-                        <div class="numbers">
-                            <p class="text-sm mb-0 text-capitalize font-weight-bold">Compliance</p>
-                            <h5 class="font-weight-bolder mb-0">0</h5>
-                        </div>
-                    </div>
-                    <div class="col-4 text-end">
-                        <div class="icon icon-shape bg-gradient-primary shadow text-center border-radius-md">
-                            <i class="fa-solid fa-clipboard-check text-lg opacity-10" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 {{-- Dokumen Kontrak & Grafik --}}
 <div class="row mt-4">
     <div class="col-lg-6 mb-lg-0 mb-4">
@@ -239,7 +176,7 @@
     <div class="col-lg-12">
         <div class="card z-index-2">
             <div class="card-header pb-0">
-                <h6>Performa Revegetasi Tahun {{ date('Y') }}</h6>
+                <h6>Rencana dan Realisasi Tahun {{ date('Y') }}</h6>
                 <p class="text-sm">
                     <i class="fa fa-arrow-up text-success"></i>
                     <span class="font-weight-bold">Rencana dan Realisasi</span> Penanaman Bibit

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
 class SessionsController extends Controller
 {
     public function create()
@@ -13,29 +12,34 @@ class SessionsController extends Controller
         return view('session.login-session');
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        $attributes = request()->validate([
-            'email'=>'required|email',
-            'password'=>'required' 
+        // Validasi input
+        $attributes = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
         ]);
 
-        if(Auth::attempt($attributes))
-        {
-            session()->regenerate();
-            return redirect('dashboard')->with(['success'=>'You are logged in.']);
-        }
-        else{
+        // Cek apakah checkbox "Remember Me" dicentang
+        $remember = $request->boolean('rememberMe');
 
-            return back()->withErrors(['email'=>'Email or password invalid.']);
+        // Proses autentikasi dengan remember me
+        if (Auth::attempt($attributes, $remember)) {
+            $request->session()->regenerate();
+            return redirect('dashboard')->with(['success' => 'You are logged in.']);
+        } else {
+            return back()->withErrors(['email' => 'Email or password invalid.'])
+                         ->withInput($request->only('email', 'rememberMe'));
         }
     }
     
-    public function destroy()
+    public function destroy(Request $request)
     {
-
         Auth::logout();
 
-        return redirect('/login')->with(['success'=>'You\'ve been logged out.']);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login')->with(['success' => 'You\'ve been logged out.']);
     }
 }

@@ -14,7 +14,7 @@ use App\Http\Controllers\ReklamasiController;
 use App\Http\Controllers\complianceController;
 use App\Http\Controllers\NurseryController;
 use App\Http\Controllers\TrashManagementController;
-use App\Http\Controllers\WasteB3Controller;
+use App\Http\Controllers\WasteB3MasukController;
 use App\Http\Controllers\MonitoringVegetasiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -25,8 +25,6 @@ use App\Http\Controllers\Admin\DocumentContractController;
 use App\Http\Controllers\Admin\EquipmentListController;
 use App\Http\Controllers\Admin\WorkHoursController;
 use App\Http\Controllers\Admin\DokumentasiKegiatanController;
-use App\Http\Controllers\ImportController;
-use App\Models\compliance;
 
 /*
 |--------------------------------------------------------------------------
@@ -218,6 +216,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('rencana-revegetasi', [RencanaRevegetasiController::class, 'index'])
         ->name('rencana-revegetasi');
 
+    Route::get('rencana-revegetasi/{id}/show', [RencanaRevegetasiController::class, 'show'])
+        ->name('rencana-revegetasi.show');
+
     // TAMBAH DATA RENCANA
     Route::get('rencana-revegetasi/create', [RencanaRevegetasiController::class, 'create'])
         ->name('rencana-revegetasi.create');
@@ -353,25 +354,25 @@ Route::group(['middleware' => 'auth'], function () {
     // END TRASH MANAGEMENT
 
     // ROUTING LIMBAH B3
-    Route::get('waste-b3', [WasteB3Controller::class, 'index'])
+    Route::get('waste-b3', [WasteB3MasukController::class, 'index'])
         ->name('waste-b3');
 
     // CREATE
-    Route::get('waste-b3/create', [WasteB3Controller::class, 'create'])
+    Route::get('waste-b3/create', [WasteB3MasukController::class, 'create'])
         ->name('waste-b3.create');
 
-    Route::post('waste-b3', [WasteB3Controller::class, 'store'])
+    Route::post('waste-b3', [WasteB3MasukController::class, 'store'])
         ->name('waste-b3.store');
 
     // EDIT
-    Route::get('waste-b3/{id}/edit', [WasteB3Controller::class, 'edit'])
+    Route::get('waste-b3/{id}/edit', [WasteB3MasukController::class, 'edit'])
         ->name('waste-b3.edit');
 
-    Route::put('waste-b3/{id}', [WasteB3Controller::class, 'update'])
+    Route::put('waste-b3/{id}', [WasteB3MasukController::class, 'update'])
         ->name('waste-b3.update');
 
     // DELETE
-    Route::delete('waste-b3/{id}', [WasteB3Controller::class, 'destroy'])
+    Route::delete('waste-b3/{id}', [WasteB3MasukController::class, 'destroy'])
         ->name('waste-b3.destroy');
     // END LIMBAH B3
 
@@ -418,12 +419,6 @@ Route::group(['middleware' => 'guest'], function () {
 	Route::get('/reset-password/{token}', [ResetController::class, 'resetPass'])->name('password.reset');
 	Route::post('/reset-password', [ChangePasswordController::class, 'changePassword'])->name('password.update');
 
-});
-
-
-
-Route::get('/import-user', function () {
-    return view('import.user');
 });
 
 
