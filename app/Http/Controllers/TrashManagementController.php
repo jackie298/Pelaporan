@@ -163,4 +163,9 @@ class TrashManagementController extends Controller
             ->route('trash-management')
             ->with('success', 'Data pengelolaan sampah berhasil dihapus.');
     }
+
+    public function export()
+    {
+        return (new \App\Exports\TrashManagementExport())->download('trash_management_' . date('Y-m-d') . '.xlsx');
+    }
 }

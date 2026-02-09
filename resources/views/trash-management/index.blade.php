@@ -7,7 +7,7 @@
         <span class="text-white">
             <strong>Manajemen Sampah</strong>
         </span>
-        {{-- <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('trash-management.export') }}">Export Data</a> --}}
+        <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('api.trashmanagement.export') }}">Export Data</a>
     </div>
 
     <div class="row">

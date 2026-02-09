@@ -138,6 +138,31 @@ Route::middleware(['auth', 'admin'])
         Route::delete('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'destroy'])
             ->name('dokumentasi-kegiatan.destroy');
 
+        // USER MANAGEMENT
+        // Ini akan menjadi 'admin.user'
+        Route::get('user', [App\Http\Controllers\Admin\UserController::class, 'user'])
+            ->name('user');
+
+        // Ini akan menjadi 'admin.add-user'
+        Route::get('add-user', [App\Http\Controllers\Admin\UserController::class, 'create'])
+            ->name('add-user');
+
+        // Ini akan menjadi 'admin.add-user.store'
+        Route::post('add-user', [App\Http\Controllers\Admin\UserController::class, 'store'])
+            ->name('add-user.store');
+
+        // Ini akan menjadi 'admin.user.edit'
+        Route::get('user/{id}/edit', [App\Http\Controllers\Admin\UserController::class, 'edit'])
+            ->name('user.edit');
+
+        // Ini akan menjadi 'admin.user.update'
+        Route::put('user/{id}', [App\Http\Controllers\Admin\UserController::class, 'update'])
+            ->name('user.update');
+
+        // Ini akan menjadi 'admin.user.destroy'
+        Route::delete('user/{id}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])
+            ->name('user.destroy');
+        
     });
 
 
@@ -153,10 +178,7 @@ Route::group(['middleware' => 'auth'], function () {
 		return view('profile');
 	})->name('profile');
 
-	Route::get('user-management', function () {
-		return view('laravel-examples/user-management');
-	})->name('user-management');
-
+	
 
     Route::get('static-sign-in', function () {
 		return view('static-sign-in');

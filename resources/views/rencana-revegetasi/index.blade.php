@@ -7,7 +7,7 @@
         <span class="text-white">
             <strong>Rencana & Target Revegetasi</strong>
         </span>
-        {{-- <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('rencana-revegetasi.export') }}"> --}}
+            <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('api.export.rencanarevegetasi') }}">
             <i class="fas fa-file-excel me-1"></i>Export Data
         </a>
     </div>

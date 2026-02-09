@@ -20,7 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/export/compliance', [App\Http\Controllers\ComplianceController::class, 'export'])->name('api.export.compliance');
 Route::get('/export/revegetasi', [App\Http\Controllers\RevegetasiController::class, 'export'])->name('api.export.revegetasi');
-Route::get('/export/rencana-revegetasi', [App\Http\Controllers\RencanaRevegetasiController::class, 'export'])->name('api.export.rencana-revegetasi');
+Route::get('/export/rencanarevegetasi', [App\Http\Controllers\RencanaRevegetasiController::class, 'export'])->name('api.export.rencanarevegetasi');
 Route::get('/export/bukaanlahan', [App\Http\Controllers\BukaanLahanController::class, 'export'])->name('api.export.bukaanlahan');
 Route::get('/export/rekap-anggaran', [App\Http\Controllers\Admin\RekapAnggaranController::class, 'export'])->name('api.export.rekap-anggaran');
 Route::get('/export/alat', [App\Http\Controllers\Admin\EquipmentListController::class, 'export'])->name('api.export.alat');
@@ -31,3 +31,4 @@ Route::get('/export/nursery-monitoring', [App\Http\Controllers\NurseryController
 Route::get('/export/wastewater-monitoring', [App\Http\Controllers\WasteWaterManagementController::class, 'export'])->name('api.export.wastewater');
 Route::get('/export/jamkerja', [App\Http\Controllers\Admin\WorkHoursController::class, 'export'])->name('api.export.jamkerja');
 Route::get('/export/monitoring-vegetasi', [App\Http\Controllers\MonitoringVegetasiController::class, 'export'])->name('api.export.monitoring-vegetasi');
+route::get('/export/trashmanagement', [App\Http\Controllers\TrashManagementController::class, 'export'])->name('api.trashmanagement.export');

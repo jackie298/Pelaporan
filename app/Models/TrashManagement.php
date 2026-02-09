@@ -118,4 +118,6 @@ class TrashManagement extends Model
                             ($model->sampah_lainnya_dan_atau_residu ?? 0);
         });
     }
+
+    
 }
