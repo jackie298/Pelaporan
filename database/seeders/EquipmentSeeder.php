@@ -10,66 +10,40 @@ class EquipmentSeeder extends Seeder
     public function run()
     {
         $equipments = [
-            [
-                'nama' => 'Excavator Komatsu PC200',
-                'kode' => 'EXC-001',
-                'jenis' => 'Excavator',
-                'merk' => 'Komatsu',
-                'tahun' => 2022,
-                'no_polisi' => 'B 1234 ABC',
-                'no_mesin' => 'KMTPC200XXXXX',
-                'status' => 'tersedia',
-                'lokasi_sekarang' => 'Gudang Utama',
-                'catatan' => 'Alat dalam kondisi prima'
-            ],
-            [
-                'nama' => 'Dump Truck Hino 500',
-                'kode' => 'DMP-002',
-                'jenis' => 'Dump Truck',
-                'merk' => 'Hino',
-                'tahun' => 2021,
-                'no_polisi' => 'B 5678 DEF',
-                'no_mesin' => 'HINO500XXXXX',
-                'status' => 'dipakai',
-                'lokasi_sekarang' => 'Site Proyek A',
-                'catatan' => 'Digunakan untuk angkut material'
-            ],
-            [
-                'nama' => 'Bulldozer Caterpillar D6',
-                'kode' => 'BLD-003',
-                'jenis' => 'Bulldozer',
-                'merk' => 'Caterpillar',
-                'tahun' => 2020,
-                'no_polisi' => null,
-                'no_mesin' => 'CATD6XXXXXXX',
-                'status' => 'perawatan',
-                'lokasi_sekarang' => 'Bengkel Internal',
-                'catatan' => 'Servis rutin bulanan'
-            ],
-            [
-                'nama' => 'Wheel Loader Volvo L90',
-                'kode' => 'WHL-004',
-                'jenis' => 'Wheel Loader',
-                'merk' => 'Volvo',
-                'tahun' => 2023,
-                'no_polisi' => 'B 9012 GHI',
-                'no_mesin' => 'VOLVOL90XXXX',
-                'status' => 'tersedia',
-                'lokasi_sekarang' => 'Gudang Utama',
-                'catatan' => 'Baru dibeli Q1 2026'
-            ],
-            [
-                'nama' => 'Crane Mobile Tadano ATF 200',
-                'kode' => 'CRN-005',
-                'jenis' => 'Crane',
-                'merk' => 'Tadano',
-                'tahun' => 2019,
-                'no_polisi' => 'B 3456 JKL',
-                'no_mesin' => 'TADANO200XXX',
-                'status' => 'rusak',
-                'lokasi_sekarang' => 'Area Parkir',
-                'catatan' => 'Rusak parah, menunggu suku cadang'
-            ]
+            // EXCA
+            ['nama' => 'EXCA', 'kode' => 'EXC 224', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            ['nama' => 'EXCA', 'kode' => 'EXC 243', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            ['nama' => 'EXCA', 'kode' => 'EXC 247', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            ['nama' => 'EXCA', 'kode' => 'EXC 263', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            
+            // EXCA LONG ARM
+            ['nama' => 'EXCA LONG ARM', 'kode' => 'EXC LA 264', 'jenis' => 'EXCA LONG ARM', 'status' => 'tersedia'],
+            
+            // EXCA lainnya
+            ['nama' => 'EXCA', 'kode' => 'EXC 265', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            ['nama' => 'EXCA', 'kode' => 'EXC 242', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            ['nama' => 'EXCA', 'kode' => 'EXC 238', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            
+            // EXC BREKER
+            ['nama' => 'EXC BREKER', 'kode' => 'EXC BR 216', 'jenis' => 'EXC BREKER', 'status' => 'tersedia'],
+            
+            // EXCA
+            ['nama' => 'EXCA', 'kode' => 'EXC 246', 'jenis' => 'EXCA', 'status' => 'tersedia'],
+            
+            // BULDOZER
+            ['nama' => 'BULDOZER', 'kode' => 'BD 35', 'jenis' => 'BULDOZER', 'status' => 'tersedia'],
+            
+            // DUMP TRUCK
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 173', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 177', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 193', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 194', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 126', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 127', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 128', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 141', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 145', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
+            ['nama' => 'DUMP TRUCK', 'kode' => 'DT 146', 'jenis' => 'DUMP TRUCK', 'status' => 'tersedia'],
         ];
 
         foreach ($equipments as $equipment) {

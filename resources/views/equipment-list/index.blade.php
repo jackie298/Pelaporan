@@ -14,11 +14,41 @@
         <div class="col-12">
             <div class="card mb-4 mx-4">
                 <div class="card-header pb-0">
-                    <div class="d-flex flex-row justify-content-between">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
                         <div>
                             <h5 class="mb-0">All Equipment</h5>
                         </div>
-                        <a href="{{ route('admin.equipment-list.create') }}" class="btn bg-gradient-primary btn-sm mb-0" type="button">+&nbsp; New Equipment</a>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="input-group input-group-sm w-auto">
+                        <span class="input-group-text bg-gradient-primary text-white border-0">
+                            <i class="fas fa-filter"></i>
+                        </span>
+                        
+                        <select 
+                            class="form-select form-select-sm" 
+                            id="searchJenisAlat"
+                            style="min-width: 220px; border-top-left-radius: 0; border-bottom-left-radius: 0;"
+                        >
+                            <option value="">-- Semua Jenis Alat --</option>
+                            @foreach($jenisList as $jenis)
+                                <option value="{{ $jenis }}" {{ $searchJenis == $jenis ? 'selected' : '' }}>
+                                    {{ $jenis }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <button 
+                            class="btn btn-outline-secondary btn-sm mb-0" 
+                            type="button" 
+                            id="clearSearch" 
+                            title="Reset filter"
+                            style="border-left: none; text-transform: uppercase; font-weight: bold;"
+                        >
+                            X
+                        </button>
+                    </div>
+                            <a href="{{ route('admin.equipment-list.create') }}" class="btn bg-gradient-primary btn-sm mb-0" type="button">+&nbsp; New Equipment</a>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body px-0 pt-0 pb-2 mt-3">
@@ -26,7 +56,7 @@
                         <table class="table align-items-center mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4">
                                         No
                                     </th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
@@ -62,17 +92,22 @@
                                         <p class="text-xs font-weight-bold mb-0">{{ $item->kode ?? '-' }}</p>
                                     </td>
                                     <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $item->jenis ?? '-' }}</p>
+                                        <span class="badge badge-sm bg-gradient-info text-white">
+                                            {{ $item->jenis ?? '-' }}
+                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <p class="text-xs font-weight-bold mb-0">{{ $item->merk ?? '-' }}</p>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge badge-sm 
-                                            @if($item->status === 'Aktif') bg-success
-                                            @elseif($item->status === 'Nonaktif') bg-secondary
-                                            @else bg-warning @endif">
-                                            {{ $item->status ?? 'Tidak diketahui' }}
+                                            @if($item->status === 'tersedia') bg-success
+                                            @elseif($item->status === 'dipakai') bg-info
+                                            @elseif($item->status === 'perawatan') bg-warning
+                                            @elseif($item->status === 'rusak') bg-danger
+                                            @elseif($item->status === 'tidak_aktif') bg-secondary
+                                            @else bg-secondary @endif">
+                                            {{ ucfirst(str_replace('_', ' ', $item->status)) }}
                                         </span>
                                     </td>
                                     <td class="text-center">
@@ -88,7 +123,7 @@
                                             data-tahun="{{ $item->tahun ?? '-' }}"
                                             data-no_polisi="{{ $item->no_polisi ?? '-' }}"
                                             data-no_mesin="{{ $item->no_mesin ?? '-' }}"
-                                            data-status="{{ $item->status ?? '-' }}"
+                                            data-status="{{ ucfirst(str_replace('_', ' ', $item->status)) }}"
                                             data-lokasi="{{ $item->lokasi_sekarang ?? '-' }}"
                                             data-catatan="{{ $item->catatan ?? '-' }}"
                                             title="Lihat Detail"
@@ -111,12 +146,34 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center text-muted py-3">Tidak ada data equipment.</td>
+                                    <td colspan="7" class="text-center text-muted py-4">
+                                        <div class="d-flex flex-column align-items-center">
+                                            <i class="fas fa-box-open fa-3x text-muted mb-2"></i>
+                                            <p class="mb-0">Tidak ada data equipment ditemukan</p>
+                                            @if($searchJenis)
+                                                <small class="text-muted mt-1">Coba hapus filter jenis alat untuk melihat semua data</small>
+                                            @endif
+                                        </div>
+                                    </td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
+                    @if($equipment->count() > 0)
+                    <div class="card-footer px-4 py-3 bg-light border-top">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                Menampilkan {{ $filteredCount }} dari total {{ $totalEquipment }} equipment
+                            </small>
+                            @if($searchJenis)
+                                <small class="text-primary">
+                                    <i class="fas fa-filter"></i> Filter: {{ $searchJenis }}
+                                </small>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -229,6 +286,30 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const searchSelect = document.getElementById('searchJenisAlat');
+    const clearBtn = document.getElementById('clearSearch');
+    
+    // Filter saat pilihan berubah
+    searchSelect.addEventListener('change', function () {
+        const jenis = this.value.trim();
+        let url = new URL(window.location.href);
+        
+        if (jenis) {
+            url.searchParams.set('jenis', jenis);
+        } else {
+            url.searchParams.delete('jenis');
+        }
+        
+        window.location.href = url.toString();
+    });
+    
+    // Clear filter
+    clearBtn.addEventListener('click', function () {
+        searchSelect.value = '';
+        let url = new URL(window.location.href);
+        url.searchParams.delete('jenis');
+        window.location.href = url.toString();
+    });
 
     // === LIHAT DETAIL ===
     document.body.addEventListener('click', function (e) {
@@ -250,19 +331,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    const deleteModal = document.getElementById('deleteModal');
-    
-    // Event delegation untuk tombol hapus
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const id = this.getAttribute('data-id');
-            const nama = this.getAttribute('data-nama');
+    // === DELETE BUTTON ===
+    document.body.addEventListener('click', function (e) {
+        if (e.target.closest('.delete-btn')) {
+            const btn = e.target.closest('.delete-btn');
+            const id = btn.getAttribute('data-id');
+            const nama = btn.getAttribute('data-nama');
 
             document.getElementById('equipmentName').textContent = nama;
             document.getElementById('deleteForm').action = '/admin/equipment-list/' + id;
 
-            new bootstrap.Modal(deleteModal).show();
-        });
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
     });
 
     // Tampilkan modal sukses jika ada

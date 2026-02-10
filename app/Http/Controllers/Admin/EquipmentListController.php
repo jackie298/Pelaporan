@@ -10,13 +10,37 @@ use Illuminate\Http\Request;
 class EquipmentListController extends Controller
 {
     /**
-     * Tampilkan daftar Alat
+     * Tampilkan daftar Alat dengan fitur pencarian berdasarkan jenis
      */
-    public function index()
+    public function index(Request $request)
     {
-        $equipment = Equipment::latest()->get();
+        $searchJenis = $request->query('jenis', '');
+        
+        $query = Equipment::query();
+        
+        // Filter berdasarkan jenis alat (case-insensitive partial match)
+        if ($searchJenis) {
+            $query->where('jenis', 'like', '%' . $searchJenis . '%');
+        }
+        
+        $equipment = $query->latest()->get();
+        $totalEquipment = Equipment::count(); // Total semua equipment
+        $filteredCount = $equipment->count(); // Jumlah yang difilter
+        
+        $jenisList = Equipment::select('jenis')
+                        ->distinct()
+                        ->orderBy('jenis')
+                        ->pluck('jenis')
+                        ->filter()
+                        ->values();
 
-        return view('equipment-list.index', compact('equipment'));
+        return view('equipment-list.index', compact(
+            'equipment', 
+            'searchJenis', 
+            'jenisList',
+            'totalEquipment',
+            'filteredCount'
+        ));
     }
 
     /**

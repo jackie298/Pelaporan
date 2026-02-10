@@ -5,7 +5,7 @@
 <div>
     <div class="alert alert-secondary mx-4 d-flex justify-content-between align-items-center" role="alert">
         <span class="text-white">
-            <strong>Limbah B3 Management</strong>
+            <strong>Limbah B3 Management - Logbook Keluar</strong>
         </span>
     </div>
 
@@ -15,41 +15,38 @@
                 <div class="card-header pb-0">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                         <div>
-                            <h5 class="mb-0">Daftar Logbook Limbah B3 Masuk</h5>
+                            <h5 class="mb-0">Daftar Logbook Limbah B3 Keluar</h5>
+                            <p class="text-sm text-muted mb-0">
+                                <i class="fas fa-info-circle"></i> 
+                                Riwayat pengeluaran limbah B3 dari Tempat Penyimpanan Sementara (TPS)
+                            </p>
                         </div>
-                        <a href="{{ route('waste-b3.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
-                            +&nbsp; Tambah Log Masuk
+                        <a href="{{ route('waste-b3-keluar.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
+                            +&nbsp; Tambah Log Keluar
                         </a>
                     </div>
                 </div>
                 
                 <!-- Filter Form -->
                 <div class="card-body px-3 pt-3 pb-0">
-                    <form method="GET" action="{{ route('waste-b3') }}" class="mb-3">
+                    <form method="GET" action="{{ route('waste-b3-keluar') }}" class="mb-3">
                         <div class="row g-2">
                             <div class="col-md-3">
-                                <input type="text" 
-                                       name="jenis" 
-                                       class="form-control form-control-sm" 
-                                       placeholder="Cari Jenis Limbah"
-                                       value="{{ request('jenis') }}">
-                            </div>
-                            <div class="col-md-3">
-                                <input type="text" 
-                                       name="sumber" 
-                                       class="form-control form-control-sm" 
-                                       placeholder="Cari Sumber Limbah"
-                                       value="{{ request('sumber') }}">
-                            </div>
-                            <div class="col-md-2">
-                                <select name="status" class="form-control form-control-sm">
-                                    <option value="">Semua Status</option>
-                                    @foreach($statusOptions as $value => $label)
-                                        <option value="{{ $value }}" {{ request('status') == $value ? 'selected' : '' }}>
-                                            {{ $label }}
+                                <select name="masuk_id" class="form-control form-control-sm">
+                                    <option value="">-- Semua Limbah Masuk --</option>
+                                    @foreach($limbahMasukOptions as $limbah)
+                                        <option value="{{ $limbah->id }}" {{ request('masuk_id') == $limbah->id ? 'selected' : '' }}>
+                                            {{ $limbah->jenis_limbah }} ({{ $limbah->kode_limbah }})
                                         </option>
                                     @endforeach
                                 </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" 
+                                       name="tujuan" 
+                                       class="form-control form-control-sm" 
+                                       placeholder="Cari Tujuan Penyerahan"
+                                       value="{{ request('tujuan') }}">
                             </div>
                             <div class="col-md-2">
                                 <input type="date" 
@@ -58,15 +55,17 @@
                                        value="{{ request('tanggal_dari') }}">
                             </div>
                             <div class="col-md-2">
+                                <input type="date" 
+                                       name="tanggal_sampai" 
+                                       class="form-control form-control-sm" 
+                                       value="{{ request('tanggal_sampai') }}">
+                            </div>
+                            <div class="col-md-2">
                                 <div class="input-group input-group-sm">
-                                    <input type="date" 
-                                           name="tanggal_sampai" 
-                                           class="form-control" 
-                                           value="{{ request('tanggal_sampai') }}">
                                     <button type="submit" class="btn btn-info">
-                                        <i class="fas fa-search"></i>
+                                        <i class="fas fa-search"></i> Filter
                                     </button>
-                                    <a href="{{ route('waste-b3') }}" class="btn btn-secondary">
+                                    <a href="{{ route('waste-b3-keluar') }}" class="btn btn-secondary">
                                         <i class="fas fa-redo"></i>
                                     </a>
                                 </div>
@@ -82,94 +81,98 @@
                             <thead>
                                 <tr>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">No</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Jenis & Kode</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tanggal Masuk</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Masuk (Ton)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Sisa (Ton)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Maks. Simpan</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Status</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Limbah Masuk</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tanggal Keluar</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Jumlah Keluar (Ton)</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tujuan Penyerahan</th>
+                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Dokumen</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($wasteB3Masuk as $data)
+                                @forelse ($wasteB3Keluar as $data)
                                 <tr>
                                     <td class="ps-3">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $wasteB3Masuk->firstItem() + $loop->index }}</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ $wasteB3Keluar->firstItem() + $loop->index }}</p>
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column">
-                                            <h6 class="mb-0 text-xs font-weight-bold">{{ $data->jenis_limbah }}</h6>
+                                            <h6 class="mb-0 text-xs font-weight-bold">
+                                                {{ $data->limbahMasuk->jenis_limbah }}
+                                            </h6>
                                             <p class="text-xs text-secondary mb-0">
-                                                <span class="badge badge-sm bg-gradient-dark">{{ $data->kode_limbah }}</span>
+                                                <span class="badge badge-sm bg-gradient-dark">
+                                                    {{ $data->limbahMasuk->kode_limbah }}
+                                                </span>
                                             </p>
+                                            <small class="text-xxs text-muted">
+                                                <i class="fas fa-calendar"></i> 
+                                                {{ $data->limbahMasuk->tanggal_masuk_formatted }}
+                                            </small>
                                         </div>
                                     </td>
                                     <td>
                                         <p class="text-xs font-weight-bold mb-0">
-                                            {{ $data->tanggal_masuk_formatted }}
+                                            <i class="fas fa-truck text-success"></i> 
+                                            {{ $data->tanggal_keluar_formatted }}
                                         </p>
                                         <p class="text-xxs text-secondary mb-0">
-                                            <i class="fas fa-map-marker-alt"></i> {{ $data->sumber_limbah }}
+                                            <i class="fas fa-clock"></i> 
+                                            {{ $data->created_at?->format('H:i') }}
                                         </p>
                                     </td>
                                     <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0 text-success">
-                                            <i class="fas fa-plus"></i> {{ $data->jumlah_ton_formatted }}
+                                        <p class="text-xs font-weight-bold mb-0 text-danger">
+                                            <i class="fas fa-minus"></i> 
+                                            {{ $data->jumlah_keluar_ton_formatted }}
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="text-xs font-weight-bold mb-0">
+                                            <i class="fas fa-building"></i> 
+                                            {{ $data->tujuan_penyerahan_formatted }}
+                                        </p>
+                                        <p class="text-xxs text-secondary mb-0">
+                                            <i class="fas fa-file-alt"></i> 
+                                            {{ $data->nomor_dokumen_keluar }}
                                         </p>
                                     </td>
                                     <td class="text-center">
-                                        @if($data->sisa_limbah > 0)
-                                            <p class="text-xs font-weight-bold mb-0 text-warning">
-                                                <i class="fas fa-box"></i> {{ $data->sisa_limbah_formatted }}
-                                            </p>
+                                        @if($data->file_dokumen_exists)
+                                            <div class="d-flex flex-column align-items-center">
+                                                <span class="badge badge-sm bg-gradient-success">
+                                                    <i class="fas fa-check"></i> Tersedia
+                                                </span>
+                                                <div class="mt-1">
+                                                    {{-- <a href="{{ route('waste-b3-keluar.preview', $data->id) }}" 
+                                                       target="_blank" 
+                                                       class="btn btn-info btn-sm btn-icon"
+                                                       title="Preview Dokumen">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a> --}}
+                                                    {{-- <a href="{{ route('waste-b3-keluar.download', $data->id) }}" 
+                                                       class="btn btn-primary btn-sm btn-icon"
+                                                       title="Download Dokumen">
+                                                        <i class="fas fa-download"></i>
+                                                    </a> --}}
+                                                </div>
+                                            </div>
                                         @else
-                                            <span class="badge badge-sm bg-gradient-success">
-                                                <i class="fas fa-check"></i> Habis
+                                            <span class="badge badge-sm bg-gradient-secondary">
+                                                <i class="fas fa-times"></i> Belum Upload
                                             </span>
                                         @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @php
-                                            $isOverdue = $data->is_kadaluarsa;
-                                        @endphp
-                                        <div class="d-flex flex-column align-items-center">
-                                            <span class="badge badge-sm {{ $isOverdue ? 'bg-gradient-danger' : 'bg-gradient-secondary' }}">
-                                                <i class="fas {{ $isOverdue ? 'fa-exclamation-triangle' : 'fa-clock' }}"></i>
-                                                {{ $data->maksimal_penyimpanan_formatted }}
-                                            </span>
-                                            @if($isOverdue)
-                                                <small class="text-danger text-xxs mt-1">
-                                                    <i class="fas fa-exclamation-circle"></i> Kadaluarsa
-                                                </small>
-                                            @endif
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-sm bg-gradient-{{ $data->status_badge_color }}">
-                                            {{ $data->status_label }}
-                                        </span>
                                     </td>
                                     <td class="text-center">
                                         <!-- Detail Button -->
-                                        {{-- <a href="{{ route('waste-b3.show', $data->id) }}" 
+                                        <a href="{{ route('waste-b3-keluar.show', $data->id) }}" 
                                            class="mx-1" 
                                            title="Detail">
                                             <i class="fas fa-eye text-info"></i>
-                                        </a> --}}
-                                        
-                                        <!-- Keluarkan Button (jika masih ada stok) -->
-                                        @if($data->can_be_dikeluarkan)
-                                            <a href="{{ route('waste-b3-keluar.create', ['masuk_id' => $data->id]) }}" 
-                                               class="mx-1" 
-                                               title="Keluarkan Limbah"
-                                               style="color: #2dce89;">
-                                                <i class="fas fa-truck"></i>
-                                            </a>
-                                        @endif
+                                        </a>
                                         
                                         <!-- Edit Button -->
-                                        <a href="{{ route('waste-b3.edit', $data->id) }}" 
+                                        <a href="{{ route('waste-b3-keluar.edit', $data->id) }}" 
                                            class="mx-1" 
                                            title="Edit">
                                             <i class="fas fa-edit text-warning"></i>
@@ -180,7 +183,7 @@
                                             type="button" 
                                             class="mx-1 delete-btn border-0 bg-transparent" 
                                             data-id="{{ $data->id }}"
-                                            data-nama="{{ $data->jenis_limbah }} ({{ $data->kode_limbah }})"
+                                            data-nama="{{ $data->limbahMasuk->jenis_limbah }} ({{ $data->limbahMasuk->kode_limbah }})"
                                             title="Hapus">
                                             <i class="fas fa-trash text-danger"></i>
                                         </button>
@@ -188,9 +191,9 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
+                                    <td colspan="7" class="text-center text-muted py-4">
                                         <i class="fas fa-inbox fa-2x mb-2"></i>
-                                        <p class="mb-0">Belum ada data logbook limbah B3 masuk.</p>
+                                        <p class="mb-0">Belum ada data logbook limbah B3 keluar.</p>
                                     </td>
                                 </tr>
                                 @endforelse
@@ -204,11 +207,11 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="text-sm mb-0">
-                                Menampilkan {{ $wasteB3Masuk->firstItem() }} - {{ $wasteB3Masuk->lastItem() }} dari {{ $wasteB3Masuk->total() }} data
+                                Menampilkan {{ $wasteB3Keluar->firstItem() }} - {{ $wasteB3Keluar->lastItem() }} dari {{ $wasteB3Keluar->total() }} data
                             </p>
                         </div>
                         <div>
-                            {{ $wasteB3Masuk->links() }}
+                            {{ $wasteB3Keluar->links() }}
                         </div>
                     </div>
                 </div>
@@ -226,8 +229,11 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus data limbah <strong id="wasteName"></strong>?</p>
-                <p class="text-muted text-sm">Tindakan ini akan menghapus log secara permanen dari sistem.</p>
+                <p>Apakah Anda yakin ingin menghapus data pengeluaran limbah <strong id="wasteName"></strong>?</p>
+                <p class="text-muted text-sm">
+                    <i class="fas fa-exclamation-triangle text-warning"></i> 
+                    Tindakan ini akan mengembalikan stok limbah masuk yang bersangkutan.
+                </p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -294,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const nama = button.getAttribute('data-nama');
 
             document.getElementById('wasteName').textContent = nama;
-            document.getElementById('deleteForm').action = '/waste-b3/' + id;
+            document.getElementById('deleteForm').action = '/waste-b3-keluar/' + id;
 
             const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
             modal.show();

@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ChangePasswordController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\InfoUserController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ResetController;
 use App\Http\Controllers\SessionsController;
@@ -16,6 +15,7 @@ use App\Http\Controllers\NurseryController;
 use App\Http\Controllers\TrashManagementController;
 use App\Http\Controllers\WasteB3MasukController;
 use App\Http\Controllers\MonitoringVegetasiController;
+use App\Http\Controllers\WasteB3KeluarController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -421,9 +421,29 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('monitoring-vegetasi.destroy');
     // END MONITORING VEGETASI
 
+    // ROUTING WASTE B3 KELUAR
+    Route::get('waste-b3-keluar', [WasteB3KeluarController::class, 'index'])
+        ->name('waste-b3-keluar');
+
+    Route::get('waste-b3-keluar/create', [WasteB3KeluarController::class, 'create'])
+        ->name('waste-b3-keluar.create');
+
+    Route::post('waste-b3-keluar', [WasteB3KeluarController::class, 'store'])
+        ->name('waste-b3-keluar.store');
+
+    Route::get('waste-b3-keluar/{id}', [WasteB3KeluarController::class, 'show'])
+        ->name('waste-b3-keluar.show');
+
+    Route::get('waste-b3-keluar/{id}/edit', [WasteB3KeluarController::class, 'edit'])
+        ->name('waste-b3-keluar.edit');
+
+    Route::put('waste-b3-keluar/{id}', [WasteB3KeluarController::class, 'update'])
+        ->name('waste-b3-keluar.update');
+
+    Route::delete('waste-b3-keluar/{id}', [WasteB3KeluarController::class, 'destroy'])
+        ->name('waste-b3-keluar.destroy');
+
     Route::get('/logout', [SessionsController::class, 'destroy']);
-	Route::get('/user-profile', [InfoUserController::class, 'create']);
-	Route::post('/user-profile', [InfoUserController::class, 'store']);
     Route::get('/login', function () {
 		return view('dashboard');
 	})->name('sign-up');
