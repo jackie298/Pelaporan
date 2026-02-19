@@ -50,7 +50,7 @@ class WasteB3MasukController extends Controller
         // Options untuk filter dropdown status saja
         $statusOptions = WasteB3Masuk::STATUS_OPTIONS;
 
-        return view('waste-b3.index', compact(
+        return view('waste-b3.masuk.index', compact(
             'wasteB3Masuk', 
             'statusOptions',
             'statusFilter',
@@ -68,7 +68,7 @@ class WasteB3MasukController extends Controller
     {
         $statusOptions = WasteB3Masuk::STATUS_OPTIONS;
         
-        return view('waste-b3.create', compact('statusOptions'));
+        return view('waste-b3.masuk.create', compact('statusOptions'));
     }
 
     /**
@@ -142,7 +142,7 @@ class WasteB3MasukController extends Controller
         $data = WasteB3Masuk::with('pengeluaran')->findOrFail($id);
         $statusOptions = WasteB3Masuk::STATUS_OPTIONS;
         
-        return view('waste-b3.edit', compact('data', 'statusOptions'));
+        return view('waste-b3.masuk.edit', compact('data', 'statusOptions'));
     }
 
     /**
@@ -245,7 +245,7 @@ class WasteB3MasukController extends Controller
     {
         $data = WasteB3Masuk::with(['creator', 'pengeluaran'])->findOrFail($id);
         
-        return view('waste-b3.show', compact('data'));
+        return view('waste-b3.masuk.show', compact('data'));
     }
 
     /**

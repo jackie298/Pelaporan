@@ -208,15 +208,6 @@
                             </a>
                         </li>
 
-                        {{-- SUBMENU: LIMBAH B3 --}}
-                        <li class="nav-item">
-                            <a class="nav-link {{ Request::is('waste-b3*') ? 'active' : '' }}" 
-                            href="{{ route('waste-b3') }}">
-                                <span class="dot-indicator {{ Request::is('waste-b3*') ? 'bg-primary' : 'bg-secondary' }}"></span>
-                                <span class="sidenav-normal text-xs ps-2"> Limbah B3 </span>
-                            </a>
-                        </li>
-
                         {{-- SUBMENU: TRASH MANAGEMENT --}}
                         <li class="nav-item">
                             <a class="nav-link {{ Request::is('trash-management*') ? 'active' : '' }}" 
@@ -226,6 +217,50 @@
                             </a>
                         </li>
                         
+                    </ul>
+                </div>
+            </li>
+
+            {{-- ================= MENU Limbah B3 Masuk/Keluar ================= --}}
+            <li class="nav-item">
+                <a data-bs-toggle="collapse" 
+                href="#wasteB3Menu" 
+                class="nav-link {{ Request::is('waste-b3*') ? 'active' : '' }}" 
+                aria-controls="wasteB3Menu" 
+                role="button" 
+                aria-expanded="{{ Request::is('waste-b3*') ? 'true' : 'false' }}">
+                    
+                    {{-- Warna Background Icon Berubah Saat Aktif --}}
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('waste-b3*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fas fa-recycle {{ Request::is('waste-b3*') ? 'text-white' : 'text-dark' }}" 
+                        style="font-size: 0.8rem;"></i>
+                    </div>
+                    
+                    <span class="nav-link-text ms-1 {{ Request::is('waste-b3*') ? 'font-weight-bold' : '' }}">Manajemen Limbah B3</span>
+                </a>
+
+                {{-- ID disesuaikan menjadi wasteB3Menu agar unik --}}
+                <div class="collapse {{ Request::is('waste-b3*') ? 'show' : '' }}" id="wasteB3Menu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
+                        
+                        {{-- Menu Limbah Masuk --}}
+                        <li class="nav-item">
+                            {{-- Gunakan routeIs agar lebih akurat jika menggunakan penamaan route di Laravel --}}
+                            <a class="nav-link {{ request()->routeIs('waste-b3*') ? 'active' : '' }}" 
+                            href="{{ route('waste-b3') }}">
+                                <span class="dot-indicator {{ request()->routeIs('waste-b3*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Masuk </span>
+                            </a>
+                        </li>
+
+                        {{-- Menu Limbah Keluar --}}
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->routeIs('waste-b3-keluar*') ? 'active' : '' }}" 
+                            href="{{ route('waste-b3-keluar') }}">
+                                <span class="dot-indicator {{ request()->routeIs('waste-b3-keluar*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                <span class="sidenav-normal text-xs ps-2"> Keluar </span>
+                            </a>
+                        </li> 
                     </ul>
                 </div>
             </li>
@@ -246,15 +281,15 @@
                     <span class="nav-link-text ms-1">Inspeksi</span>
                 </a>
             </li>
-{{-- Cek apakah user yang login BUKAN employee --}}
-@if(auth()->user()->role !== 'employee')
+    {{-- Cek apakah user yang login BUKAN employee --}}
+    @if(auth()->user()->role !== 'employee')
 
-    {{-- ================= ADMIN ================= --}}
-    <li class="nav-item mt-3">
-        <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">
-            Halaman Admin
-        </h6>
-    </li>
+        {{-- ================= ADMIN ================= --}}
+        <li class="nav-item mt-3">
+            <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">
+                Halaman Admin
+            </h6>
+        </li>
 
     {{-- ================= DOKUMEN KONTRAK ================= --}}
     <li class="nav-item">

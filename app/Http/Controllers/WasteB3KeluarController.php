@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\WasteB3Masuk;
 use App\Models\WasteB3Keluar;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -48,7 +48,7 @@ class WasteB3KeluarController extends Controller
             ->orderBy('tanggal_masuk', 'desc')
             ->get(['id', 'jenis_limbah', 'kode_limbah']);
 
-        return view('waste-b3-keluar.index', compact(
+        return view('waste-b3.keluar.index', compact(
             'wasteB3Keluar',
             'limbahMasukOptions',
             'masukId',
@@ -96,15 +96,8 @@ public function create(Request $request)
             ->get(['id', 'jenis_limbah', 'kode_limbah', 'jumlah_tersisa_ton', 'status']);
     }
 
-    // ✅ LOG UNTUK DEBUGGING
-    // \Log::info('Create Waste B3 Keluar', [
-    //     'masuk_id' => $masukId,
-    //     'limbah_ditemukan' => $limbahMasuk ? true : false,
-    //     'limbah_options_count' => $limbahMasukOptions->count()
-    // ]);
-
     // ✅ RETURN VIEW DENGAN ARRAY ASOSIATIF (LEBIH AMAN)
-    return view('waste-b3-keluar.create', [
+    return view('waste-b3.keluar.create', [
         'limbahMasuk' => $limbahMasuk,
         'limbahMasukOptions' => $limbahMasukOptions,
     ]);
@@ -193,7 +186,7 @@ public function create(Request $request)
         // Ambil data limbah masuk untuk referensi
         $limbahMasuk = $data->limbahMasuk;
 
-        return view('waste-b3-keluar.edit', compact('data', 'limbahMasuk'));
+        return view('waste-b3.keluar.edit', compact('data', 'limbahMasuk'));
     }
 
     /**
@@ -212,59 +205,15 @@ public function create(Request $request)
             'nomor_dokumen_keluar' => 'required|string|max:100',
             'file_dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'catatan' => 'nullable|string|max:500',
-        ], [
-            'waste_b3_masuk_id.required' => 'Limbah masuk harus dipilih',
-            'waste_b3_masuk_id.exists' => 'Limbah masuk tidak valid',
-            'tanggal_keluar.required' => 'Tanggal keluar harus diisi',
-            'tanggal_keluar.date' => 'Format tanggal tidak valid',
-            'tanggal_keluar.before_or_equal' => 'Tanggal tidak boleh di masa depan',
-            'jumlah_keluar_ton.required' => 'Jumlah keluar harus diisi',
-            'jumlah_keluar_ton.numeric' => 'Jumlah keluar harus berupa angka',
-            'jumlah_keluar_ton.min' => 'Jumlah keluar minimal 0.01',
-            'jumlah_keluar_ton.max' => 'Jumlah keluar maksimal 999.999,99 ton',
-            'tujuan_penyerahan.required' => 'Tujuan penyerahan harus diisi',
-            'tujuan_penyerahan.string' => 'Tujuan penyerahan harus berupa teks',
-            'tujuan_penyerahan.max' => 'Tujuan penyerahan maksimal 200 karakter',
-            'nomor_dokumen_keluar.required' => 'Nomor dokumen harus diisi',
-            'nomor_dokumen_keluar.string' => 'Nomor dokumen harus berupa teks',
-            'nomor_dokumen_keluar.max' => 'Nomor dokumen maksimal 100 karakter',
-            'file_dokumen.file' => 'File dokumen harus berupa file',
-            'file_dokumen.mimes' => 'File dokumen harus berformat PDF, JPG, JPEG, atau PNG',
-            'file_dokumen.max' => 'Ukuran file dokumen maksimal 5MB',
-            'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
 
-        // Jika limbah masuk berubah, validasi ulang
-        if ($validated['waste_b3_masuk_id'] != $data->waste_b3_masuk_id) {
-            $limbahMasukBaru = WasteB3Masuk::findOrFail($validated['waste_b3_masuk_id']);
-            
-            if (!$limbahMasukBaru->can_be_dikeluarkan) {
-                return back()
-                    ->withErrors([
-                        'waste_b3_masuk_id' => 'Limbah ini tidak dapat dikeluarkan. Status: ' . $limbahMasukBaru->status_label
-                    ])
-                    ->withInput();
-            }
-
-            // Validasi jumlah keluar terhadap limbah baru
-            if ($validated['jumlah_keluar_ton'] > $limbahMasukBaru->sisa_limbah + $data->jumlah_keluar_ton) {
-                return back()
-                    ->withErrors([
-                        'jumlah_keluar_ton' => 'Jumlah keluar melebihi sisa limbah yang tersedia'
-                    ])
-                    ->withInput();
-            }
-        } else {
-            // Jika limbah masuk sama, validasi terhadap perubahan jumlah
-            $perubahanJumlah = $validated['jumlah_keluar_ton'] - $data->jumlah_keluar_ton;
-            
-            if ($perubahanJumlah > 0 && $perubahanJumlah > $limbahMasukAwal->sisa_limbah) {
-                return back()
-                    ->withErrors([
-                        'jumlah_keluar_ton' => 'Jumlah keluar melebihi sisa limbah yang tersedia (' . number_format($limbahMasukAwal->sisa_limbah, 2) . ' ton)'
-                    ])
-                    ->withInput();
-            }
+        // Validasi jumlah keluar
+        $perubahanJumlah = $validated['jumlah_keluar_ton'] - $data->jumlah_keluar_ton;
+        
+        if ($perubahanJumlah > 0 && $perubahanJumlah > $limbahMasukAwal->sisa_limbah) {
+            return back()->withErrors([
+                'jumlah_keluar_ton' => 'Jumlah keluar melebihi sisa limbah yang tersedia'
+            ])->withInput();
         }
 
         // Handle file upload (replace file lama)
@@ -275,13 +224,22 @@ public function create(Request $request)
             }
 
             $file = $request->file('file_dokumen');
-            $filename = 'waste-b3/' . date('Y-m-d') . '/' . time() . '_' . $file->getClientOriginalName();
+            $filename = 'waste-b3/' . now()->format('Y-m-d') . '/' . time() . '_' . 
+                        Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . 
+                        '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('public', $filename);
             $validated['file_dokumen'] = str_replace('public/', '', $path);
         }
 
-        // Update data
-        DB::transaction(function () use ($data, $validated, $limbahMasukAwal) {
+        DB::transaction(function () use ($data, $validated, $limbahMasukAwal, $perubahanJumlah) {
+            // Update stok limbah masuk
+            if ($perubahanJumlah != 0) {
+                $limbahMasukAwal->update([
+                    'jumlah_tersisa_ton' => $limbahMasukAwal->jumlah_tersisa_ton - $perubahanJumlah
+                ]);
+            }
+            
+            // Update data pengeluaran
             $data->update($validated);
         });
 
@@ -316,7 +274,7 @@ public function create(Request $request)
     {
         $data = WasteB3Keluar::with('limbahMasuk')->findOrFail($id);
         
-        return view('waste-b3-keluar.show', compact('data'));
+        return view('waste-b3.keluar.show', compact('data'));
     }
 
     /**

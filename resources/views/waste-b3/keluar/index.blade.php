@@ -20,10 +20,7 @@
                                 <i class="fas fa-info-circle"></i> 
                                 Riwayat pengeluaran limbah B3 dari Tempat Penyimpanan Sementara (TPS)
                             </p>
-                        </div>
-                        <a href="{{ route('waste-b3-keluar.create') }}" class="btn bg-gradient-primary btn-sm mb-0">
-                            +&nbsp; Tambah Log Keluar
-                        </a>
+                        </div>                        
                     </div>
                 </div>
                 

@@ -164,13 +164,12 @@
                                 @enderror
                                 <small class="form-text text-muted">Nomor dokumen manifest pengeluaran</small>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Upload Dokumen Manifest <span class="text-danger">*</span></label>
+                            <div class="col-md-6 mb-3">                                
                                 <input type="file" 
                                        name="file_dokumen" 
                                        class="form-control @error('file_dokumen') is-invalid @enderror"
                                        accept=".pdf,.jpg,.jpeg,.png"
-                                       required>
+                                       >
                                 @error('file_dokumen')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
