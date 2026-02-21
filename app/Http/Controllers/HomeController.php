@@ -43,7 +43,7 @@ class HomeController extends Controller
 
         $chartData = [];
         foreach ($kodealat as $id => $kode) {
-            $chartData[$kode] = WorkHours::where('alat_id', $id)
+            $chartData[$kode] = workhours::where('alat_id', $id)
                 ->orderBy('tanggal', 'asc')
                 ->pluck('total_jam')
                 ->toArray();

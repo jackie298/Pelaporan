@@ -10,7 +10,7 @@ use App\Http\Controllers\RevegetasiController;
 use App\Http\Controllers\RencanaRevegetasiController;
 use App\Http\Controllers\BukaanLahanController;
 use App\Http\Controllers\ReklamasiController;
-use App\Http\Controllers\complianceController;
+use App\Http\Controllers\ComplianceController;
 use App\Http\Controllers\NurseryController;
 use App\Http\Controllers\TrashManagementController;
 use App\Http\Controllers\WasteB3MasukController;
@@ -330,25 +330,25 @@ Route::group(['middleware' => 'auth'], function () {
     // END NURSERY
 
     // ROUTING compliance
-    Route::get('compliance', [complianceController::class, 'index'])
+    Route::get('compliance', [ComplianceController::class, 'index'])
         ->name('compliance');
 
     // CREATE
-    Route::get('compliance/create', [complianceController::class, 'create'])
+    Route::get('compliance/create', [ComplianceController::class, 'create'])
         ->name('compliance.create');
 
-    Route::post('compliance', [complianceController::class, 'store'])
+    Route::post('compliance', [ComplianceController::class, 'store'])
         ->name('compliance.store');
 
     // EDIT
-    Route::get('compliance/{id}/edit', [complianceController::class, 'edit'])
+    Route::get('compliance/{id}/edit', [ComplianceController::class, 'edit'])
         ->name('compliance.edit');
 
-    Route::put('compliance/{id}', [complianceController::class, 'update'])
+    Route::put('compliance/{id}', [ComplianceController::class, 'update'])
         ->name('compliance.update');
 
     // DELETE
-    Route::delete('compliance/{id}', [complianceController::class, 'destroy'])
+    Route::delete('compliance/{id}', [ComplianceController::class, 'destroy'])
         ->name('compliance.destroy');
     // END compliance
 

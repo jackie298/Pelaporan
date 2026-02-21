@@ -139,8 +139,8 @@ class RekapAnggaranController extends Controller
     }
 
     // Export data rekap anggaran
-    public function export()
-    {
-        return (new RekapAnggaranExport())->download('rekap_anggaran.xlsx');
-    }
+    // public function export()
+    // {
+    //     return (new RekapAnggaranExport())->download('rekap_anggaran.xlsx');
+    // }
 }
