@@ -13,7 +13,7 @@ class ComplianceController extends Controller
 {
     public function index()
     {
-        $compliances = Compliance::latest()->get();
+        $compliances = compliance::latest()->get();
         
         return view('compliance.index', compact('compliances'));
     }
