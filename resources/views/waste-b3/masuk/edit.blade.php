@@ -20,7 +20,7 @@
                     </p>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('waste-b3-masuk.update', $data->id) }}" method="POST" id="wasteForm">
+                    <form action="{{ route('waste-b3.update', $data->id) }}" method="POST" id="wasteForm">
                         @csrf
                         @method('PUT')
                         
@@ -205,7 +205,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end mt-4">
-                            <a href="{{ route('waste-b3-masuk.index') }}" class="btn btn-light me-2">
+                            <a href="{{ route('waste-b3') }}" class="btn btn-light me-2">
                                 <i class="fas fa-times me-1"></i>Batal
                             </a>
                             <button type="submit" class="btn bg-gradient-primary">
