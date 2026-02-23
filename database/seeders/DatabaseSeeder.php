@@ -2,7 +2,7 @@
 
 use Database\Seeders\UserSeeder;
 use Database\Seeders\EquipmentSeeder;
-use Database\Seeders\DocumentContractSeeder;
+use Database\Seeders\RekapAnggaranSeeder;
 use Database\Seeders\WorkHourSeeder;
 use Database\Seeders\DokumentasiKegiatanSeeder;
 use Database\Seeders\WasteWaterManagementSeeder;
@@ -28,7 +28,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             EquipmentSeeder::class,
-            DocumentContractSeeder::class,
             WorkHourSeeder::class,
             DokumentasiKegiatanSeeder::class,
             WasteWaterManagementSeeder::class,
@@ -39,6 +38,7 @@ class DatabaseSeeder extends Seeder
             ComplianceSeeder::class,
             TrashManagementSeeder::class,
             MonitoringVegetasiSeeder::class,
+            RekapAnggaranSeeder::class,
         ]);
     }
 }

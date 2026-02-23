@@ -291,12 +291,12 @@
             </h6>
         </li>
 
-    {{-- ================= DOKUMEN KONTRAK ================= --}}
+    {{-- ================= REKAP ANGGARAN ================= --}}
     <li class="nav-item">
-        <a class="nav-link {{ Request::is('admin/document-contract*') || Request::is('admin/add-contract') ? 'active' : '' }}"
-           href="{{ route('admin.document-contract') }}">
-            <div class="icon icon-shape icon-sm shadow {{ Request::is('admin/document-contract*') || Request::is('admin/add-contract') ? 'bg-primary' : 'bg-white' }} text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="fas fa-file-contract {{ Request::is('admin/document-contract*') || Request::is('admin/add-contract') ? 'text-white' : 'text-dark' }}"></i>
+        <a class="nav-link {{ Request::is('admin/rekap-anggaran*') || Request::is('admin/add-rekap-anggaran') ? 'active' : '' }}"
+           href="{{ route('admin.rekap-anggaran') }}">
+            <div class="icon icon-shape icon-sm shadow {{ Request::is('admin/rekap-anggaran*') || Request::is('admin/rekap-anggaran') ? 'bg-primary' : 'bg-white' }} text-center me-2 d-flex align-items-center justify-content-center">
+                <i class="fas fa-file-contract {{ Request::is('admin/rekap-anggaran*') || Request::is('admin/rekap-anggaran') ? 'text-white' : 'text-dark' }}"></i>
             </div>
             <span class="nav-link-text ms-1">Rekap Anggaran</span>
         </a>

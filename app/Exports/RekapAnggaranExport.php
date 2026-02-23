@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\documentcontract;
+use App\Models\RekapAnggaran;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -15,7 +15,7 @@ class RekapAnggaranExport implements FromCollection, WithHeadings, WithMapping, 
     */
     public function collection()
     {
-        return documentcontract::all();
+        return RekapAnggaran::all();
     }
 
     public function headings(): array

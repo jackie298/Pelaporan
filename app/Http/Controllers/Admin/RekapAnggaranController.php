@@ -19,7 +19,7 @@ class RekapAnggaranController extends Controller
         // HITUNG TOTAL NILAI KONTRAK
         $totalNilaiKontrak = $rekap_anggaran->sum('harga');
 
-        return view('admin.rekap-anggaran', compact(
+        return view('admin.rekap-anggaran.index', compact(
             'rekap_anggaran',
             'totalNilaiKontrak'
         ));
@@ -30,7 +30,7 @@ class RekapAnggaranController extends Controller
      */
     public function create()
     {
-        return view('admin.add-rekap-anggaran');
+        return view('admin.rekap-anggaran.add');
     }
 
     /**
@@ -46,7 +46,7 @@ class RekapAnggaranController extends Controller
             'status'           => 'required|in:open,close,pending,proses finance,hold',
             'keterangan'       => 'nullable|string',
             'uraian_rkab'      => 'nullable|string',
-            'file_kontrak'     => 'required|file|mimes:pdf,doc,docx|max:2048',
+            'file_kontrak'     => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
         // =============================
@@ -54,8 +54,8 @@ class RekapAnggaranController extends Controller
         // =============================
         $filePath = null;
 
-        if ($request->hasFile('file_rekap_anggaran')) {
-            $filePath = $request->file('file_rekap_anggaran')
+        if ($request->hasFile('file_kontrak')) {
+            $filePath = $request->file('file_kontrak')
                                 ->store('rekap_anggaran', 'public');
         }
 
@@ -83,8 +83,8 @@ class RekapAnggaranController extends Controller
     */
     public function edit($id)
     {
-        $contract = RekapAnggaran::findOrFail($id);
-        return view('admin.edit-rekap-anggaran', compact('rekap_anggaran'));
+        $rekap_anggaran = RekapAnggaran::findOrFail($id);
+        return view('admin.rekap-anggaran.edit', compact('rekap_anggaran'));
     }
 
     /**
@@ -96,30 +96,30 @@ class RekapAnggaranController extends Controller
 
         $request->validate([
             'nama'            => 'required|string|max:255',
-            'realisasi'        => 'required|string|max:255',
-            'keterangan_jasa'  => 'required|string',
-            'harga'            => 'required|numeric|min:0',
-            'status'           => 'required|in:open,close,pending,proses finance,hold',
-            'keterangan'       => 'nullable|string',
-            'uraian_rkab'      => 'nullable|string',
-            'file_kontrak'     => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'realisasi'       => 'required|string|max:255',
+            'keterangan_jasa' => 'required|string',
+            'harga'           => 'required|numeric|min:0',
+            'status'          => 'required|in:open,close,pending,proses finance,hold',
+            'file_kontrak'    => 'nullable|file|mimes:pdf,doc,docx|max:2048',
         ]);
 
-        // upload file baru (jika ada)
-        if ($request->hasFile('file_rekap_anggaran')) {
-            if ($rekap_anggaran->file_rekap_anggaran) {
-                Storage::disk('public')->delete($rekap_anggaran->file_rekap_anggaran);
-            }
+        $data = $request->all();
 
-            $rekap_anggaran->file_rekap_anggaran = $request->file('file_rekap_anggaran')
-                ->store('rekap_anggaran', 'public');
+        if ($request->hasFile('file_kontrak')) {
+            // Hapus file lama jika ada
+            if ($rekap_anggaran->file_kontrak) {
+                Storage::disk('public')->delete($rekap_anggaran->file_kontrak);
+            }
+            // Simpan file baru
+            $data['file_kontrak'] = $request->file('file_kontrak')->store('rekap_anggaran', 'public');
+        } else {
+            // Tetap gunakan file yang lama jika tidak ada upload baru
+            $data['file_kontrak'] = $rekap_anggaran->file_kontrak;
         }
 
-        $rekap_anggaran->update($request->except('file_rekap_anggaran'));
+        $rekap_anggaran->update($data);
 
-        return redirect()
-            ->route('admin.rekap-anggaran')
-            ->with('success', 'Document Rekap Anggaran berhasil diperbarui.');
+        return redirect()->route('admin.rekap-anggaran')->with('success', 'Berhasil diperbarui.');
     }
 
     /**
@@ -139,8 +139,8 @@ class RekapAnggaranController extends Controller
     }
 
     // Export data rekap anggaran
-    // public function export()
-    // {
-    //     return (new RekapAnggaranExport())->download('rekap_anggaran.xlsx');
-    // }
+    public function export()
+    {
+        return (new RekapAnggaranExport())->download('rekap_anggaran.xlsx');
+    }
 }

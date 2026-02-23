@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\DocumentContract;
-use App\Models\workhours;
+use App\Models\RekapAnggaran;
+use App\Models\WorkHours;
 use App\Models\Equipment;
 use App\Models\WasteWaterManagement;
 use App\Models\Reklamasi;
@@ -12,6 +12,7 @@ use App\Models\BukaanLahan;
 use App\Models\Revegetasi;
 use App\Models\Nursery;
 use App\Models\RencanaRevegetasi;
+use App\Models\Compliance;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -21,33 +22,106 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $documentContracts = DocumentContract::all();
+        // --- START REKAP ANGGARAN ---
 
-        $statuscount = [
-            'open' => DocumentContract::where('status', 'open')->count(),
-            'close' => DocumentContract::where('status', 'close')->count(),
-            'pending' => DocumentContract::where('status', 'pending')->count(),
-            'proses finance' => DocumentContract::where('status', 'proses finance')->count(),
-            'hold' => DocumentContract::where('status', 'hold')->count(),
-        ];
+        // 1. Ambil data utama (sebaiknya gunakan pagination jika data banyak)
+        $rekap_anggaran = RekapAnggaran::all();
 
-        $kodealat = Equipment::pluck('kode', 'id')->toArray();
+        // 2. Hitung statistik berdasarkan status dalam 1 query (Efisien)
+        $counts = RekapAnggaran::selectRaw('LOWER(status) as status, count(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
 
-        // Data Work Hours (Grafik Existing)
+        // 3. Pastikan semua kunci status ada (set 0 jika tidak ada di database)
+        $statuscount = array_merge([
+            'open' => 0,
+            'close' => 0,
+            'pending' => 0,
+            'proses finance' => 0,
+            'hold' => 0,
+        ], $counts);
+
+        // 4. Hitung total nilai kontrak (opsional, untuk footer tabel)
+        $totalNilaiKontrak = $rekap_anggaran->sum('harga');
+
+        // --- END REKAP ANGGARAN ---
+
+        // --- START COMPLIANCE ---
+        
+        // 1. Ambil data compliance terbaru untuk tabel (misal 10 data terakhir)
+        $compliances = Compliance::latest()->take(10)->get();
+
+        // 2. Hitung statistik Compliance untuk Summary Cards (Count Status)
+        // Menghitung status: Open, Pending, Resolved, Escalated
+        $complianceStats = Compliance::selectRaw('LOWER(Status) as status, count(*) as total')
+            ->groupBy('Status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        // Gabungkan dengan default 0 jika status tertentu tidak ada di DB
+        $complianceCounts = array_merge([
+            'open' => 0,
+            'pending' => 0,
+            'resolved' => 0,
+            'escalated' => 0,
+        ], $complianceStats);
+
+        // 3. Hitung statistik Keparahan (Severity) untuk insight tambahan
+        $severityStats = Compliance::selectRaw('LOWER(Tingkat_keparahan) as tingkat, count(*) as total')
+            ->groupBy('Tingkat_keparahan')
+            ->pluck('total', 'tingkat')
+            ->toArray();
+
+        // --- END COMPLIANCE ---
+
+        // --- START PERBAIKAN PENGELOMPOKAN ALAT ---
+
+        // Ambil semua data alat dari database
+        $allEquipments = Equipment::all();
+
         $ritaseLabels = workhours::orderBy('tanggal')
-                ->pluck('tanggal')
-                ->unique()
-                ->map(function ($item) {
-                    return Carbon::parse($item)->format('d M');
-                })->values();
+        ->pluck('tanggal')
+        ->unique()
+        ->map(function ($item) {
+            return \Carbon\Carbon::parse($item)->format('d M');
+        })->values();
 
-        $chartData = [];
-        foreach ($kodealat as $id => $kode) {
-            $chartData[$kode] = workhours::where('alat_id', $id)
-                ->orderBy('tanggal', 'asc')
-                ->pluck('total_jam')
-                ->toArray();
-        }
+        // 1. Grup EXCA Murni (Hanya yang ada 'EXC' tapi tidak ada 'LA' atau 'BR')
+        $grupExca = $allEquipments->filter(function ($item) {
+            $kode = strtoupper($item->kode);
+            return str_contains($kode, 'EXC') && !str_contains($kode, 'LA') && !str_contains($kode, 'BR');
+        });
+
+        // 2. Grup Alat Pendukung (EXC LA, EXC BR, dan Buldozer/BD)
+        $grupPendukung = $allEquipments->filter(function ($item) {
+            $kode = strtoupper($item->kode);
+            return str_contains($kode, 'LA') || str_contains($kode, 'BR') || str_contains($kode, 'BD');
+        });
+
+        // 3. Grup Dump Truck (DT)
+        $grupDT = $allEquipments->filter(function ($item) {
+            return str_contains(strtoupper($item->kode), 'DT');
+        });
+
+        // Helper untuk mengambil data ritase/total_jam berdasarkan koleksi alat
+        $getChartData = function($collection) {
+            $data = [];
+            foreach ($collection as $item) {
+                $data[$item->kode] = WorkHours::where('alat_id', $item->id)
+                    ->orderBy('tanggal', 'asc')
+                    ->pluck('total_jam')
+                    ->toArray();
+            }
+            return $data;
+        };
+
+        // Siapkan data chart untuk masing-masing grup
+        $chartDataExca = $getChartData($grupExca);
+        $chartDataPendukung = $getChartData($grupPendukung);
+        $chartDataDT = $getChartData($grupDT);
+
+        // --- END PERBAIKAN PENGELOMPOKAN ALAT ---
 
         // 1. Ambil data 6 bulan terakhir
         $lastSixMonths = collect();
@@ -222,11 +296,18 @@ class HomeController extends Controller
         ];
 
         return view('dashboard', compact(
-            'documentContracts', 
-            'statuscount', 
-            'kodealat', 
+            'rekap_anggaran', 
+            'statuscount',
+            'compliances',
+            'complianceCounts',
+            'severityStats',
             'ritaseLabels', 
-            'chartData',
+            'grupExca', 
+            'grupPendukung', 
+            'grupDT',
+            'chartDataExca',
+            'chartDataPendukung',
+            'chartDataDT', 
             'reklamasiLabels',
             'finalBukaanValues',
             'finalReklamasiValues',

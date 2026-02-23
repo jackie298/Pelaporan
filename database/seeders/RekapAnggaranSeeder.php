@@ -2,14 +2,18 @@
 
 namespace Database\Seeders;
 
-use App\Models\DocumentContract;
+use App\Models\RekapAnggaran;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class DocumentContractSeeder extends Seeder
+class RekapAnggaranSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $contracts = [
+        $rekap_anggaran = [
             [
                 'nama' => 'Kontrak Pengadaan Alat Berat',
                 'realisasi' => '2025-01-15',
@@ -18,7 +22,6 @@ class DocumentContractSeeder extends Seeder
                 'status' => 'Open', // ← diubah dari 'aktif'
                 'keterangan' => 'Kontrak berlaku selama 2 tahun',
                 'uraian_rkab' => 'Pengadaan alat berat sesuai matriks RKAB Q1 2025',
-                'file_kontrak' => '#',
             ],
             [
                 'nama' => 'Jasa Maintenance Bulanan',
@@ -28,7 +31,6 @@ class DocumentContractSeeder extends Seeder
                 'status' => 'Close', // ← diubah dari 'selesai'
                 'keterangan' => 'Layanan selesai sesuai jadwal',
                 'uraian_rkab' => 'Maintenance rutin sesuai standar operasional',
-                'file_kontrak' => '#',
             ],
             [
                 'nama' => 'Sewa Generator Listrik',
@@ -38,7 +40,6 @@ class DocumentContractSeeder extends Seeder
                 'status' => 'Open', // ← diubah dari 'aktif'
                 'keterangan' => 'Berlaku hingga akhir Q2 2025',
                 'uraian_rkab' => 'Dukungan listrik darurat sesuai RKAB',
-                'file_kontrak' => '#',
             ],
             [
                 'nama' => 'Konsultasi Teknis Tambang',
@@ -48,7 +49,6 @@ class DocumentContractSeeder extends Seeder
                 'status' => 'Hold', // ← diubah dari 'batal'
                 'keterangan' => 'Dibatalkan karena perubahan anggaran',
                 'uraian_rkab' => 'Kegiatan tidak masuk dalam revisi RKAB 2025',
-                'file_kontrak' => '#',
             ],
             [
                 'nama' => 'Pengadaan Suku Cadang',
@@ -58,14 +58,13 @@ class DocumentContractSeeder extends Seeder
                 'status' => 'Close', // ← diubah dari 'selesai'
                 'keterangan' => 'Barang telah diterima dan dipasang',
                 'uraian_rkab' => 'Penggantian suku cadang kritis Q1',
-                'file_kontrak' => '#',
             ],
         ];
 
-        foreach ($contracts as $data) {
-            DocumentContract::create($data);
+        foreach ($rekap_anggaran as $data) {
+            RekapAnggaran::create($data);
         }
 
-        $this->command->info('✅ ' . count($contracts) . ' data kontrak berhasil ditambahkan dengan file_kontrak = #');
+        $this->command->info('✅ ' . count($rekap_anggaran) . ' data kontrak berhasil ditambahkan');
     }
 }

@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
 
 // Admin
-use App\Http\Controllers\Admin\DocumentContractController;
+use App\Http\Controllers\Admin\RekapAnggaranController;
 use App\Http\Controllers\Admin\EquipmentListController;
 use App\Http\Controllers\Admin\WorkHoursController;
 use App\Http\Controllers\Admin\DokumentasiKegiatanController;
@@ -44,28 +44,28 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        // Routing Document Contract
-        Route::get('document-contract', [DocumentContractController::class, 'index'])
-            ->name('document-contract');
+        // Routing REKAP ANGGARAN
+        Route::get('rekap-anggaran', [RekapAnggaranController::class, 'index'])
+            ->name('rekap-anggaran');
 
         // TAMBAH DATA
-        Route::get('add-contract', [DocumentContractController::class, 'create'])
-            ->name('document-contract.create');
+        Route::get('add-rekap-anggaran', [RekapAnggaranController::class, 'create'])
+            ->name('rekap-anggaran.create');
 
-        Route::post('add-contract', [DocumentContractController::class, 'store'])
-            ->name('document-contract.store');
+        Route::post('add-contract', [RekapAnggaranController::class, 'store'])
+            ->name('rekap-anggaran.store');
 
         // EDIT DATA
-        Route::get('document-contract/{id}/edit', [DocumentContractController::class, 'edit'])
-            ->name('document-contract.edit');
+        Route::get('rekap-anggaran/{id}/edit', [RekapAnggaranController::class, 'edit'])
+            ->name('rekap-anggaran.edit');
 
-        Route::put('document-contract/{id}', [DocumentContractController::class, 'update'])
-            ->name('document-contract.update');
+        Route::put('rekap-anggaran/{id}', [RekapAnggaranController::class, 'update'])
+            ->name('rekap-anggaran.update');
 
         // DELETE
-        Route::delete('document-contract/{id}', [DocumentContractController::class, 'destroy'])
-            ->name('document-contract.destroy');
-        // END ROUTE DOCUMENT CONTRACT
+        Route::delete('rekap-anggaran/{id}', [RekapAnggaranController::class, 'destroy'])
+            ->name('rekap-anggaran.destroy');
+        // END ROUTE REKAP ANGGARAN
 
         // ROUTING EQUIPMENT LIST
         Route::get('equipment-list', [EquipmentListController::class, 'index'])
