@@ -53,6 +53,12 @@ class User extends Authenticatable
     {
         return $this->role === 'employee';
     }
+
+    public function folders()
+    {
+        return $this->hasMany(\App\Models\Folder::class);
+    }
+
     public function documents()
     {
         return $this->hasMany(Document::class);

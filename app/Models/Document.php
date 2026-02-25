@@ -13,6 +13,7 @@ class Document extends Model
     // Kolom yang boleh diisi secara massal
     protected $fillable = [
         'user_id',
+        'folder_id',
         'title',
         'original_name',
         'file_path',
@@ -51,5 +52,9 @@ class Document extends Model
     public function getFileUrlAttribute()
     {
         return Storage::url($this->file_path);
+    }
+
+    public function folder() {
+        return $this->belongsTo(Folder::class);
     }
 }

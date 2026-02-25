@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             // Menghubungkan dokumen ke user yang mengunggah
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+
+            $table->foreignId('folder_id')->nullable()->constrained()->onDelete('set null');
             
             $table->string('title'); // Nama tampilan dokumen
             $table->string('original_name'); // Nama file asli (contoh: laporan_final.pdf)

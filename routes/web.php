@@ -190,16 +190,22 @@ Route::group(['middleware' => 'auth'], function () {
 	})->name('sign-up');
 
     // --- Route Dokumen di sini ---
-        Route::get('documents', [DocumentController::class, 'index'])
+        Route::get('/documents', [DocumentController::class, 'index'])
             ->name('documents');
-        Route::post('documents', [DocumentController::class, 'store'])
+        Route::post('/documents/folder', [DocumentController::class, 'storeFolder'])
+            ->name('documents.storeFolder');
+        Route::post('/documents/upload', [DocumentController::class, 'store'])
             ->name('documents.store');
-        Route::get('documents/{document}/download', [DocumentController::class, 'download'])
+        Route::put('/documents/{document}/move', [DocumentController::class, 'move'])
+            ->name('documents.move');
+        Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
             ->name('documents.download');
-        Route::delete('documents/{document}', [DocumentController::class, 'destroy'])
-            ->name('documents.destroy');
-        Route::get('documents/{document}/preview', [DocumentController::class, 'preview'])
+        Route::get('/documents/{document}/preview', [DocumentController::class, 'preview'])
             ->name('documents.preview');
+        Route::delete('/documents/{document}', [DocumentController::class, 'destroy'])
+            ->name('documents.destroy');
+        Route::delete('/folders/{folder}', [DocumentController::class, 'destroyFolder'])
+            ->name('documents.destroyFolder');
     // --- END ROUTE DOKUMEN ---
 
     // ROUTING WASTE WATER MANAGEMENT

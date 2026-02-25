@@ -27,11 +27,11 @@
                     </div>
 
                 @elseif(in_array($extension, ['xls', 'xlsx', 'doc', 'docx']))
-                    @if(app()->environment('local'))
+                       <div class="text-center py-5">
+                     @if(app()->environment('local'))
                         {{-- Tampilan saat di Localhost --}}
-                        <div class="text-center py-5">
                             <i class="fas fa-file-excel fa-5x text-success mb-3"></i>
-                            <h5>Pratinjau tidak tersedia di Localhost</h5>
+                            <h5>Pratinjau tidak tersedia</h5>
                             <p>Office Online Viewer memerlukan akses internet publik ke file Anda.<br>Silakan unduh untuk melihat dokumen ini.</p>
                             <a href="{{ route('documents.download', $document->id) }}" class="btn bg-gradient-info">
                                 <i class="fas fa-download me-2"></i> Unduh File Excel
