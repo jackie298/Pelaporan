@@ -53,5 +53,9 @@ class User extends Authenticatable
     {
         return $this->role === 'employee';
     }
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
 
 }

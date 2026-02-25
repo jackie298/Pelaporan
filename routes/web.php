@@ -16,6 +16,7 @@ use App\Http\Controllers\TrashManagementController;
 use App\Http\Controllers\WasteB3MasukController;
 use App\Http\Controllers\MonitoringVegetasiController;
 use App\Http\Controllers\WasteB3KeluarController;
+use App\Http\Controllers\DocumentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -187,6 +188,19 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('static-sign-up', function () {
 		return view('static-sign-up');
 	})->name('sign-up');
+
+    // --- Route Dokumen di sini ---
+        Route::get('documents', [DocumentController::class, 'index'])
+            ->name('documents');
+        Route::post('documents', [DocumentController::class, 'store'])
+            ->name('documents.store');
+        Route::get('documents/{document}/download', [DocumentController::class, 'download'])
+            ->name('documents.download');
+        Route::delete('documents/{document}', [DocumentController::class, 'destroy'])
+            ->name('documents.destroy');
+        Route::get('documents/{document}/preview', [DocumentController::class, 'preview'])
+            ->name('documents.preview');
+    // --- END ROUTE DOKUMEN ---
 
     // ROUTING WASTE WATER MANAGEMENT
     Route::get('waste-water-management', [WasteWaterManagementController::class, 'index'])
