@@ -107,25 +107,33 @@
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
             @forelse($folders as $folder)
             <div class="col">
-                <div class="card folder-card h-100 shadow-none">
+                <div class="card folder-card h-100 shadow-none position-relative">
                     <div class="card-body p-3">
-                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between align-items-start menu-container">
                             <div class="folder-icon-wrapper shadow-sm">
                                 <i class="fas fa-folder fa-lg text-white"></i>
                             </div>
-                            <div class="dropdown">
-                                <button class="btn btn-link text-secondary mb-0 py-0" data-bs-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
+                            
+                            <div class="dropdown" style="z-index: 5;">
+                                <button class="btn btn-link text-secondary mb-0 py-0 px-2 shadow-none" 
+                                        type="button" 
+                                        id="dropFolder{{ $folder->id }}" 
+                                        data-bs-toggle="dropdown" 
+                                        aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow">
+                                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg" aria-labelledby="dropFolder{{ $folder->id }}">
                                     <li>
-                                        <button class="dropdown-item text-danger d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#deleteFolderModal{{ $folder->id }}">
-                                            <i class="fas fa-trash-alt me-2 text-xs"></i> Hapus
+                                        <button class="dropdown-item text-danger d-flex align-items-center" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteFolderModal{{ $folder->id }}">
+                                            <i class="fas fa-trash-alt me-2 text-xs"></i> Hapus Folder
                                         </button>
                                     </li>
                                 </ul>
                             </div>
                         </div>
+
                         <div class="mt-3">
                             <a href="{{ route('documents', ['folder_id' => $folder->id]) }}" class="stretched-link">
                                 <h6 class="text-sm font-weight-bold mb-1 text-dark text-truncate">{{ $folder->name }}</h6>
@@ -138,11 +146,6 @@
                 </div>
             </div>
             @empty
-            <div class="col-12">
-                <div class="text-center py-4 bg-white rounded-3 border-dashed border-2 opacity-6">
-                    <p class="text-sm text-muted mb-0">Belum ada folder di direktori ini.</p>
-                </div>
-            </div>
             @endforelse
         </div>
     </div>
