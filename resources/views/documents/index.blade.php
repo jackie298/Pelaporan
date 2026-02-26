@@ -301,7 +301,7 @@
                         <label class="form-control-label text-xs">Nama Folder</label>
                         <input type="text" name="name" class="form-control shadow-none" placeholder="Masukkan nama folder..." required autofocus>
                         <p class="text-xxs text-muted mt-2 px-1">
-                            <i class="fas fa-info-circle me-1"></i> Lokasi: <strong>{{ $currentFolder ? $currentFolder->name : 'Semua Berkas' }}</strong>
+                            <i class="fas fa-info-circle me-1"></i> Lokasi: <strong>{{ $currentFolder ? $currentFolder->name : 'Home' }}</strong>
                         </p>
                     </div>
                 </div>
@@ -336,7 +336,7 @@
                 </div>
                 <div class="modal-footer border-0 pt-0">
                     <button type="submit" class="btn bg-gradient-primary w-100 shadow-sm">
-                        Unggah ke {{ $currentFolder ? $currentFolder->name : 'Semua Berkas' }}
+                        Unggah ke {{ $currentFolder ? $currentFolder->name : 'Home' }}
                     </button>
                 </div>
             </form>
