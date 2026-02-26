@@ -46,6 +46,13 @@ class WasteB3MasukController extends Controller
         }
 
         $wasteB3Masuk = $query->latest()->paginate(15);
+
+        $summaryStats = [
+            'total' => WasteB3Masuk::count(),
+            'belum_dikeluarkan' => WasteB3Masuk::where('status', 'belum_dikeluarkan')->count(),
+            'kadaluarsa' => WasteB3Masuk::where('status', 'kadaluarsa')->count(),
+            'total_ton' => WasteB3Masuk::sum('jumlah_ton'),
+        ];
         
         // Options untuk filter dropdown status saja
         $statusOptions = WasteB3Masuk::STATUS_OPTIONS;
@@ -57,7 +64,8 @@ class WasteB3MasukController extends Controller
             'jenisFilter',
             'sumberFilter',
             'tanggalDari',
-            'tanggalSampai'
+            'tanggalSampai',
+            'summaryStats'
         ));
     }
 
@@ -76,6 +84,13 @@ class WasteB3MasukController extends Controller
      */
     public function store(Request $request)
     {
+        // 1. Ubah input kode_limbah menjadi uppercase di awal
+        if ($request->has('kode_limbah')) {
+            $request->merge([
+                'kode_limbah' => strtoupper($request->kode_limbah)
+            ]);
+        }
+
         $validated = $request->validate([
             'jenis_limbah' => 'required|string|max:100',
             'kode_limbah' => 'required|string|max:50',
@@ -108,23 +123,17 @@ class WasteB3MasukController extends Controller
             'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
 
-        // Cek duplikasi data (kode limbah + tanggal masuk)
-        $exists = WasteB3Masuk::where('kode_limbah', $validated['kode_limbah'])
-                               ->where('tanggal_masuk', $validated['tanggal_masuk'])
-                               ->exists();
+        // 2. Cek apakah KODE LIMBAH sudah ada di database (Case Insensitive karena sudah di-uppercase)
+        $isDuplicate = WasteB3Masuk::where('kode_limbah', $validated['kode_limbah'])->exists();
 
-        if ($exists) {
+        if ($isDuplicate) {
             return back()
-                ->withErrors([
-                    'kode_limbah' => 'Data limbah dengan kode ini pada tanggal yang sama sudah ada'
-                ])
+                ->withErrors(['kode_limbah' => 'Kode limbah ' . $validated['kode_limbah'] . ' sudah terdaftar di sistem.'])
                 ->withInput();
         }
 
-        // Tambahkan created_by
         $validated['created_by'] = Auth::id();
 
-        // Simpan data
         DB::transaction(function () use ($validated) {
             WasteB3Masuk::create($validated);
         });
@@ -152,6 +161,13 @@ class WasteB3MasukController extends Controller
     {
         $data = WasteB3Masuk::findOrFail($id);
 
+        // 1. Ubah input menjadi uppercase
+        if ($request->has('kode_limbah')) {
+            $request->merge([
+                'kode_limbah' => strtoupper($request->kode_limbah)
+            ]);
+        }
+
         $validated = $request->validate([
             'jenis_limbah' => 'required|string|max:100',
             'kode_limbah' => 'required|string|max:50',
@@ -184,30 +200,22 @@ class WasteB3MasukController extends Controller
             'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
 
-        // Cek duplikasi data (kecuali data ini sendiri)
-        $exists = WasteB3Masuk::where('kode_limbah', $validated['kode_limbah'])
-                               ->where('tanggal_masuk', $validated['tanggal_masuk'])
-                               ->where('id', '!=', $id)
-                               ->exists();
+        // 2. Cek duplikasi kode_limbah kecuali milik data ini sendiri
+        $isDuplicate = WasteB3Masuk::where('kode_limbah', $validated['kode_limbah'])
+                                    ->where('id', '!=', $id)
+                                    ->exists();
 
-        if ($exists) {
+        if ($isDuplicate) {
             return back()
-                ->withErrors([
-                    'kode_limbah' => 'Data limbah dengan kode ini pada tanggal yang sama sudah ada'
-                ])
+                ->withErrors(['kode_limbah' => 'Kode limbah ' . $validated['kode_limbah'] . ' sudah digunakan oleh data lain.'])
                 ->withInput();
         }
 
-        // Validasi: Tidak bisa edit jumlah_ton jika sudah ada pengeluaran
+        // Validasi jumlah_ton jika sudah ada pengeluaran
         if ($data->pengeluaran()->count() > 0 && $data->jumlah_ton != $validated['jumlah_ton']) {
-            return back()
-                ->withErrors([
-                    'jumlah_ton' => 'Jumlah ton tidak dapat diubah karena sudah ada riwayat pengeluaran'
-                ])
-                ->withInput();
+            return back()->withErrors(['jumlah_ton' => 'Jumlah ton tidak dapat diubah karena sudah ada riwayat pengeluaran'])->withInput();
         }
 
-        // Update data
         DB::transaction(function () use ($data, $validated) {
             $data->update($validated);
         });

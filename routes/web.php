@@ -345,8 +345,8 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('nursery.update');
 
     // DELETE DATA
-    Route::delete('reklamasi/{id}', [NurseryController::class, 'destroy'])
-        ->name('reklamasi.destroy');
+    Route::delete('nursery/{id}', [NurseryController::class, 'destroy'])
+        ->name('nursery.destroy');
     // END NURSERY
 
     // ROUTING compliance
@@ -448,11 +448,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('waste-b3-keluar/create', [WasteB3KeluarController::class, 'create'])
         ->name('waste-b3-keluar.create');
 
+    Route::get('waste-b3-keluar/create1', [WasteB3KeluarController::class, 'create1'])
+        ->name('waste-b3-keluar.create1');
+
     Route::post('waste-b3-keluar', [WasteB3KeluarController::class, 'store'])
         ->name('waste-b3-keluar.store');
 
     Route::get('waste-b3-keluar/{id}', [WasteB3KeluarController::class, 'show'])
         ->name('waste-b3-keluar.show');
+
+    Route::get('waste-b3-keluar/{id}/download', [WasteB3KeluarController::class, 'downloadDokumen'])
+        ->name('waste-b3-keluar.download');
 
     Route::get('waste-b3-keluar/{id}/edit', [WasteB3KeluarController::class, 'edit'])
         ->name('waste-b3-keluar.edit');

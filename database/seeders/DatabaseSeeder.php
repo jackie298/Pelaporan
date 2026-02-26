@@ -13,6 +13,7 @@ use Database\Seeders\NurserySeeder;
 use Database\Seeders\ComplianceSeeder;
 use Database\Seeders\TrashManagementSeeder;
 use Database\Seeders\MonitoringVegetasiSeeder;
+use Database\Seeders\WasteB3MasukSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -39,6 +40,7 @@ class DatabaseSeeder extends Seeder
             TrashManagementSeeder::class,
             MonitoringVegetasiSeeder::class,
             RekapAnggaranSeeder::class,
+            WasteB3MasukSeeder::class,
         ]);
     }
 }

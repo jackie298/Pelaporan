@@ -59,49 +59,89 @@ class WasteB3KeluarController extends Controller
     }
 
     /**
- * Tampilkan form tambah data
- */
-/**
- * Tampilkan form tambah data
- */
-public function create(Request $request)
-{
-    // ✅ INISIALISASI VARIABEL DI LUAR BLOK IF-ELSE
-    $masukId = $request->get('masuk_id');
-    $limbahMasuk = null;
-    $limbahMasukOptions = collect(); // ✅ Default: collection kosong
+     * Tampilkan form tambah data
+     */
+    public function create1(Request $request)
+    {
+        // ✅ INISIALISASI VARIABEL DI LUAR BLOK IF-ELSE
+        $masukId = $request->get('masuk_id');
+        $limbahMasuk = null;
+        $limbahMasukOptions = collect(); // ✅ Default: collection kosong
 
-    if ($masukId) {
-        // ✅ Cari limbah masuk dengan ID yang dipilih
-        $limbahMasuk = WasteB3Masuk::with('pengeluaran')->find($masukId);
-        
-        // ✅ Validasi: Cek apakah limbah ditemukan
-        if (!$limbahMasuk) {
-            return redirect()
-                ->route('waste-b3.index')
-                ->with('error', 'Limbah B3 dengan ID ' . $masukId . ' tidak ditemukan');
+        if ($masukId) {
+            // ✅ Cari limbah masuk dengan ID yang dipilih
+            $limbahMasuk = WasteB3Masuk::with('pengeluaran')->find($masukId);
+            
+            // ✅ Validasi: Cek apakah limbah ditemukan
+            if (!$limbahMasuk) {
+                return redirect()
+                    ->route('waste-b3.index')
+                    ->with('error', 'Limbah B3 dengan ID ' . $masukId . ' tidak ditemukan');
+            }
+            
+            // ✅ Validasi: Cek apakah masih bisa dikeluarkan
+            if (!$limbahMasuk->can_be_dikeluarkan) {
+                return redirect()
+                    ->route('waste-b3.index')
+                    ->with('error', 'Limbah ini tidak dapat dikeluarkan. Status: ' . $limbahMasuk->status_label);
+            }
+        } else {
+            // ✅ Ambil data limbah yang masih bisa dikeluarkan (untuk dropdown)
+            $limbahMasukOptions = WasteB3Masuk::where('status', '!=', 'sudah_dikeluarkan')
+                ->where('jumlah_tersisa_ton', '>', 0)
+                ->orderBy('tanggal_masuk', 'desc')
+                ->get(['id', 'jenis_limbah', 'kode_limbah', 'jumlah_tersisa_ton', 'status']);
         }
-        
-        // ✅ Validasi: Cek apakah masih bisa dikeluarkan
-        if (!$limbahMasuk->can_be_dikeluarkan) {
-            return redirect()
-                ->route('waste-b3.index')
-                ->with('error', 'Limbah ini tidak dapat dikeluarkan. Status: ' . $limbahMasuk->status_label);
-        }
-    } else {
-        // ✅ Ambil data limbah yang masih bisa dikeluarkan (untuk dropdown)
-        $limbahMasukOptions = WasteB3Masuk::where('status', '!=', 'sudah_dikeluarkan')
-            ->where('jumlah_tersisa_ton', '>', 0)
-            ->orderBy('tanggal_masuk', 'desc')
-            ->get(['id', 'jenis_limbah', 'kode_limbah', 'jumlah_tersisa_ton', 'status']);
+
+        // ✅ RETURN VIEW DENGAN ARRAY ASOSIATIF (LEBIH AMAN)
+        return view('waste-b3.keluar.create1', [
+            'limbahMasuk' => $limbahMasuk,
+            'limbahMasukOptions' => $limbahMasukOptions,
+        ]);
     }
+    /**
+     * Tampilkan form tambah data
+     */
+    public function create(Request $request)
+    {
+        // ✅ INISIALISASI VARIABEL DI LUAR BLOK IF-ELSE
+        $masukId = $request->get('masuk_id');
+        $limbahMasuk = null;
+        $limbahMasukOptions = collect(); // ✅ Default: collection kosong
 
-    // ✅ RETURN VIEW DENGAN ARRAY ASOSIATIF (LEBIH AMAN)
-    return view('waste-b3.keluar.create', [
-        'limbahMasuk' => $limbahMasuk,
-        'limbahMasukOptions' => $limbahMasukOptions,
-    ]);
+        if ($masukId) {
+            // ✅ Cari limbah masuk dengan ID yang dipilih
+            $limbahMasuk = WasteB3Masuk::with('pengeluaran')->find($masukId);
+            
+            // ✅ Validasi: Cek apakah limbah ditemukan
+            if (!$limbahMasuk) {
+                return redirect()
+                    ->route('waste-b3.index')
+                    ->with('error', 'Limbah B3 dengan ID ' . $masukId . ' tidak ditemukan');
+            }
+            
+            // ✅ Validasi: Cek apakah masih bisa dikeluarkan
+            if (!$limbahMasuk->can_be_dikeluarkan) {
+                return redirect()
+                    ->route('waste-b3.index')
+                    ->with('error', 'Limbah ini tidak dapat dikeluarkan. Status: ' . $limbahMasuk->status_label);
+            }
+        } else {
+            // ✅ Ambil data limbah yang masih bisa dikeluarkan (untuk dropdown)
+            $limbahMasukOptions = WasteB3Masuk::where('status', '!=', 'sudah_dikeluarkan')
+                ->where('jumlah_tersisa_ton', '>', 0)
+                ->orderBy('tanggal_masuk', 'desc')
+                ->get(['id', 'jenis_limbah', 'kode_limbah', 'jumlah_tersisa_ton', 'status']);
+        }
+
+        // ✅ RETURN VIEW DENGAN ARRAY ASOSIATIF (LEBIH AMAN)
+        return view('waste-b3.keluar.create', [
+            'limbahMasuk' => $limbahMasuk,
+            'limbahMasukOptions' => $limbahMasukOptions,
+        ]);
 }
+
+
 
     /**
      * Simpan data limbah B3 keluar

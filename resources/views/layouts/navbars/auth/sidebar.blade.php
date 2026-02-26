@@ -1,365 +1,258 @@
-<aside
-    class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 bg-white"
-    id="sidenav-main">
+<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 bg-white shadow-sm" id="sidenav-main">
 
     {{-- HEADER --}}
     <div class="sidenav-header">
-        <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-xl-none"
-           id="iconSidenav"></i>
-
-        <a class="navbar-brand m-0 d-flex align-items-center"
-           href="{{ url('dashboard') }}">
-            <img src="{{ asset('assets/img/logoperusahaan.png') }}"
-                 class="navbar-brand-img h-100" alt="logo">
-            <span class="ms-2 font-weight-bold">PT NUSA KARYA ARINDO</span>
+        <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-xl-none" id="iconSidenav"></i>
+        <a class="navbar-brand m-0 d-flex align-items-center" href="{{ route('dashboard') }}">
+            <img src="{{ asset('assets/img/logoperusahaan.png') }}" class="navbar-brand-img h-100" alt="logo">
+            <span class="ms-2 font-weight-bold text-dark">PT NUSA KARYA ARINDO</span>
         </a>
     </div>
 
-    <hr class="horizontal dark mt-0">   
+    <hr class="horizontal dark mt-0"> 
 
-    {{-- MENU --}}
+    {{-- MENU CONTAINER --}}
     <div class="collapse navbar-collapse w-auto h-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
 
-            {{-- ================= DASHBOARD ================= --}}
+            {{-- DASHBOARD --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('dashboard') ? 'active' : '' }}"
-                   href="{{ url('dashboard') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('dashboard') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-
-                        <i class="fas fa-house
-                           {{ Request::is('dashboard') ? 'text-white' : 'text-dark' }}"></i>
+                <a class="nav-link {{ Route::is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('dashboard') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fas fa-house text-xs {{ Route::is('dashboard') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-
                     <span class="nav-link-text ms-1">Dashboard</span>
                 </a>
             </li>
 
-            {{-- ================= MENU DOKUMENTASI ================= --}}
-            <li class="nav-item">
-                <a data-bs-toggle="collapse" 
-                href="#dokumentasiMenu" 
-                class="nav-link {{ Request::is('admin/dokumentasi-kegiatan*') ? 'active' : '' }}" 
-                aria-controls="dokumentasiMenu" 
-                role="button" 
-                aria-expanded="{{ Request::is('admin/dokumentasi-kegiatan*') ? 'true' : 'false' }}">
-                    
-                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('admin/dokumentasi-kegiatan*') ? 'bg-gradient-primary' : 'bg-white' }}">
-                        <i class="fas fa-folder-open {{ Request::is('admin/dokumentasi-kegiatan*') ? 'text-white' : 'text-dark' }}" 
-                        style="top: 0; font-size: 0.8rem;"></i>
-                    </div>
-                    
-                    <span class="nav-link-text ms-1 {{ Request::is('admin/dokumentasi-kegiatan*') ? 'font-weight-bold' : '' }}">Dokumentasi</span>
-                </a>
+            {{-- SECTION: OPERASIONAL --}}
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Operasional</h6>
+            </li>
 
-                <div class="collapse {{ Request::is('admin/dokumentasi-kegiatan*') ? 'show' : '' }}" id="dokumentasiMenu">
-                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
-                        
+            {{-- DOKUMENTASI --}}
+            <li class="nav-item">
+                @php $isDokActive = Request::is('admin/dokumentasi-kegiatan*'); @endphp
+                <a data-bs-toggle="collapse" href="#dokumentasiMenu" 
+                   class="nav-link {{ $isDokActive ? 'active' : '' }}" role="button" aria-expanded="{{ $isDokActive ? 'true' : 'false' }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ $isDokActive ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fas fa-folder-open text-xs {{ $isDokActive ? 'text-white' : 'text-dark' }}"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Dokumentasi</span>
+                </a>
+                <div class="collapse {{ $isDokActive ? 'show' : '' }}" id="dokumentasiMenu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #f1f1f1;">
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/dokumentasi-kegiatan') ? 'active' : '' }}" 
-                            href="{{ route('admin.dokumentasi-kegiatan') }}">
-                                <span class="dot-indicator {{ Request::is('admin/dokumentasi-kegiatan') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('admin.dokumentasi-kegiatan') ? 'active' : '' }}" href="{{ route('admin.dokumentasi-kegiatan') }}">
+                                <span class="dot-indicator {{ Route::is('admin.dokumentasi-kegiatan') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> List Kegiatan </span>
                             </a>
                         </li>
-
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'active' : '' }}" 
-                            href="{{ route('admin.dokumentasi-kegiatan.gallery') }}">
-                                <span class="dot-indicator {{ Request::is('admin/dokumentasi-kegiatan/gallery') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('admin.dokumentasi-kegiatan.gallery') ? 'active' : '' }}" href="{{ route('admin.dokumentasi-kegiatan.gallery') }}">
+                                <span class="dot-indicator {{ Route::is('admin.dokumentasi-kegiatan.gallery') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Gallery Kegiatan </span>
                             </a>
                         </li>
-                        
                     </ul>
                 </div>
             </li>
-            {{-- ================= BUKAAN LAHAN ================= --}}
+
+            {{-- BUKAAN LAHAN --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('bukaan-lahan*') ? 'active' : '' }}"
-                href="{{ route('bukaan-lahan') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('bukaan-lahan*') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-
-                        <i class="fa-solid fa-mountain
-                        {{ Request::is('bukaan-lahan*') ? 'text-white' : 'text-dark' }}"></i>
+                <a class="nav-link {{ Route::is('bukaan-lahan*') ? 'active' : '' }}" href="{{ route('bukaan-lahan') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('bukaan-lahan*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-mountain text-xs {{ Route::is('bukaan-lahan*') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-
                     <span class="nav-link-text ms-1">Bukaan Lahan</span>
                 </a>
             </li>
 
-            {{-- ================= REKLAMASI ================= --}}
+            {{-- REKLAMASI --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('reklamasi*') ? 'active' : '' }}"
-                href="{{ route('reklamasi') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('reklamasi*') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-
-                        <i class="fa-solid fa-hill-avalanche
-                        {{ Request::is('reklamasi*') ? 'text-white' : 'text-dark' }}"></i>
+                <a class="nav-link {{ Route::is('reklamasi*') ? 'active' : '' }}" href="{{ route('reklamasi') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('reklamasi*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-hill-avalanche text-xs {{ Route::is('reklamasi*') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-
                     <span class="nav-link-text ms-1">Reklamasi</span>
                 </a>
             </li>
 
-            {{-- ================= MENU REVEGETASI (COLLAPSE) ================= --}}
+            {{-- REVEGETASI --}}
             <li class="nav-item">
-                <a data-bs-toggle="collapse" 
-                   href="#revegetasiMenu" 
-                   class="nav-link {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'active' : '' }}" 
-                   aria-controls="revegetasiMenu" 
-                   role="button" 
-                   aria-expanded="{{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'true' : 'false' }}">
-                    
-                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'bg-primary' : 'bg-white' }}">
-                        <i class="fa-solid fa-tree {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'text-white' : 'text-dark' }}" 
-                           style="top: 0; font-size: 0.8rem;"></i>
+                @php $isRevActive = Request::is('revegetasi*') || Request::is('rencana-revegetasi*') || Request::is('monitoring-vegetasi*'); @endphp
+                <a data-bs-toggle="collapse" href="#revegetasiMenu" class="nav-link {{ $isRevActive ? 'active' : '' }}" role="button">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ $isRevActive ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-tree text-xs {{ $isRevActive ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-                    
-                    <span class="nav-link-text ms-1 {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'font-weight-bold' : '' }}">Revegetasi</span>
+                    <span class="nav-link-text ms-1">Revegetasi</span>
                 </a>
-
-                <div class="collapse {{ Request::is('revegetasi*') || Request::is('rencana-revegetasi*') ? 'show' : '' }}" id="revegetasiMenu">
-                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
-                        
-                        {{-- SUBMENU: REALISASI --}}
+                <div class="collapse {{ $isRevActive ? 'show' : '' }}" id="revegetasiMenu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #f1f1f1;">
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('revegetasi') || Request::is('revegetasi/create') || Request::is('revegetasi/*/edit') ? 'active' : '' }}" 
-                               href="{{ route('revegetasi') }}">
-                                <span class="dot-indicator {{ Request::is('revegetasi') || Request::is('revegetasi/create') || Request::is('revegetasi/*/edit') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Request::is('revegetasi*') ? 'active' : '' }}" href="{{ route('revegetasi') }}">
+                                <span class="dot-indicator {{ Request::is('revegetasi*') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Realisasi Lapangan </span>
                             </a>
                         </li>
-
-                        {{-- SUBMENU: RENCANA --}}
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('rencana-revegetasi*') ? 'active' : '' }}" 
-                               href="{{ route('rencana-revegetasi') }}">
-                                <span class="dot-indicator {{ Request::is('rencana-revegetasi*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('rencana-revegetasi') ? 'active' : '' }}" href="{{ route('rencana-revegetasi') }}">
+                                <span class="dot-indicator {{ Route::is('rencana-revegetasi') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Rencana Bulanan </span>
                             </a>
                         </li>
-
-                        {{-- SUBMENU: MONITORING VEGETASI --}}
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('monitoring-vegetasi*') ? 'active' : '' }}" 
-                               href="{{ route('monitoring-vegetasi') }}">
-                                <span class="dot-indicator {{ Request::is('monitoring-vegetasi*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('monitoring-vegetasi') ? 'active' : '' }}" href="{{ route('monitoring-vegetasi') }}">
+                                <span class="dot-indicator {{ Route::is('monitoring-vegetasi') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Monitoring Vegetasi </span>
                             </a>
                         </li>
-                        
                     </ul>
                 </div>
             </li>
 
-            {{-- ================= NURSERY ================= --}}
+            {{-- NURSERY & INSPEKSI --}}
             <li class="nav-item">
-                <a class="nav-link {{ Request::is('nursery*') ? 'active' : '' }}"
-                href="{{ route('nursery') }}">
-
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('nursery*') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
-
-                        <i class="fa-solid fa-mountain
-                        {{ Request::is('nursery*') ? 'text-white' : 'text-dark' }}"></i>
+                <a class="nav-link {{ Route::is('nursery*') ? 'active' : '' }}" href="{{ route('nursery') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('nursery*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-seedling text-xs {{ Route::is('nursery*') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-
                     <span class="nav-link-text ms-1">Nursery</span>
                 </a>
             </li>
 
-            {{-- ================= MENU MANAJEMEN LIMBAH (COLLAPSE) ================= --}}
             <li class="nav-item">
-                <a data-bs-toggle="collapse" 
-                href="#limbahMenu" 
-                class="nav-link {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'active' : '' }}" 
-                aria-controls="limbahMenu" 
-                role="button" 
-                aria-expanded="{{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'true' : 'false' }}">
-                    
-                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'bg-primary' : 'bg-white' }}">
-                        <i class="fa-solid fa-recycle {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'text-white' : 'text-dark' }}" 
-                        style="top: 0; font-size: 0.8rem;"></i>
+                <a class="nav-link {{ Route::is('compliance*') ? 'active' : '' }}" href="{{ route('compliance') }}">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('compliance*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-clipboard-check text-xs {{ Route::is('compliance*') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-                    
-                    <span class="nav-link-text ms-1 {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'font-weight-bold' : '' }}">Manajemen Limbah</span>
+                    <span class="nav-link-text ms-1">Inspeksi</span>
                 </a>
+            </li>
 
-                <div class="collapse {{ Request::is('waste-water-management*') || Request::is('trash-management*') ? 'show' : '' }}" id="limbahMenu">
-                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
-                        
-                        {{-- SUBMENU: WASTE WATER --}}
+            {{-- SECTION: LIMBAH --}}
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Manajemen Limbah</h6>
+            </li>
+
+            {{-- AIR & SAMPAH --}}
+            <li class="nav-item">
+                @php $isWasteActive = Request::is('waste-water-management*') || Request::is('trash-management*'); @endphp
+                <a data-bs-toggle="collapse" href="#limbahMenu" class="nav-link {{ $isWasteActive ? 'active' : '' }}" role="button">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ $isWasteActive ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fa-solid fa-droplet text-xs {{ $isWasteActive ? 'text-white' : 'text-dark' }}"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Air & Sampah</span>
+                </a>
+                <div class="collapse {{ $isWasteActive ? 'show' : '' }}" id="limbahMenu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #f1f1f1;">
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('waste-water-management*') ? 'active' : '' }}" 
-                            href="{{ url('waste-water-management') }}">
+                            <a class="nav-link {{ Request::is('waste-water-management*') ? 'active' : '' }}" href="{{ url('waste-water-management') }}">
                                 <span class="dot-indicator {{ Request::is('waste-water-management*') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Air Limbah </span>
                             </a>
                         </li>
-
-                        {{-- SUBMENU: TRASH MANAGEMENT --}}
                         <li class="nav-item">
-                            <a class="nav-link {{ Request::is('trash-management*') ? 'active' : '' }}" 
-                            href="{{ route('trash-management') }}">
-                                <span class="dot-indicator {{ Request::is('trash-management*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('trash-management') ? 'active' : '' }}" href="{{ route('trash-management') }}">
+                                <span class="dot-indicator {{ Route::is('trash-management') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Pengelolaan Sampah </span>
                             </a>
                         </li>
-                        
                     </ul>
                 </div>
             </li>
 
-            {{-- ================= MENU Limbah B3 Masuk/Keluar ================= --}}
+            {{-- LIMBAH B3 --}}
             <li class="nav-item">
-                <a data-bs-toggle="collapse" 
-                href="#wasteB3Menu" 
-                class="nav-link {{ Request::is('waste-b3*') ? 'active' : '' }}" 
-                aria-controls="wasteB3Menu" 
-                role="button" 
-                aria-expanded="{{ Request::is('waste-b3*') ? 'true' : 'false' }}">
-                    
-                    {{-- Warna Background Icon Berubah Saat Aktif --}}
-                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('waste-b3*') ? 'bg-gradient-primary' : 'bg-white' }}">
-                        <i class="fas fa-recycle {{ Request::is('waste-b3*') ? 'text-white' : 'text-dark' }}" 
-                        style="font-size: 0.8rem;"></i>
+                @php $isB3Active = Request::is('waste-b3*'); @endphp
+                <a data-bs-toggle="collapse" href="#wasteB3Menu" class="nav-link {{ $isB3Active ? 'active' : '' }}" role="button">
+                    <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ $isB3Active ? 'bg-gradient-primary' : 'bg-white' }}">
+                        <i class="fas fa-biohazard text-xs {{ $isB3Active ? 'text-white' : 'text-dark' }}"></i>
                     </div>
-                    
-                    <span class="nav-link-text ms-1 {{ Request::is('waste-b3*') ? 'font-weight-bold' : '' }}">Manajemen Limbah B3</span>
+                    <span class="nav-link-text ms-1">Limbah B3</span>
                 </a>
-
-                {{-- ID disesuaikan menjadi wasteB3Menu agar unik --}}
-                <div class="collapse {{ Request::is('waste-b3*') ? 'show' : '' }}" id="wasteB3Menu">
-                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
-                        
-                        {{-- Menu Limbah Masuk --}}
+                <div class="collapse {{ $isB3Active ? 'show' : '' }}" id="wasteB3Menu">
+                    <ul class="nav ms-4 ps-3" style="border-left: 1px solid #f1f1f1;">
                         <li class="nav-item">
-                            {{-- Gunakan routeIs agar lebih akurat jika menggunakan penamaan route di Laravel --}}
-                            <a class="nav-link {{ request()->routeIs('waste-b3*') ? 'active' : '' }}" 
-                            href="{{ route('waste-b3') }}">
-                                <span class="dot-indicator {{ request()->routeIs('waste-b3*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('waste-b3') ? 'active' : '' }}" href="{{ route('waste-b3') }}">
+                                <span class="dot-indicator {{ Route::is('waste-b3') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Masuk </span>
                             </a>
                         </li>
-
-                        {{-- Menu Limbah Keluar --}}
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('waste-b3-keluar*') ? 'active' : '' }}" 
-                            href="{{ route('waste-b3-keluar') }}">
-                                <span class="dot-indicator {{ request()->routeIs('waste-b3-keluar*') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('waste-b3-keluar') ? 'active' : '' }}" href="{{ route('waste-b3-keluar') }}">
+                                <span class="dot-indicator {{ Route::is('waste-b3-keluar') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Keluar </span>
                             </a>
-                        </li> 
+                        </li>
                     </ul>
                 </div>
             </li>
 
-            {{-- ================= COMPLIANCE ================= --}}
-            <li class="nav-item">
-                <a class="nav-link {{ Request::is('compliance*') ? 'active' : '' }}"
-                href="{{ route('compliance') }}">
+            {{-- SECTION: ADMIN --}}
+            @if(auth()->user()->role !== 'employee')
+                <li class="nav-item mt-3">
+                    <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Administrator</h6>
+                </li>
 
-                    <div class="icon icon-shape icon-sm shadow
-                        {{ Request::is('compliance*') ? 'bg-primary' : 'bg-white' }}
-                        text-center me-2 d-flex align-items-center justify-content-center">
+                {{-- REKAP ANGGARAN --}}
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::is('admin/rekap-anggaran*') ? 'active' : '' }}" href="{{ route('admin.rekap-anggaran') }}">
+                        <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('admin/rekap-anggaran*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                            <i class="fas fa-file-invoice-dollar text-xs {{ Request::is('admin/rekap-anggaran*') ? 'text-white' : 'text-dark' }}"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Rekap Anggaran</span>
+                    </a>
+                </li>
 
-                        <i class="fa-solid fa-clipboard-check
-                        {{ Request::is('compliance*') ? 'text-white' : 'text-dark' }}"></i>
+                {{-- DOKUMEN --}}
+                <li class="nav-item">
+                    <a class="nav-link {{ Route::is('documents') ? 'active' : '' }}" href="{{ route('documents') }}">
+                        <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('documents') ? 'bg-gradient-primary' : 'bg-white' }}">
+                            <i class="fas fa-file-pdf text-xs {{ Route::is('documents') ? 'text-white' : 'text-dark' }}"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Penyimpanan Dokumen</span>
+                    </a>
+                </li>
+
+                {{-- MANAJEMEN ALAT --}}
+                <li class="nav-item">
+                    @php $isAlatActive = Request::is('admin/equipment-list*', 'admin/work-hours*'); @endphp
+                    <a data-bs-toggle="collapse" href="#alatMenu" class="nav-link {{ $isAlatActive ? 'active' : '' }}" role="button">
+                        <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ $isAlatActive ? 'bg-gradient-primary' : 'bg-white' }}">
+                            <i class="fa-solid fa-screwdriver-wrench text-xs {{ $isAlatActive ? 'text-white' : 'text-dark' }}"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Manajemen Alat</span>
+                    </a>
+                    <div class="collapse {{ $isAlatActive ? 'show' : '' }}" id="alatMenu">
+                        <ul class="nav ms-4 ps-3" style="border-left: 1px solid #f1f1f1;">
+                            <li class="nav-item">
+                                <a class="nav-link {{ Route::is('admin.equipment-list') ? 'active' : '' }}" href="{{ route('admin.equipment-list') }}">
+                                    <span class="dot-indicator {{ Route::is('admin.equipment-list') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                    <span class="sidenav-normal text-xs ps-2"> Daftar Alat </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ Route::is('admin.work-hours') ? 'active' : '' }}" href="{{ route('admin.work-hours') }}">
+                                    <span class="dot-indicator {{ Route::is('admin.work-hours') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                                    <span class="sidenav-normal text-xs ps-2"> Jam Kerja </span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
+                </li>
 
-                    <span class="nav-link-text ms-1">Inspeksi</span>
-                </a>
-            </li>
-    {{-- Cek apakah user yang login BUKAN employee --}}
-    @if(auth()->user()->role !== 'employee')
-
-        {{-- ================= ADMIN ================= --}}
-        <li class="nav-item mt-3">
-            <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">
-                Halaman Admin
-            </h6>
-        </li>
-
-    {{-- ================= REKAP ANGGARAN ================= --}}
-    <li class="nav-item">
-        <a class="nav-link {{ Request::is('admin/rekap-anggaran*') || Request::is('admin/add-rekap-anggaran') ? 'active' : '' }}"
-           href="{{ route('admin.rekap-anggaran') }}">
-            <div class="icon icon-shape icon-sm shadow {{ Request::is('admin/rekap-anggaran*') || Request::is('admin/rekap-anggaran') ? 'bg-primary' : 'bg-white' }} text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="fas fa-file-contract {{ Request::is('admin/rekap-anggaran*') || Request::is('admin/rekap-anggaran') ? 'text-white' : 'text-dark' }}"></i>
-            </div>
-            <span class="nav-link-text ms-1">Rekap Anggaran</span>
-        </a>
-    </li>
-
-    {{-- ================= PENYIMPANAN DOKUMEN ================= --}}
-    <li class="nav-item">
-        <a class="nav-link {{ Route::currentRouteName() == 'documents' ? 'active' : '' }}" 
-        href="{{ route('documents') }}">
-            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="fas fa-file-pdf {{ Route::currentRouteName() == 'documents' ? 'text-white' : 'text-dark' }}"></i>
-            </div>
-            <span class="nav-link-text ms-1">Penyimpanan Dokumen</span>
-        </a>
-    </li>
-
-    {{-- ================= MENU MANAJEMEN ALAT ================= --}}
-    <li class="nav-item">
-        <a data-bs-toggle="collapse" 
-           href="#alatMenu" 
-           class="nav-link {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'active' : '' }}" 
-           aria-controls="alatMenu" 
-           role="button" 
-           aria-expanded="{{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'true' : 'false' }}">
-            
-            <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'bg-gradient-primary' : 'bg-white' }}">
-                <i class="fa-solid fa-screwdriver-wrench {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'text-white' : 'text-dark' }}" style="top: 0; font-size: 0.8rem;"></i>
-            </div>
-            <span class="nav-link-text ms-1 {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'font-weight-bold' : '' }}">Manajemen Alat</span>
-        </a>
-
-        <div class="collapse {{ Request::is('admin/equipment-list*', 'admin/work-hours*') ? 'show' : '' }}" id="alatMenu">
-            <ul class="nav ms-4 ps-3" style="border-left: 1px solid #dee2e6;">
+                {{-- USER MANAGEMENT --}}
                 <li class="nav-item">
-                    <a class="nav-link {{ Request::is('admin/equipment-list*') ? 'active' : '' }}" href="{{ route('admin.equipment-list') }}">
-                        <span class="dot-indicator {{ Request::is('admin/equipment-list*') ? 'bg-primary' : 'bg-secondary' }}"></span>
-                        <span class="sidenav-normal text-xs ps-2"> Daftar Alat </span>
+                    <a class="nav-link {{ Route::is('admin.user*') ? 'active' : '' }}" href="{{ route('admin.user') }}">
+                        <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('admin.user*') ? 'bg-gradient-primary' : 'bg-white' }}">
+                            <i class="fas fa-user-gear text-xs {{ Route::is('admin.user*') ? 'text-white' : 'text-dark' }}"></i>
+                        </div>
+                        <span class="nav-link-text ms-1">Manajemen User</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ Request::is('admin/work-hours*') ? 'active' : '' }}" href="{{ route('admin.work-hours') }}">
-                        <span class="dot-indicator {{ Request::is('admin/work-hours*') ? 'bg-primary' : 'bg-secondary' }}"></span>
-                        <span class="sidenav-normal text-xs ps-2"> Jam Kerja </span>
-                    </a>
-                </li>
-            </ul>
-        </div>
+            @endif
 
-    </li>
-
-
-
-    <li class="nav-item">
-        <a class="nav-link {{ Request::is('admin/user*') || Request::is('admin/add-user') ? 'active' : '' }}"
-           href="{{ route('admin.user') }}">
-            <div class="icon icon-shape icon-sm shadow {{ Request::is('admin/user*') || Request::is('admin/add-user') ? 'bg-primary' : 'bg-white' }} text-center me-2 d-flex align-items-center justify-content-center">
-                <i class="fas fa-user {{ Request::is('admin/user*') || Request::is('admin/add-user') ? 'text-white' : 'text-dark' }}"></i>
-            </div>
-            <span class="nav-link-text ms-1">User</span>
-        </a>
-    </li>
-
-@endif
         </ul>
     </div>
 </aside>

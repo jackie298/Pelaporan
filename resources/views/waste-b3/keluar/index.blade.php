@@ -1,322 +1,297 @@
 @extends('layouts.user_type.auth')
 
 @section('content')
+<style>
+    /* ===== PREMIUM SOFT UI 2.0 ENHANCEMENTS ===== */
+    :root {
+        --primary-gradient: linear-gradient(310deg, #7928ca 0%, #ff0080 100%);
+        --secondary-bg: #f8f9fa;
+    }
 
-<div>
-    <div class="alert alert-secondary mx-4 d-flex justify-content-between align-items-center" role="alert">
-        <span class="text-white">
-            <strong>Limbah B3 Management - Logbook Keluar</strong>
-        </span>
+    .main-content-wrapper { padding: 1.5rem; animation: fadeIn 0.5s ease; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glassmorphism Header */
+    .custom-header {
+        background: var(--primary-gradient);
+        border-radius: 1.25rem;
+        padding: 3rem 2rem 6rem 2rem;
+        margin-bottom: -4.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .custom-header .bg-shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    /* Stats Card Enhancement */
+    .stat-card {
+        border: none;
+        border-radius: 1rem;
+        background: #ffffff;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+    .stat-card:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05);
+    }
+
+    /* Modern Filter Bar */
+    .filter-wrapper {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        margin: 0 1.5rem 1.5rem 1.5rem;
+        border: 1px solid #fff;
+        box-shadow: 0 8px 26px -4px rgba(20, 20, 20, 0.1);
+    }
+
+    .form-control-soft {
+        border-radius: 0.75rem;
+        border: 1px solid #d2d6da;
+        padding: 0.5rem 0.75rem;
+        transition: all 0.2s;
+    }
+    .form-control-soft:focus {
+        border-color: #cb0c9f;
+        box-shadow: 0 0 0 2px rgba(203, 12, 159, 0.2);
+    }
+
+    /* Table & Action Buttons */
+    .table-container {
+        background: #fff;
+        border-radius: 1.25rem;
+        border: none;
+        box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05);
+    }
+
+    .btn-action {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        background-color: #fff;
+        border: 1px solid #f0f2f5;
+        color: #67748e;
+        transition: all 0.3s;
+    }
+    .btn-action:hover {
+        background-color: #f8f9fa;
+        color: #344767;
+        transform: scale(1.1);
+    }
+
+    /* New Badge Style */
+    .status-badge {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 700;
+        padding: 0.45em 0.85em;
+        border-radius: 0.5rem;
+    }
+
+    .text-gradient-primary {
+        background-image: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+
+<div class="main-content-wrapper">
+    <div class="custom-header">
+        <div class="bg-shape" style="width: 300px; height: 300px; top: -150px; right: -50px;"></div>
+        <div class="bg-shape" style="width: 200px; height: 200px; bottom: -100px; left: -50px;"></div>
+        
+        <div class="row align-items-center position-relative">
+            <div class="col-md-8">
+                <h3 class="text-white font-weight-bolder mb-1">Logbook Limbah B3 Keluar</h3>
+                <p class="text-white opacity-8 mb-0">Monitor dan kelola pengeluaran limbah dari TPS secara real-time.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{{ route('waste-b3-keluar.create') }}" class="btn btn-white btn-round mb-0 shadow-lg px-4">
+                    <i class="fas fa-plus-circle me-2 text-primary"></i> Catat Pengeluaran
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4 mx-4">
-                <div class="card-header pb-0">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+    @if(isset($summaryStats))
+    <div class="row px-3 mb-4">
+        @foreach([
+            ['label' => 'Total Keluar', 'val' => $summaryStats['total_keluar'] ?? 0, 'icon' => 'fa-truck-loading', 'color' => 'primary'],
+            ['label' => 'Total Berat', 'val' => number_format($summaryStats['total_volume_keluar'] ?? 0, 2) . ' Ton', 'icon' => 'fa-balance-scale', 'color' => 'success'],
+            ['label' => 'Dokumen OK', 'val' => $summaryStats['dokumen_lengkap'] ?? 0, 'icon' => 'fa-file-check', 'color' => 'info'],
+            ['label' => 'Pending Doc', 'val' => $summaryStats['menunggu_dokumen'] ?? 0, 'icon' => 'fa-file-signature', 'color' => 'warning']
+        ] as $stat)
+        <div class="col-xl-3 col-sm-6 mb-3">
+            <div class="card stat-card shadow-sm">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between">
                         <div>
-                            <h5 class="mb-0">Daftar Logbook Limbah B3 Keluar</h5>
-                            <p class="text-sm text-muted mb-0">
-                                <i class="fas fa-info-circle"></i> 
-                                Riwayat pengeluaran limbah B3 dari Tempat Penyimpanan Sementara (TPS)
-                            </p>
-                        </div>                        
+                            <p class="text-xs font-weight-bold text-muted text-uppercase mb-0">{{ $stat['label'] }}</p>
+                            <h5 class="font-weight-bolder mb-0 mt-1">{{ $stat['val'] }}</h5>
+                        </div>
+                        <div class="icon icon-shape bg-gradient-{{ $stat['color'] }} shadow-{{ $stat['color'] }} text-center border-radius-md" style="width: 45px; height: 45px;">
+                            <i class="fas {{ $stat['icon'] }} text-white opacity-10" aria-hidden="true"></i>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- Filter Form -->
-                <div class="card-body px-3 pt-3 pb-0">
-                    <form method="GET" action="{{ route('waste-b3-keluar') }}" class="mb-3">
-                        <div class="row g-2">
-                            <div class="col-md-3">
-                                <select name="masuk_id" class="form-control form-control-sm">
-                                    <option value="">-- Semua Limbah Masuk --</option>
-                                    @foreach($limbahMasukOptions as $limbah)
-                                        <option value="{{ $limbah->id }}" {{ request('masuk_id') == $limbah->id ? 'selected' : '' }}>
-                                            {{ $limbah->jenis_limbah }} ({{ $limbah->kode_limbah }})
-                                        </option>
-                                    @endforeach
-                                </select>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @endif
+
+    <div class="filter-wrapper">
+        <form action="{{ route('waste-b3-keluar') }}" method="GET" class="row gx-2 align-items-end">
+            <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+                <label class="form-label text-xxs font-weight-bolder text-dark ms-1">CARI JENIS LIMBAH</label>
+                <select name="masuk_id" class="form-select form-control-soft text-sm">
+                    <option value="">Semua Limbah</option>
+                    @foreach($limbahMasukOptions as $limbah)
+                        <option value="{{ $limbah->id }}" {{ request('masuk_id') == $limbah->id ? 'selected' : '' }}>{{ $limbah->jenis_limbah }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <label class="form-label text-xxs font-weight-bolder text-dark ms-1">TUJUAN</label>
+                <input type="text" name="tujuan" class="form-control form-control-soft text-sm" placeholder="Nama perusahaan..." value="{{ request('tujuan') }}">
+            </div>
+            <div class="col-lg-3 col-md-8 mb-2 mb-lg-0">
+                <label class="form-label text-xxs font-weight-bolder text-dark ms-1">RENTANG TANGGAL</label>
+                <div class="input-group">
+                    <input type="date" name="tanggal_dari" class="form-control form-control-soft text-sm" value="{{ request('tanggal_dari') }}">
+                    <input type="date" name="tanggal_sampai" class="form-control form-control-soft text-sm" value="{{ request('tanggal_sampai') }}">
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 d-flex gap-2">
+                <button type="submit" class="btn bg-gradient-dark btn-round w-100 mb-0">Cari</button>
+                <a href="{{ route('waste-b3-keluar') }}" class="btn btn-outline-secondary btn-round mb-0 px-3"><i class="fas fa-sync-alt"></i></a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card table-container mx-3">
+        <div class="table-responsive">
+            <table class="table align-items-center mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7 ps-4">Batch Limbah</th>
+                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7">Waktu Keluar</th>
+                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-center">Volume</th>
+                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7">Tujuan & Dokumen</th>
+                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-center">Status</th>
+                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($wasteB3Keluar as $data)
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex flex-column">
+                                <h6 class="mb-0 text-sm">{{ $data->limbahMasuk->jenis_limbah }}</h6>
+                                <span class="text-xs text-gradient-primary font-weight-bold">{{ $data->limbahMasuk->kode_limbah }}</span>
                             </div>
-                            <div class="col-md-3">
-                                <input type="text" 
-                                       name="tujuan" 
-                                       class="form-control form-control-sm" 
-                                       placeholder="Cari Tujuan Penyerahan"
-                                       value="{{ request('tujuan') }}">
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="text-sm font-weight-bold text-dark">{{ $data->tanggal_keluar_formatted }}</span>
+                                <span class="text-xxs text-muted"><i class="far fa-clock me-1"></i>{{ $data->created_at?->format('H:i') }} WIB</span>
                             </div>
-                            <div class="col-md-2">
-                                <input type="date" 
-                                       name="tanggal_dari" 
-                                       class="form-control form-control-sm" 
-                                       value="{{ request('tanggal_dari') }}">
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-sm bg-gradient-light text-danger font-weight-bolder">
+                                - {{ $data->jumlah_keluar_ton_formatted }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-column">
+                                <span class="text-sm font-weight-bold">{{ Str::limit($data->tujuan_penyerahan, 20) }}</span>
+                                <span class="text-xxs text-muted">Doc: {{ $data->nomor_dokumen_keluar ?? 'N/A' }}</span>
                             </div>
-                            <div class="col-md-2">
-                                <input type="date" 
-                                       name="tanggal_sampai" 
-                                       class="form-control form-control-sm" 
-                                       value="{{ request('tanggal_sampai') }}">
+                        </td>
+                        <td class="text-center">
+                            <span class="status-badge {{ $data->file_dokumen_exists ? 'bg-gradient-success text-white' : 'bg-light text-secondary' }}">
+                                {{ $data->file_dokumen_exists ? 'Lengkap' : 'Menunggu' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('waste-b3-keluar.show', $data->id) }}" class="btn-action" title="Detail"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route('waste-b3-keluar.edit', $data->id) }}" class="btn-action" title="Edit"><i class="fas fa-pen"></i></a>
+                                <button type="button" class="btn-action text-danger delete-btn" data-id="{{ $data->id }}" data-nama="{{ $data->limbahMasuk->jenis_limbah }}"><i class="fas fa-trash"></i></button>
                             </div>
-                            <div class="col-md-2">
-                                <div class="input-group input-group-sm">
-                                    <button type="submit" class="btn btn-info">
-                                        <i class="fas fa-search"></i> Filter
-                                    </button>
-                                    <a href="{{ route('waste-b3-keluar') }}" class="btn btn-secondary">
-                                        <i class="fas fa-redo"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <img src="https://illustrations.popsy.co/gray/box-empty.svg" style="width: 150px; opacity: 0.5;">
+                            <p class="text-muted mt-3">Belum ada riwayat pengeluaran limbah.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        
+        @if($wasteB3Keluar->hasPages())
+        <div class="card-footer d-flex justify-content-between align-items-center border-0">
+            <span class="text-xs text-muted">Menampilkan {{ $wasteB3Keluar->count() }} data</span>
+            {{ $wasteB3Keluar->links('pagination::bootstrap-4') }}
+        </div>
+        @endif
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
+            <div class="modal-body text-center p-4">
+                <div class="text-danger mb-3">
+                    <i class="fas fa-exclamation-circle fa-3x"></i>
+                </div>
+                <h5 class="font-weight-bolder">Hapus Data?</h5>
+                <p class="text-sm text-muted">Data <b id="wasteName"></b> akan dihapus dan stok akan dikembalikan.</p>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="button" class="btn btn-light btn-round w-100 mb-0" data-bs-dismiss="modal">Batal</button>
+                    <form id="deleteForm" method="POST" class="w-100">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="btn bg-gradient-danger btn-round w-100 mb-0">Hapus</button>
                     </form>
                 </div>
-
-                <!-- Table Data -->
-                <div class="card-body px-0 pt-0 pb-2">
-                    <div class="table-responsive px-3">
-                        <table class="table align-items-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">No</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Limbah Masuk</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tanggal Keluar</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Jumlah Keluar (Ton)</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Tujuan Penyerahan</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Dokumen</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 text-center">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($wasteB3Keluar as $data)
-                                <tr>
-                                    <td class="ps-3">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $wasteB3Keluar->firstItem() + $loop->index }}</p>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex flex-column">
-                                            <h6 class="mb-0 text-xs font-weight-bold">
-                                                {{ $data->limbahMasuk->jenis_limbah }}
-                                            </h6>
-                                            <p class="text-xs text-secondary mb-0">
-                                                <span class="badge badge-sm bg-gradient-dark">
-                                                    {{ $data->limbahMasuk->kode_limbah }}
-                                                </span>
-                                            </p>
-                                            <small class="text-xxs text-muted">
-                                                <i class="fas fa-calendar"></i> 
-                                                {{ $data->limbahMasuk->tanggal_masuk_formatted }}
-                                            </small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">
-                                            <i class="fas fa-truck text-success"></i> 
-                                            {{ $data->tanggal_keluar_formatted }}
-                                        </p>
-                                        <p class="text-xxs text-secondary mb-0">
-                                            <i class="fas fa-clock"></i> 
-                                            {{ $data->created_at?->format('H:i') }}
-                                        </p>
-                                    </td>
-                                    <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0 text-danger">
-                                            <i class="fas fa-minus"></i> 
-                                            {{ $data->jumlah_keluar_ton_formatted }}
-                                        </p>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">
-                                            <i class="fas fa-building"></i> 
-                                            {{ $data->tujuan_penyerahan_formatted }}
-                                        </p>
-                                        <p class="text-xxs text-secondary mb-0">
-                                            <i class="fas fa-file-alt"></i> 
-                                            {{ $data->nomor_dokumen_keluar }}
-                                        </p>
-                                    </td>
-                                    <td class="text-center">
-                                        @if($data->file_dokumen_exists)
-                                            <div class="d-flex flex-column align-items-center">
-                                                <span class="badge badge-sm bg-gradient-success">
-                                                    <i class="fas fa-check"></i> Tersedia
-                                                </span>
-                                                <div class="mt-1">
-                                                    {{-- <a href="{{ route('waste-b3-keluar.preview', $data->id) }}" 
-                                                       target="_blank" 
-                                                       class="btn btn-info btn-sm btn-icon"
-                                                       title="Preview Dokumen">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a> --}}
-                                                    {{-- <a href="{{ route('waste-b3-keluar.download', $data->id) }}" 
-                                                       class="btn btn-primary btn-sm btn-icon"
-                                                       title="Download Dokumen">
-                                                        <i class="fas fa-download"></i>
-                                                    </a> --}}
-                                                </div>
-                                            </div>
-                                        @else
-                                            <span class="badge badge-sm bg-gradient-secondary">
-                                                <i class="fas fa-times"></i> Belum Upload
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <!-- Detail Button -->
-                                        <a href="{{ route('waste-b3-keluar.show', $data->id) }}" 
-                                           class="mx-1" 
-                                           title="Detail">
-                                            <i class="fas fa-eye text-info"></i>
-                                        </a>
-                                        
-                                        <!-- Edit Button -->
-                                        <a href="{{ route('waste-b3-keluar.edit', $data->id) }}" 
-                                           class="mx-1" 
-                                           title="Edit">
-                                            <i class="fas fa-edit text-warning"></i>
-                                        </a>
-                                        
-                                        <!-- Delete Button -->
-                                        <button 
-                                            type="button" 
-                                            class="mx-1 delete-btn border-0 bg-transparent" 
-                                            data-id="{{ $data->id }}"
-                                            data-nama="{{ $data->limbahMasuk->jenis_limbah }} ({{ $data->limbahMasuk->kode_limbah }})"
-                                            title="Hapus">
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        <i class="fas fa-inbox fa-2x mb-2"></i>
-                                        <p class="mb-0">Belum ada data logbook limbah B3 keluar.</p>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Pagination -->
-                <div class="card-footer px-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="text-sm mb-0">
-                                Menampilkan {{ $wasteB3Keluar->firstItem() }} - {{ $wasteB3Keluar->lastItem() }} dari {{ $wasteB3Keluar->total() }} data
-                            </p>
-                        </div>
-                        <div>
-                            {{ $wasteB3Keluar->links() }}
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Konfirmasi Hapus</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus data pengeluaran limbah <strong id="wasteName"></strong>?</p>
-                <p class="text-muted text-sm">
-                    <i class="fas fa-exclamation-triangle text-warning"></i> 
-                    Tindakan ini akan mengembalikan stok limbah masuk yang bersangkutan.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <form id="deleteForm" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Success Modal -->
-@if (session('success'))
-<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-success">
-                <h5 class="modal-title text-white">Berhasil</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
-                <p class="mb-0">{{ session('success') }}</p>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
-
-<!-- Error Modal -->
-@if (session('error'))
-<div class="modal fade" id="errorModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white">Gagal</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <i class="fas fa-exclamation-triangle text-danger fa-3x mb-3"></i>
-                <p class="mb-0">{{ session('error') }}</p>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
-@endif
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Tombol Hapus
-    document.body.addEventListener('click', function (e) {
-        if (e.target.closest('.delete-btn')) {
-            const button = e.target.closest('.delete-btn');
-            const id = button.getAttribute('data-id');
-            const nama = button.getAttribute('data-nama');
-
-            document.getElementById('wasteName').textContent = nama;
-            document.getElementById('deleteForm').action = '/waste-b3-keluar/' + id;
-
-            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
-            modal.show();
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Simple Delete Modal Logic
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('wasteName').textContent = this.dataset.nama;
+                document.getElementById('deleteForm').action = `/waste-b3-keluar/${this.dataset.id}`;
+                deleteModal.show();
+            });
+        });
     });
-
-    // Modal Sukses
-    @if(session('success'))
-        const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-        successModal.show();
-    @endif
-
-    // Modal Error
-    @if(session('error'))
-        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-        errorModal.show();
-    @endif
-});
 </script>
 @endpush
-
 @endsection
