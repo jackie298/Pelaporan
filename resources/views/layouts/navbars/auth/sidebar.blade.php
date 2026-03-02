@@ -4,15 +4,16 @@
     <div class="sidenav-header mb-4">
         <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-xl-none" id="iconSidenav"></i>
         
-        <a class="navbar-brand m-0 d-flex flex-column align-items-center text-center" href="{{ route('dashboard') }}">
-            <div class="d-flex align-items-center justify-content-center mb-2">
-                <img src="{{ asset('assets/img/logoperusahaan.png') }}" class="navbar-brand-img mb-1" style="max-height: 40px;" alt="logo">
-                <span class="ms-2 font-weight-bolder text-success h5 mb-0">E-ROCS</span>
-            </div>
-            <div class="text-wrap px-3">
-                <p class="text-xs font-weight-bold text-dark text-uppercase mb-0 tracking-tight" style="line-height: 1.2;">
-                    Environment Reporting & <br> Compliance System
-                </p>
+        <a class="navbar-brand m-0 d-flex align-items-center py-3" href="{{ route('dashboard') }}">
+            <img src="{{ asset('assets/img/logoperusahaan.png') }}" class="navbar-brand-img h-100" style="max-height: 32px;" alt="logo">
+            
+            <div class="ms-3 d-flex flex-column justify-content-center">
+                <span class="font-weight-bolder h5 mb-0" style="color: #237227; letter-spacing: 1px; line-height: 1.2;">
+                    E-ROCS
+                </span>
+                <span class="text-xs font-weight-bold text-secondary text-uppercase" style="font-size: 0.65rem; white-space: nowrap;">
+                    Env. Reporting System
+                </span>
             </div>
         </a>
     </div>
