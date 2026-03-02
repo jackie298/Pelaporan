@@ -1,11 +1,19 @@
 <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 bg-white shadow-sm" id="sidenav-main">
 
     {{-- HEADER --}}
-    <div class="sidenav-header">
+    <div class="sidenav-header mb-4">
         <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-xl-none" id="iconSidenav"></i>
-        <a class="navbar-brand m-0 d-flex align-items-center" href="{{ route('dashboard') }}">
-            <img src="{{ asset('assets/img/logoperusahaan.png') }}" class="navbar-brand-img h-100" alt="logo">
-            <span class="ms-2 font-weight-bold text-dark">PT NUSA KARYA ARINDO</span>
+        
+        <a class="navbar-brand m-0 d-flex flex-column align-items-center text-center" href="{{ route('dashboard') }}">
+            <div class="d-flex align-items-center justify-content-center mb-2">
+                <img src="{{ asset('assets/img/logoperusahaan.png') }}" class="navbar-brand-img mb-1" style="max-height: 40px;" alt="logo">
+                <span class="ms-2 font-weight-bolder text-success h5 mb-0">E-ROCS</span>
+            </div>
+            <div class="text-wrap px-3">
+                <p class="text-xs font-weight-bold text-dark text-uppercase mb-0 tracking-tight" style="line-height: 1.2;">
+                    Environment Reporting & <br> Compliance System
+                </p>
+            </div>
         </a>
     </div>
 

@@ -18,8 +18,8 @@ class UserSeeder extends Seeder
         DB::table('users')->insert([
             'id' => 1,
             'name' => 'admin',
-            'email' => 'admin@admin.com',
-            'password' => Hash::make('secret'),
+            'email' => 'admin.enviro@pt-nka.co.id',
+            'password' => Hash::make('environmentptnka'),
             'role' => 'admin',
             'created_at' => now(),
             'updated_at' => now()
