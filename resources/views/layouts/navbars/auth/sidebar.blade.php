@@ -41,7 +41,7 @@
 
             {{-- DOKUMENTASI --}}
             <li class="nav-item">
-                @php $isDokActive = Request::is('admin/dokumentasi-kegiatan*'); @endphp
+                @php $isDokActive = Request::is('dokumentasi-kegiatan*'); @endphp
                 <a data-bs-toggle="collapse" href="#dokumentasiMenu" 
                    class="nav-link {{ $isDokActive ? 'active' : '' }}" role="button" aria-expanded="{{ $isDokActive ? 'true' : 'false' }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ $isDokActive ? 'bg-gradient-primary' : 'bg-white' }}">
@@ -52,14 +52,14 @@
                 <div class="collapse {{ $isDokActive ? 'show' : '' }}" id="dokumentasiMenu">
                     <ul class="nav ms-4 ps-3" style="border-left: 1px solid #f1f1f1;">
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.dokumentasi-kegiatan') ? 'active' : '' }}" href="{{ route('admin.dokumentasi-kegiatan') }}">
-                                <span class="dot-indicator {{ Route::is('admin.dokumentasi-kegiatan') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('dokumentasi-kegiatan') ? 'active' : '' }}" href="{{ route('dokumentasi-kegiatan') }}">
+                                <span class="dot-indicator {{ Route::is('dokumentasi-kegiatan') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> List Kegiatan </span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ Route::is('admin.dokumentasi-kegiatan.gallery') ? 'active' : '' }}" href="{{ route('admin.dokumentasi-kegiatan.gallery') }}">
-                                <span class="dot-indicator {{ Route::is('admin.dokumentasi-kegiatan.gallery') ? 'bg-primary' : 'bg-secondary' }}"></span>
+                            <a class="nav-link {{ Route::is('dokumentasi-kegiatan.gallery') ? 'active' : '' }}" href="{{ route('dokumentasi-kegiatan.gallery') }}">
+                                <span class="dot-indicator {{ Route::is('dokumentasi-kegiatan.gallery') ? 'bg-primary' : 'bg-secondary' }}"></span>
                                 <span class="sidenav-normal text-xs ps-2"> Gallery Kegiatan </span>
                             </a>
                         </li>

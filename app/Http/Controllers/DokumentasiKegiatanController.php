@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\DokumentasiKegiatan;
@@ -68,7 +68,7 @@ class DokumentasiKegiatanController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.dokumentasi-kegiatan')
+            ->route('dokumentasi-kegiatan')
             ->with('success', 'Dokumentasi kegiatan berhasil disimpan.');
     }
 
@@ -137,7 +137,7 @@ class DokumentasiKegiatanController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.dokumentasi-kegiatan')
+            ->route('dokumentasi-kegiatan')
             ->with('success', 'Dokumentasi kegiatan berhasil diperbarui.');
     }
     /**
@@ -149,7 +149,7 @@ class DokumentasiKegiatanController extends Controller
         $dokumentasi->delete(); // Soft delete karena menggunakan SoftDeletes
 
         return redirect()
-            ->route('admin.dokumentasi-kegiatan')
+            ->route('dokumentasi-kegiatan')
             ->with('success', 'Dokumentasi kegiatan berhasil dihapus.');
     }
 

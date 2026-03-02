@@ -51,7 +51,7 @@
                 </div>
 
                 <div class="card-body">
-                    <form action="{{ route('admin.dokumentasi-kegiatan.update', $dokumentasi->id) }}"
+                    <form action="{{ route('dokumentasi-kegiatan.update', $dokumentasi->id) }}"
                           method="POST"
                           enctype="multipart/form-data">
                         @csrf
@@ -148,7 +148,7 @@
 
                         {{-- ACTION --}}
                         <div class="d-flex flex-column flex-md-row justify-content-md-end gap-2 mt-4">
-                            <a href="{{ route('admin.dokumentasi-kegiatan') }}" class="btn btn-light">Batal</a>
+                            <a href="{{ route('dokumentasi-kegiatan') }}" class="btn btn-light">Batal</a>
                             <button type="submit" class="btn bg-gradient-primary">Update Dokumentasi</button>
                         </div>
 

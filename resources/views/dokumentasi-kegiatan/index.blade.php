@@ -82,7 +82,7 @@
         <div class="card-header pb-0">
             <div class="d-flex flex-row justify-content-between">
                 <div><h5 class="mb-0">Dokumentasi Kegiatan</h5></div>
-                <a href="{{ route('admin.dokumentasi-kegiatan.create') }}" class="btn bg-gradient-primary btn-sm mb-0">+&nbsp; Tambah</a>
+                <a href="{{ route('dokumentasi-kegiatan.create') }}" class="btn bg-gradient-primary btn-sm mb-0">+&nbsp; Tambah</a>
             </div>
         </div>
         <div class="card-body px-0 pt-0 pb-2">
@@ -126,7 +126,7 @@
                                     <i class="fas fa-info-circle"></i> Detail
                                 </button>
 
-                                <a href="{{ route('admin.dokumentasi-kegiatan.edit', $item->id) }}" class="mx-2"><i class="fas fa-edit text-dark"></i></a>
+                                <a href="{{ route('dokumentasi-kegiatan.edit', $item->id) }}" class="mx-2"><i class="fas fa-edit text-dark"></i></a>
 
                                 <button type="button" class="border-0 bg-transparent delete-btn" data-id="{{ $item->id }}" data-nama="{{ $item->judul }}">
                                     <i class="fas fa-trash text-danger"></i>
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.target.closest('.delete-btn')) {
             const btn = e.target.closest('.delete-btn');
             document.getElementById('equipmentName').textContent = btn.getAttribute('data-nama');
-            document.getElementById('deleteForm').action = '/admin/dokumentasi-kegiatan/' + btn.getAttribute('data-id');
+            document.getElementById('deleteForm').action = '/dokumentasi-kegiatan/' + btn.getAttribute('data-id');
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
     });

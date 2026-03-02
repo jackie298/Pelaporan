@@ -17,6 +17,7 @@ use App\Http\Controllers\WasteB3MasukController;
 use App\Http\Controllers\MonitoringVegetasiController;
 use App\Http\Controllers\WasteB3KeluarController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\DokumentasiKegiatanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -25,7 +26,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\RekapAnggaranController;
 use App\Http\Controllers\Admin\EquipmentListController;
 use App\Http\Controllers\Admin\WorkHoursController;
-use App\Http\Controllers\Admin\DokumentasiKegiatanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +40,7 @@ use App\Http\Controllers\Admin\DokumentasiKegiatanController;
 
 Route::get('/dashboard ', [HomeController::class, 'index'])->name('dashboard');
 
-Route::middleware(['auth', 'admin'])
+Route::middleware(['auth', 'admin', 'prevent-back-history'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -113,32 +113,6 @@ Route::middleware(['auth', 'admin'])
         Route::delete('work-hours/{id}', [WorkHoursController::class, 'destroy'])
             ->name('work-hours.destroy');
 
-        // ROUTING DOKUMENTASI KEGIATAN
-        Route::get('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'index'])
-            ->name('dokumentasi-kegiatan');
-
-        // Gallery
-        Route::get('dokumentasi-kegiatan/gallery', [DokumentasiKegiatanController::class, 'gallery'])
-            ->name('dokumentasi-kegiatan.gallery');
-
-        // CREATE
-        Route::get('dokumentasi-kegiatan/create', [DokumentasiKegiatanController::class, 'create'])
-            ->name('dokumentasi-kegiatan.create');
-
-        Route::post('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'store'])
-            ->name('dokumentasi-kegiatan.store');
-
-        // EDIT
-        Route::get('dokumentasi-kegiatan/{id}/edit', [DokumentasiKegiatanController::class, 'edit'])
-            ->name('dokumentasi-kegiatan.edit');
-
-        Route::put('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'update'])
-            ->name('dokumentasi-kegiatan.update');
-
-        // DELETE
-        Route::delete('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'destroy'])
-            ->name('dokumentasi-kegiatan.destroy');
-
         // USER MANAGEMENT
         // Ini akan menjadi 'admin.user'
         Route::get('user', [App\Http\Controllers\Admin\UserController::class, 'user'])
@@ -168,7 +142,7 @@ Route::middleware(['auth', 'admin'])
 
 
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => 'auth', 'prevent-back-history'], function () {
 
     Route::get('/', [HomeController::class, 'index']);
 	Route::get('dashboard', function () {
@@ -207,6 +181,32 @@ Route::group(['middleware' => 'auth'], function () {
         Route::delete('/folders/{folder}', [DocumentController::class, 'destroyFolder'])
             ->name('documents.destroyFolder');
     // --- END ROUTE DOKUMEN ---
+
+    // ROUTING DOKUMENTASI KEGIATAN
+        Route::get('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'index'])
+            ->name('dokumentasi-kegiatan');
+
+        // Gallery
+        Route::get('dokumentasi-kegiatan/gallery', [DokumentasiKegiatanController::class, 'gallery'])
+            ->name('dokumentasi-kegiatan.gallery');
+
+        // CREATE
+        Route::get('dokumentasi-kegiatan/create', [DokumentasiKegiatanController::class, 'create'])
+            ->name('dokumentasi-kegiatan.create');
+
+        Route::post('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'store'])
+            ->name('dokumentasi-kegiatan.store');
+
+        // EDIT
+        Route::get('dokumentasi-kegiatan/{id}/edit', [DokumentasiKegiatanController::class, 'edit'])
+            ->name('dokumentasi-kegiatan.edit');
+
+        Route::put('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'update'])
+            ->name('dokumentasi-kegiatan.update');
+
+        // DELETE
+        Route::delete('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'destroy'])
+            ->name('dokumentasi-kegiatan.destroy');
 
     // ROUTING WASTE WATER MANAGEMENT
     Route::get('waste-water-management', [WasteWaterManagementController::class, 'index'])
