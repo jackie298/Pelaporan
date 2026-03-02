@@ -170,7 +170,7 @@ Route::middleware(['auth', 'admin'])
 
 Route::group(['middleware' => 'auth'], function () {
 
-    Route::get('/', [HomeController::class, 'home']);
+    Route::get('/', [HomeController::class, 'index']);
 	Route::get('dashboard', function () {
 		return view('dashboard');
 	})->name('dashboard');
@@ -469,7 +469,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('waste-b3-keluar/{id}', [WasteB3KeluarController::class, 'destroy'])
         ->name('waste-b3-keluar.destroy');
 
-    Route::get('/logout', [SessionsController::class, 'destroy']);
+   Route::post('/logout', [SessionsController::class, 'destroy'])->name('logout');
     Route::get('/login', function () {
 		return view('dashboard');
 	})->name('sign-up');
@@ -478,18 +478,15 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 Route::group(['middleware' => 'guest'], function () {
+    // Cukup satu rute GET untuk login, arahkan ke Controller
+    Route::get('/login', [SessionsController::class, 'create'])->name('login');
+    Route::post('/login', [SessionsController::class, 'store']);
+
     Route::get('/register', [RegisterController::class, 'create']);
     Route::post('/register', [RegisterController::class, 'store']);
-    Route::get('/login', [SessionsController::class, 'create']);
-    Route::post('/session', [SessionsController::class, 'store']);
-	Route::get('/login/forgot-password', [ResetController::class, 'create']);
-	Route::post('/forgot-password', [ResetController::class, 'sendEmail']);
-	Route::get('/reset-password/{token}', [ResetController::class, 'resetPass'])->name('password.reset');
-	Route::post('/reset-password', [ChangePasswordController::class, 'changePassword'])->name('password.update');
 
+    Route::get('/login/forgot-password', [ResetController::class, 'create']);
+    Route::post('/forgot-password', [ResetController::class, 'sendEmail']);
+    Route::get('/reset-password/{token}', [ResetController::class, 'resetPass'])->name('password.reset');
+    Route::post('/reset-password', [ChangePasswordController::class, 'changePassword'])->name('password.update');
 });
-
-
-Route::get('/login', function () {
-    return view('session/login-session');
-})->name('login');
