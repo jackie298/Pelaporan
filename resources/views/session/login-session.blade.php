@@ -14,7 +14,7 @@
                   <p class="mb-0">Environment Reporting & Compliance System<br></p>
                 </div>
                 <div class="card-body">
-                  <form role="form" method="POST" action="/session">
+                  <form role="form" method="POST" action="{{ route('login') }}">
                     @csrf
                     <label>Email</label>
                     <div class="mb-3">
