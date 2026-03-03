@@ -14,13 +14,48 @@ class DokumentasiKegiatanController extends Controller
     /**
      * Tampilkan daftar dokumentasi kegiatan
      */
-    public function index()
+    public function index(Request $request)
     {
-        $dokumentasi = DokumentasiKegiatan::with('creator')
-            ->latest()
-            ->get();
+        // 1. Ambil input filter dari request
+        $search = $request->get('search');
+        $jenisFilter = $request->get('jenis_kegiatan');
+        $tanggalDari = $request->get('tanggal_dari');
+        $tanggalSampai = $request->get('tanggal_sampai');
 
-        return view('dokumentasi-kegiatan.index', compact('dokumentasi'));
+        $query = DokumentasiKegiatan::with('creator');
+
+        // 2. Apply Filter Pencarian (Judul atau Lokasi)
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                  ->orWhere('lokasi', 'like', "%{$search}%");
+            });
+        }
+
+        // 3. Filter berdasarkan Jenis Kegiatan
+        if ($jenisFilter) {
+            $query->where('jenis_kegiatan', $jenisFilter);
+        }
+
+        // 4. Filter Rentang Tanggal
+        if ($tanggalDari && $tanggalSampai) {
+            $query->whereBetween('tanggal', [$tanggalDari, $tanggalSampai]);
+        } elseif ($tanggalDari) {
+            $query->where('tanggal', '>=', $tanggalDari);
+        } elseif ($tanggalSampai) {
+            $query->where('tanggal', '<=', $tanggalSampai);
+        }
+
+        // 5. Paginate dengan withQueryString() agar filter tidak hilang saat pindah halaman
+        $dokumentasi = $query->latest()->paginate(10)->appends(request()->query());
+
+        return view('dokumentasi-kegiatan.index', compact(
+            'dokumentasi',
+            'search',
+            'jenisFilter',
+            'tanggalDari',
+            'tanggalSampai'
+        ));
     }
 
     /**
@@ -158,8 +193,4 @@ class DokumentasiKegiatanController extends Controller
     {
         return (new DokumentasiKegiatanExport())->download('dokumentasi_kegiatan_export.xlsx');
     }
-
-
-
-    
 }
