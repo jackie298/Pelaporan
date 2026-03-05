@@ -24,16 +24,15 @@ class HomeController extends Controller
     {
         // --- START REKAP ANGGARAN ---
 
-        // 1. Ambil data utama (sebaiknya gunakan pagination jika data banyak)
-        $rekap_anggaran = RekapAnggaran::all();
+        $rekap_anggaran = RekapAnggaran::latest()->paginate(5);
 
-        // 2. Hitung statistik berdasarkan status dalam 1 query (Efisien)
+        // grafik/count tetap menghitung SEMUA data, bukan hanya yang tampil di halaman
         $counts = RekapAnggaran::selectRaw('LOWER(status) as status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
 
-        // 3. Pastikan semua kunci status ada (set 0 jika tidak ada di database)
+        // Merge dengan default values
         $statuscount = array_merge([
             'open' => 0,
             'close' => 0,
@@ -42,69 +41,54 @@ class HomeController extends Controller
             'hold' => 0,
         ], $counts);
 
-        // 4. Hitung total nilai kontrak (opsional, untuk footer tabel)
-        $totalNilaiKontrak = $rekap_anggaran->sum('harga');
+        $totalNilaiKontrak = RekapAnggaran::sum('harga');
 
         // --- END REKAP ANGGARAN ---
 
-        // --- START COMPLIANCE ---
-        
-        // 1. Ambil data compliance terbaru untuk tabel (misal 10 data terakhir)
-        $compliances = Compliance::latest()->take(10)->get();
+        // --- START COMPLIANCE (DIPERBAIKI DENGAN PAGINATION) ---
+        $compliances = Compliance::latest()->paginate(5);
 
-        // 2. Hitung statistik Compliance untuk Summary Cards (Count Status)
-        // Menghitung status: Open, Pending, Resolved, Escalated
+        // Statistik Compliance (Tetap menggunakan query terpisah agar tidak terpengaruh limit pagination)
         $complianceStats = Compliance::selectRaw('LOWER(Status) as status, count(*) as total')
             ->groupBy('Status')
             ->pluck('total', 'status')
             ->toArray();
 
-        // Gabungkan dengan default 0 jika status tertentu tidak ada di DB
         $complianceCounts = array_merge([
-            'open' => 0,
-            'pending' => 0,
-            'resolved' => 0,
-            'escalated' => 0,
+            'open' => 0, 'pending' => 0, 'resolved' => 0, 'escalated' => 0,
         ], $complianceStats);
 
-        // 3. Hitung statistik Keparahan (Severity) untuk insight tambahan
+        // Statistik Keparahan
         $severityStats = Compliance::selectRaw('LOWER(Tingkat_keparahan) as tingkat, count(*) as total')
             ->groupBy('Tingkat_keparahan')
             ->pluck('total', 'tingkat')
             ->toArray();
-
         // --- END COMPLIANCE ---
 
         // --- START PERBAIKAN PENGELOMPOKAN ALAT ---
-
-        // Ambil semua data alat dari database
         $allEquipments = Equipment::all();
 
-        $ritaseLabels = workhours::orderBy('tanggal')
-        ->pluck('tanggal')
-        ->unique()
-        ->map(function ($item) {
-            return \Carbon\Carbon::parse($item)->format('d M');
-        })->values();
+        $ritaseLabels = WorkHours::orderBy('tanggal')
+            ->pluck('tanggal')
+            ->unique()
+            ->map(function ($item) {
+                return \Carbon\Carbon::parse($item)->format('d M');
+            })->values();
 
-        // 1. Grup EXCA Murni (Hanya yang ada 'EXC' tapi tidak ada 'LA' atau 'BR')
         $grupExca = $allEquipments->filter(function ($item) {
             $kode = strtoupper($item->kode);
             return str_contains($kode, 'EXC') && !str_contains($kode, 'LA') && !str_contains($kode, 'BR');
         });
 
-        // 2. Grup Alat Pendukung (EXC LA, EXC BR, dan Buldozer/BD)
         $grupPendukung = $allEquipments->filter(function ($item) {
             $kode = strtoupper($item->kode);
             return str_contains($kode, 'LA') || str_contains($kode, 'BR') || str_contains($kode, 'BD');
         });
 
-        // 3. Grup Dump Truck (DT)
         $grupDT = $allEquipments->filter(function ($item) {
             return str_contains(strtoupper($item->kode), 'DT');
         });
 
-        // Helper untuk mengambil data ritase/total_jam berdasarkan koleksi alat
         $getChartData = function($collection) {
             $data = [];
             foreach ($collection as $item) {
@@ -116,67 +100,57 @@ class HomeController extends Controller
             return $data;
         };
 
-        // Siapkan data chart untuk masing-masing grup
         $chartDataExca = $getChartData($grupExca);
         $chartDataPendukung = $getChartData($grupPendukung);
         $chartDataDT = $getChartData($grupDT);
-
         // --- END PERBAIKAN PENGELOMPOKAN ALAT ---
 
-        // 1. Ambil data 6 bulan terakhir
+        // --- BUKAAN LAHAN & REKLAMASI ---
         $lastSixMonths = collect();
         for ($i = 11; $i >= 0; $i--) {
             $lastSixMonths->push(now()->subMonths($i)->format('Y-m'));
         }
 
-        // 2. Query Luas Bukaan Lahan per Bulan
         $bukaanData = BukaanLahan::selectRaw("DATE_FORMAT(tanggal_bukaan, '%Y-%m') as bulan, SUM(luas_dibuka) as total")
             ->groupBy('bulan')
             ->pluck('total', 'bulan');
 
-        // 3. Query Luas Reklamasi per Bulan
         $reklamasiData = Reklamasi::selectRaw("DATE_FORMAT(tanggal_reklamasi, '%Y-%m') as bulan, SUM(luas_direklamasi) as total")
             ->groupBy('bulan')
             ->pluck('total', 'bulan');
 
-        // 4. Mapping data agar sesuai dengan urutan bulan (mengisi 0 jika data kosong)
         $reklamasiLabels = $lastSixMonths->map(fn($m) => Carbon::parse($m)->format('M Y'));
         $finalBukaanValues = $lastSixMonths->map(fn($m) => $bukaanData->get($m, 0));
         $finalReklamasiValues = $lastSixMonths->map(fn($m) => $reklamasiData->get($m, 0));
 
-        // --- TAMBAHAN UNTUK WASTE WATER (pH AIR) ---
+        // --- WASTE WATER ---
         $wasteWaterRaw = WasteWaterManagement::orderBy('tanggal_sampling', 'asc')->get();
+        $wasteWaterGroups = WasteWaterManagement::orderBy('tanggal_sampling', 'asc')
+            ->get()
+            ->groupBy(['lokasi_sampling', 'sampler']);
 
         $phLabels = $wasteWaterRaw->map(function($item) {
             return Carbon::parse($item->tanggal_sampling)->format('d/m');
         });
-
         $phValues = $wasteWaterRaw->pluck('ph');
-        
-        // Ambil nilai ambang batas (Misal dari config atau hardcode sesuai standar lingkungan)
         $bmAtas = 9.0; 
         $bmBawah = 6.0;
-
-        // Di dalam public function index() HomeController
-        $wasteWaterRaw = WasteWaterManagement::orderBy('tanggal_sampling', 'asc')->get();
 
         $tssLabels = $wasteWaterRaw->map(function($item) {
             return Carbon::parse($item->tanggal_sampling)->format('d/m');
         });
+        $tssValues = $wasteWaterRaw->pluck('tss');
+        $bmTss = 200;
 
-        $tssValues = $wasteWaterRaw->pluck('tss'); // Mengambil kolom tss
-        $bmTss = 200; // Baku Mutu TSS adalah 200 mg/L
-
-        // Mengambil data jumlah tanaman dikelompokkan berdasarkan lokasi
+        // --- REVEGETASI & NURSERY ---
         $dataRevegetasi = Revegetasi::select('lokasi_revegetasi')
             ->selectRaw('SUM(jumlah_tanaman) as total_pohon')
             ->groupBy('lokasi_revegetasi')
             ->get();
 
-        $revegetasiLabels = $dataRevegetasi->pluck('lokasi_revegetasi'); // Sumbu X
-        $revegetasiValues = $dataRevegetasi->pluck('total_pohon');      // Sumbu Y
+        $revegetasiLabels = $dataRevegetasi->pluck('lokasi_revegetasi');
+        $revegetasiValues = $dataRevegetasi->pluck('total_pohon');
 
-        // Ambil data Nursery
         $nurseryData = Nursery::selectRaw('jenis_tanaman, SUM(jumlah_bibit) as total_bibit')
             ->groupBy('jenis_tanaman')
             ->get();
@@ -186,38 +160,21 @@ class HomeController extends Controller
 
         $currentYear = date('Y');
 
-        // ========================================
-        // PERBAIKAN: DATA RENCANA & REALISASI REVEGETASI
-        // ========================================
-        
-        // 1. Definisikan urutan bulan yang konsisten
-        $bulanUrutan = [
-            'januari', 'februari', 'maret', 'april', 'mei', 'juni',
-            'juli', 'agustus', 'september', 'oktober', 'november', 'desember'
-        ];
+        // --- RENCANA & REALISASI ---
+        $bulanUrutan = ['januari', 'februari', 'maret', 'april', 'mei', 'juni', 'juli', 'agustus', 'september', 'oktober', 'november', 'desember'];
 
-        // 2. Ambil data rencana tahunan (dengan lokasi) - AGREGASI SEMUA LOKASI
-        $rencanaLokasi = RencanaRevegetasi::tahun($currentYear)
-            ->denganLokasi()
-            ->get();
+        $rencanaLokasi = RencanaRevegetasi::tahun($currentYear)->denganLokasi()->get();
 
-        // 3. Agregasi data rencana dari semua lokasi
         if ($rencanaLokasi->isNotEmpty()) {
             $totalBulan = array_fill(0, 12, 0);
-
             foreach ($rencanaLokasi as $r) {
                 foreach ($bulanUrutan as $index => $bulan) {
                     $totalBulan[$index] += (int) ($r->{$bulan} ?? 0);
                 }
             }
-            
             $dataChartRencana = $totalBulan;
         } else {
-            // Jika tidak ada data lokasi, coba ambil rencana nasional (lokasi = NULL)
-            $rencanaNasional = RencanaRevegetasi::tahun($currentYear)
-                ->tanpaLokasi()
-                ->first();
-
+            $rencanaNasional = RencanaRevegetasi::tahun($currentYear)->tanpaLokasi()->first();
             if ($rencanaNasional) {
                 $dataChartRencana = [];
                 foreach ($bulanUrutan as $bulan) {
@@ -228,30 +185,19 @@ class HomeController extends Controller
             }
         }
 
-        // 4. Ambil data realisasi bulanan
         $realisasiBulanan = Revegetasi::selectRaw('MONTH(tanggal_monitoring) as bulan, SUM(jumlah_tanaman) as total')
             ->whereYear('tanggal_monitoring', $currentYear)
             ->groupBy('bulan')
             ->pluck('total', 'bulan')
             ->toArray();
 
-        // 5. Siapkan data realisasi dengan urutan bulan yang pasti
         $dataChartRealisasi = [];
         for ($m = 1; $m <= 12; $m++) {
             $dataChartRealisasi[] = $realisasiBulanan[$m] ?? 0;
         }
-
-        // 6. Siapkan label bulan untuk chart
         $monthsFull = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
-        // ========================================
-        // END: PERBAIKAN DATA REVEGETASI
-        // ========================================
-
-        // === GRAFIK: RATA-RATA PERTUMBUHAN PER TRIWULAN + RATA-RATA TAHUNAN ===
-        $currentYear = date('Y');
-
-        // Ambil data monitoring vegetasi untuk tahun ini (hanya data aktif)
+        // --- PERTUMBUHAN TRIWULAN ---
         $monitoringTahunan = \App\Models\MonitoringVegetasi::selectRaw('
             AVG(tinggi_triwulan1) as avg_tw1,
             AVG(tinggi_triwulan2) as avg_tw2,
@@ -260,45 +206,27 @@ class HomeController extends Controller
             COUNT(*) as total_data
         ')
         ->where('tahun', $currentYear)
-        ->whereNull('deleted_at') // Hanya data aktif (belum dihapus)
+        ->whereNull('deleted_at')
         ->first();
 
-
-        // Ambil rata-rata per triwulan (default 0 jika null)
         $avgTw1 = $monitoringTahunan ? round($monitoringTahunan->avg_tw1 ?? 0, 2) : 0;
         $avgTw2 = $monitoringTahunan ? round($monitoringTahunan->avg_tw2 ?? 0, 2) : 0;
         $avgTw3 = $monitoringTahunan ? round($monitoringTahunan->avg_tw3 ?? 0, 2) : 0;
         $avgTw4 = $monitoringTahunan ? round($monitoringTahunan->avg_tw4 ?? 0, 2) : 0;
 
-        // Hitung rata-rata tahunan (rata-rata dari 4 triwulan yang valid)
         $valuesArray = [$avgTw1, $avgTw2, $avgTw3, $avgTw4];
         $validValues = array_filter($valuesArray, fn($v) => $v !== null && $v > 0);
+        $avgTahunan = count($validValues) > 0 ? round(array_sum($validValues) / count($validValues), 2) : 0;
 
-        if (count($validValues) > 0) {
-            $avgTahunan = round(array_sum($validValues) / count($validValues), 2);
-        } else {
-            $avgTahunan = 0;
-        }
-
-        // Data untuk chart: [TW1, TW2, TW3, TW4, Rata-rata Tahun]
         $values = [$avgTw1, $avgTw2, $avgTw3, $avgTw4, $avgTahunan];
-
-        // Label untuk chart
         $growthLabels = ["TW1", "TW2", "TW3", "TW4", "Rata-rata Tahunan"];
+        $growthColors = ['#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6'];
 
-        // Warna untuk setiap bar
-        $growthColors = [
-            '#3498db', // TW1 - Biru
-            '#2ecc71', // TW2 - Hijau
-            '#f39c12', // TW3 - Orange
-            '#e74c3c', // TW4 - Merah
-            '#9b59b6'  // Rata-rata - Ungu
-        ];
-
+        // --- RETURN VIEW ---
         return view('dashboard', compact(
             'rekap_anggaran', 
             'statuscount',
-            'compliances',
+            'compliances',        // ✅ Sekarang ini adalah objek Paginator
             'complianceCounts',
             'severityStats',
             'ritaseLabels', 
@@ -311,6 +239,7 @@ class HomeController extends Controller
             'reklamasiLabels',
             'finalBukaanValues',
             'finalReklamasiValues',
+            'wasteWaterGroups',
             'phLabels', 
             'phValues', 
             'bmAtas',   

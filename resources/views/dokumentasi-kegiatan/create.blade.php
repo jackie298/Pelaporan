@@ -104,7 +104,7 @@
                                 <div id="image-preview-container"></div> {{-- Tempat preview foto --}}
 
                                 <small class="form-text text-muted mt-2 d-block">
-                                    <i class="fas fa-info-circle me-1"></i> Format: JPG, JPEG, PNG, PDF | Maks: 2 MB per file.
+                                    <i class="fas fa-info-circle me-1"></i> Format: JPG, JPEG, PNG, PDF | Maks: 5 MB per file.
                                 </small>
 
                                 @error('file_dokumentasi') <div class="invalid-feedback">{{ $message }}</div> @enderror

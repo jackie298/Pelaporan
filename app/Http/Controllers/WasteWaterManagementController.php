@@ -7,17 +7,38 @@ use App\Exports\WasteWaterExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class WasteWaterManagementController extends Controller
 {
     /**
      * Tampilkan daftar data pengelolaan air limbah
      */
-    public function index()
+   public function index(Request $request)
     {
-        $wasteWaterData = WasteWaterManagement::with('creator')
-            ->latest()
-            ->get();
+        $query = WasteWaterManagement::with('creator');
+
+        // Filter Lokasi
+        if ($request->filled('lokasi')) {
+            $query->where('lokasi_sampling', $request->lokasi);
+        }
+
+        // Filter Sampler (Inlet/Outlet)
+        if ($request->filled('sampler')) {
+            $query->where('sampler', $request->sampler);
+        }
+
+        // Filter Rentang Tanggal
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('tanggal_sampling', '>=', $request->tanggal_dari);
+        }
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('tanggal_sampling', '<=', $request->tanggal_sampai);
+        }
+
+        $wasteWaterData = $query->latest('tanggal_sampling')
+                                ->paginate(10)
+                                ->withQueryString(); // Menjaga filter tetap ada saat pindah halaman pagination
 
         return view('waste-water-management.index', compact('wasteWaterData'));
     }
@@ -35,28 +56,43 @@ class WasteWaterManagementController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'tanggal_sampling'   => 'required|date',
+        $validated = $request->validate([
+            'tanggal_sampling'   => 'required|date|before_or_equal:today',
             'lokasi_sampling'    => 'required|in:Settling Pond Rey Nabila,Settling Pond Jetty Lama',
+            'sampler'            => 'required|in:inlet,outlet',
+            'cuaca'              => 'nullable|string|max:100',
             'ph'                 => 'nullable|numeric|min:0|max:14',
             'tss'                => 'nullable|numeric|min:0',
+            'debit_air'          => 'nullable|numeric|min:0',
             'status_kesesuaian'  => 'required|in:memenuhi,tidak_memenuhi',
-            'catatan'            => 'nullable|string',
+            'catatan'            => 'nullable|string|max:500',
+        ], [
+            'tanggal_sampling.required' => 'Tanggal sampling wajib diisi.',
+            'tanggal_sampling.before_or_equal' => 'Tanggal tidak boleh di masa depan.',
+            'lokasi_sampling.required'  => 'Lokasi sampling wajib dipilih.',
+            'sampler.required'          => 'Titik sampler (Inlet/Outlet) wajib dipilih.',
+            'ph.numeric'                => 'Nilai pH harus berupa angka.',
+            'ph.max'                    => 'Nilai pH tidak boleh lebih dari 14.',
+            'tss.numeric'               => 'Nilai TSS harus berupa angka.',
+            'debit_air.numeric'         => 'Nilai debit air harus berupa angka.',
+            'status_kesesuaian.required' => 'Status kesesuaian wajib ditentukan.',
         ]);
 
-        WasteWaterManagement::create([
-            'tanggal_sampling'   => $request->tanggal_sampling,
-            'lokasi_sampling'    => $request->lokasi_sampling,
-            'ph'                 => $request->ph,
-            'tss'                => $request->tss,
-            'status_kesesuaian'  => $request->status_kesesuaian,
-            'catatan'            => $request->catatan,
-            'created_by'         => Auth::id(), // Otomatis ambil user login
-        ]);
+        try {
+            DB::transaction(function () use ($validated) {
+                $validated['created_by'] = Auth::id();
+                WasteWaterManagement::create($validated);
+            });
 
-        return redirect()
-            ->route('waste-water-management')
-            ->with('success', 'Data pengelolaan air limbah berhasil disimpan.');
+            return redirect()
+                ->route('waste-water-management')
+                ->with('success', 'Data pemantauan air limbah berhasil disimpan.');
+
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -64,8 +100,8 @@ class WasteWaterManagementController extends Controller
      */
     public function edit($id)
     {
-        $data = WasteWaterManagement::findOrFail($id);
-        return view('waste-water-management.edit', compact('data'));
+        $wasteWater = WasteWaterManagement::findOrFail($id);
+        return view('waste-water-management.edit', compact('wasteWater'));
     }
 
     /**
@@ -73,30 +109,38 @@ class WasteWaterManagementController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = WasteWaterManagement::findOrFail($id);
+        $wasteWater = WasteWaterManagement::findOrFail($id);
 
-        $request->validate([
-            'tanggal_sampling'   => 'required|date',
+        $validated = $request->validate([
+            'tanggal_sampling'   => 'required|date|before_or_equal:today',
             'lokasi_sampling'    => 'required|in:Settling Pond Rey Nabila,Settling Pond Jetty Lama',
+            'sampler'            => 'required|in:inlet,outlet',
+            'cuaca'              => 'nullable|string|max:100',
             'ph'                 => 'nullable|numeric|min:0|max:14',
             'tss'                => 'nullable|numeric|min:0',
+            'debit_air'          => 'nullable|numeric|min:0',
             'status_kesesuaian'  => 'required|in:memenuhi,tidak_memenuhi',
-            'catatan'            => 'nullable|string',
+            'catatan'            => 'nullable|string|max:500',
+        ], [
+            'lokasi_sampling.required'  => 'Lokasi sampling wajib dipilih.',
+            'sampler.required'          => 'Titik sampler (Inlet/Outlet) wajib dipilih.',
+            'status_kesesuaian.required' => 'Status kesesuaian wajib ditentukan.',
         ]);
 
-        $data->update([
-            'tanggal_sampling'   => $request->tanggal_sampling,
-            'lokasi_sampling'    => $request->lokasi_sampling,
-            'ph'                 => $request->ph,
-            'tss'                => $request->tss,
-            'status_kesesuaian'  => $request->status_kesesuaian,
-            'catatan'            => $request->catatan,
-            // created_by tidak diubah
-        ]);
+        try {
+            DB::transaction(function () use ($wasteWater, $validated) {
+                $wasteWater->update($validated);
+            });
 
-        return redirect()
-            ->route('waste-water-management')
-            ->with('success', 'Data pengelolaan air limbah berhasil diperbarui.');
+            return redirect()
+                ->route('waste-water-management')
+                ->with('success', 'Data pemantauan air limbah berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            return back()
+                ->with('error', 'Gagal memperbarui data: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     /**
@@ -104,17 +148,27 @@ class WasteWaterManagementController extends Controller
      */
     public function destroy($id)
     {
-        $data = WasteWaterManagement::findOrFail($id);
-        $data->delete(); // Soft delete karena menggunakan SoftDeletes
+        try {
+            $data = WasteWaterManagement::findOrFail($id);
+            $data->delete();
 
-        return redirect()
-            ->route('waste-water-management')
-            ->with('success', 'Data pengelolaan air limbah berhasil dihapus.');
+            return redirect()
+                ->route('waste-water-management')
+                ->with('success', 'Data berhasil dihapus.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus data.');
+        }
     }
 
-    // Export data pengelolaan air limbah
+    /**
+     * Export data ke Excel
+     */
     public function export()
     {
-        return (new WasteWaterExport())->download('wastewater.xlsx');
+        try {
+            return (new WasteWaterExport())->download('laporan_pemantauan_air_limbah.xlsx');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengekspor data.');
+        }
     }
 }

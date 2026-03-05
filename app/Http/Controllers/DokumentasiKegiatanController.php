@@ -8,6 +8,8 @@ use App\Exports\DokumentasiKegiatanExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class DokumentasiKegiatanController extends Controller
 {
@@ -16,7 +18,6 @@ class DokumentasiKegiatanController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Ambil input filter dari request
         $search = $request->get('search');
         $jenisFilter = $request->get('jenis_kegiatan');
         $tanggalDari = $request->get('tanggal_dari');
@@ -24,7 +25,6 @@ class DokumentasiKegiatanController extends Controller
 
         $query = DokumentasiKegiatan::with('creator');
 
-        // 2. Apply Filter Pencarian (Judul atau Lokasi)
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('judul', 'like', "%{$search}%")
@@ -32,12 +32,10 @@ class DokumentasiKegiatanController extends Controller
             });
         }
 
-        // 3. Filter berdasarkan Jenis Kegiatan
         if ($jenisFilter) {
             $query->where('jenis_kegiatan', $jenisFilter);
         }
 
-        // 4. Filter Rentang Tanggal
         if ($tanggalDari && $tanggalSampai) {
             $query->whereBetween('tanggal', [$tanggalDari, $tanggalSampai]);
         } elseif ($tanggalDari) {
@@ -46,15 +44,10 @@ class DokumentasiKegiatanController extends Controller
             $query->where('tanggal', '<=', $tanggalSampai);
         }
 
-        // 5. Paginate dengan withQueryString() agar filter tidak hilang saat pindah halaman
-        $dokumentasi = $query->latest()->paginate(10)->appends(request()->query());
+        $dokumentasi = $query->latest()->paginate(10)->withQueryString();
 
         return view('dokumentasi-kegiatan.index', compact(
-            'dokumentasi',
-            'search',
-            'jenisFilter',
-            'tanggalDari',
-            'tanggalSampai'
+            'dokumentasi', 'search', 'jenisFilter', 'tanggalDari', 'tanggalSampai'
         ));
     }
 
@@ -71,58 +64,60 @@ class DokumentasiKegiatanController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul'             => 'required|string|max:255',
-            'tanggal'           => 'required|date',
+            'tanggal'           => 'required|date|before_or_equal:today',
             'lokasi'            => 'required|string|max:255',
             'deskripsi'         => 'required|string',
             'jenis_kegiatan'    => 'required|string|max:100',
-            
-            // PERBAIKAN DI SINI:
-            'file_dokumentasi'   => 'required|array', // Pastikan input adalah array
-            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048', // Validasi tiap file di dalam array
+            'file_dokumentasi'   => 'required|array|min:1',
+            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'judul.required'            => 'Judul kegiatan wajib diisi.',
+            'tanggal.required'          => 'Tanggal kegiatan wajib diisi.',
+            'tanggal.before_or_equal'   => 'Tanggal tidak boleh di masa depan.',
+            'lokasi.required'           => 'Lokasi kegiatan wajib diisi.',
+            'deskripsi.required'        => 'Deskripsi kegiatan wajib diisi.',
+            'jenis_kegiatan.required'   => 'Jenis kegiatan wajib dipilih.',
+            'file_dokumentasi.required' => 'Minimal upload satu file dokumentasi.',
+            'file_dokumentasi.*.mimes'  => 'Format file harus JPG, JPEG, PNG, atau PDF.',
+            'file_dokumentasi.*.max'    => 'Ukuran masing-masing file maksimal 5MB.',
         ]);
 
-        // Handle upload multiple files
-        $filePath = [];
-        if ($request->hasFile('file_dokumentasi')) {
-            foreach ($request->file('file_dokumentasi') as $file) {
-                $path = $file->store('dokumentasi', 'public');
-                $filePath[] = $path;
+        try {
+            DB::beginTransaction();
+
+            $filePaths = [];
+            if ($request->hasFile('file_dokumentasi')) {
+                foreach ($request->file('file_dokumentasi') as $file) {
+                    $filename = time() . '_' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs('dokumentasi', $filename, 'public');
+                    $filePaths[] = $path;
+                }
             }
+
+            DokumentasiKegiatan::create([
+                'judul'            => $validated['judul'],
+                'tanggal'          => $validated['tanggal'],
+                'lokasi'           => $validated['lokasi'],
+                'deskripsi'        => $validated['deskripsi'],
+                'jenis_kegiatan'   => $validated['jenis_kegiatan'],
+                'file_dokumentasi' => $filePaths,
+                'created_by'       => Auth::id(),
+            ]);
+
+            DB::commit();
+            return redirect()->route('dokumentasi-kegiatan')
+                ->with('success', 'Dokumentasi kegiatan berhasil disimpan.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Hapus file yang terlanjur terupload jika DB gagal
+            foreach ($filePaths as $path) {
+                Storage::disk('public')->delete($path);
+            }
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage())->withInput();
         }
-
-        DokumentasiKegiatan::create([
-            'judul'             => $request->judul,
-            'tanggal'           => $request->tanggal,
-            'lokasi'            => $request->lokasi,
-            'deskripsi'         => $request->deskripsi,
-            'jenis_kegiatan'    => $request->jenis_kegiatan,
-            'file_dokumentasi'  => $filePath, // Model akan otomatis mengubah array ke JSON karena casting
-            'created_by'        => Auth::id(),
-        ]);
-
-        return redirect()
-            ->route('dokumentasi-kegiatan')
-            ->with('success', 'Dokumentasi kegiatan berhasil disimpan.');
-    }
-
-    /**
-     * Tampilkan form edit dokumentasi
-     */
-    public function edit($id)
-    {
-        $dokumentasi = DokumentasiKegiatan::findOrFail($id);
-        return view('dokumentasi-kegiatan.edit', compact('dokumentasi'));
-    }
-
-    public function gallery()
-    {
-        $dokumentasiData = DokumentasiKegiatan::with('creator')
-            ->latest()
-            ->paginate(12); // 12 item per halaman
-
-        return view('dokumentasi-kegiatan.gallery', compact('dokumentasiData'));
     }
 
     /**
@@ -132,63 +127,105 @@ class DokumentasiKegiatanController extends Controller
     {
         $dokumentasi = DokumentasiKegiatan::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'judul'             => 'required|string|max:255',
-            'tanggal'           => 'required|date',
+            'tanggal'           => 'required|date|before_or_equal:today',
             'lokasi'            => 'required|string|max:255',
             'deskripsi'         => 'required|string',
             'jenis_kegiatan'    => 'required|string|max:100',
-            
-            // PERBAIKAN DI SINI JUGA:
             'file_dokumentasi'   => 'nullable|array',
-            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'file_dokumentasi.*' => 'file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ], [
+            'judul.required'    => 'Judul kegiatan wajib diisi.',
+            'tanggal.required'  => 'Tanggal wajib diisi.',
+            'file_dokumentasi.*.max' => 'File tidak boleh lebih dari 5MB.',
         ]);
 
-        $filePath = $dokumentasi->file_dokumentasi;
+        try {
+            DB::beginTransaction();
 
-        if ($request->hasFile('file_dokumentasi')) {
-            // Hapus file lama jika ada upload baru
-            if (is_array($filePath)) {
-                foreach ($filePath as $oldFile) {
-                    Storage::disk('public')->delete($oldFile);
+            $newFilePaths = $dokumentasi->file_dokumentasi;
+
+            if ($request->hasFile('file_dokumentasi')) {
+                // Hapus file lama secara fisik
+                if (is_array($dokumentasi->file_dokumentasi)) {
+                    foreach ($dokumentasi->file_dokumentasi as $oldFile) {
+                        Storage::disk('public')->delete($oldFile);
+                    }
+                }
+
+                // Upload file baru
+                $newFilePaths = [];
+                foreach ($request->file('file_dokumentasi') as $file) {
+                    $filename = time() . '_' . Str::random(5) . '.' . $file->getClientOriginalExtension();
+                    $path = $file->storeAs('dokumentasi', $filename, 'public');
+                    $newFilePaths[] = $path;
                 }
             }
 
-            // Simpan file baru
-            $filePath = [];
-            foreach ($request->file('file_dokumentasi') as $file) {
-                $path = $file->store('dokumentasi', 'public');
-                $filePath[] = $path;
-            }
+            $dokumentasi->update([
+                'judul'            => $validated['judul'],
+                'tanggal'          => $validated['tanggal'],
+                'lokasi'           => $validated['lokasi'],
+                'deskripsi'        => $validated['deskripsi'],
+                'jenis_kegiatan'   => $validated['jenis_kegiatan'],
+                'file_dokumentasi' => $newFilePaths,
+            ]);
+
+            DB::commit();
+            return redirect()->route('dokumentasi-kegiatan')
+                ->with('success', 'Dokumentasi kegiatan berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal memperbarui data: ' . $e->getMessage())->withInput();
         }
-
-        $dokumentasi->update([
-            'judul'             => $request->judul,
-            'tanggal'           => $request->tanggal,
-            'lokasi'            => $request->lokasi,
-            'deskripsi'         => $request->deskripsi,
-            'jenis_kegiatan'    => $request->jenis_kegiatan,
-            'file_dokumentasi'  => $filePath,
-        ]);
-
-        return redirect()
-            ->route('dokumentasi-kegiatan')
-            ->with('success', 'Dokumentasi kegiatan berhasil diperbarui.');
     }
+
     /**
      * Hapus data dokumentasi (soft delete)
      */
     public function destroy($id)
     {
-        $dokumentasi = DokumentasiKegiatan::findOrFail($id);
-        $dokumentasi->delete(); // Soft delete karena menggunakan SoftDeletes
+        try {
+            $dokumentasi = DokumentasiKegiatan::findOrFail($id);
+            $dokumentasi->delete(); 
 
-        return redirect()
-            ->route('dokumentasi-kegiatan')
-            ->with('success', 'Dokumentasi kegiatan berhasil dihapus.');
+            return redirect()->route('dokumentasi-kegiatan')
+                ->with('success', 'Dokumentasi kegiatan berhasil dipindahkan ke sampah.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus data.');
+        }
     }
 
-    // Export data dokumentasi kegiatan
+    /**
+     * Tampilkan Gallery
+     */
+    public function gallery(Request $request)
+    {
+        $query = DokumentasiKegiatan::with('creator');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('judul', 'like', "%{$search}%")
+                  ->orWhere('lokasi', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('tanggal', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('tanggal', '<=', $request->tanggal_sampai);
+        }
+
+        $dokumentasiData = $query->latest()->paginate(12)->withQueryString();
+
+        return view('dokumentasi-kegiatan.gallery', compact('dokumentasiData'));
+    }
+
     public function export()    
     {
         return (new DokumentasiKegiatanExport())->download('dokumentasi_kegiatan_export.xlsx');
