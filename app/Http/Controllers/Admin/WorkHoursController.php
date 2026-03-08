@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\workhours; // Sesuai dengan nama file dan class Anda
+use App\Models\WorkHours; // Sesuai dengan nama file dan class Anda
 use App\Exports\JamKerjaExport;
 use App\Models\Equipment;
 use App\Http\Controllers\Controller;
@@ -15,7 +15,7 @@ class WorkHoursController extends Controller
      */
     public function index()
     {
-        $workHours = workhours::with('alat')->latest()->get();
+        $workHours = WorkHours::with('alat')->latest()->get();
 
         return view('work-hours.index', compact('workHours'));
     }
@@ -71,7 +71,7 @@ class WorkHoursController extends Controller
      */
     public function edit($id)
     {
-        $workHour = workhours::findOrFail($id);
+        $workHour = WorkHours::findOrFail($id);
         $equipments = Equipment::all();
         return view('work-hours.edit', compact('workHour', 'equipments'));
     }
@@ -81,7 +81,7 @@ class WorkHoursController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $workHour = workhours::findOrFail($id);
+        $workHour = WorkHours::findOrFail($id);
 
         $request->validate([
             'alat_id'       => 'required|exists:equipments,id',
@@ -120,7 +120,7 @@ class WorkHoursController extends Controller
      */
     public function destroy($id)
     {
-        $workHour = workhours::findOrFail($id);
+        $workHour = WorkHours::findOrFail($id);
         $workHour->delete();
 
         return redirect()
