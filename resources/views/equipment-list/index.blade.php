@@ -1,283 +1,490 @@
 @extends('layouts.user_type.auth')
 
 @section('content')
+<style>
+    /* ===== MODERN SOFT UI ENHANCEMENTS ===== */
+    :root {
+        --primary-gradient: linear-gradient(310deg, #7928ca 0%, #ff0080 100%);
+        --surface-color: #f8f9fa;
+    }
 
-<div>
-    <div class="alert alert-secondary mx-4 d-flex justify-content-between align-items-center" role="alert">
-        <span class="text-white">
-            <strong>Equipment List</strong>
-        </span>
-        <a class="btn bg-gradient-secondary btn-sm mb-0" href="{{ route('api.export.alat') }}">Export Data</a>
+    .main-content-wrapper { padding: 1.5rem; }
+
+    .custom-header {
+        background: var(--primary-gradient);
+        border-radius: 1rem;
+        padding: 2.5rem 2rem 5rem 2rem;
+        margin-bottom: -4rem;
+        position: relative;
+        box-shadow: 0 4px 20px 0 rgba(0,0,0,0.1);
+    }
+
+    .stat-card {
+        border: none;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        transition: transform 0.2s ease;
+        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.07);
+    }
+    .stat-card:hover { transform: translateY(-5px); }
+    
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        color: #fff;
+    }
+
+    .filter-container {
+        background: #fff;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    }
+
+    .custom-table-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05);
+        background: white;
+    }
+
+    .table thead th {
+        background: #fbfbfb;
+        padding: 1rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.05rem;
+        color: #8392ab;
+        border-bottom: 1px solid #f0f2f5;
+    }
+
+    .btn-round { border-radius: 0.5rem; padding: 0.5rem 1.2rem; }
+    
+    .action-link {
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        background: #f8f9fa;
+        color: #67748e;
+        transition: all 0.2s;
+        border: none;
+        text-decoration: none;
+    }
+    .action-link:hover { 
+        background: #e9ecef; 
+        color: #344767;
+        transform: scale(1.05);
+    }
+
+    /* Status badge variants */
+    .badge-equipment {
+        border-radius: 20px;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03rem;
+    }
+</style>
+
+<div class="main-content-wrapper">
+    <!-- Header Section -->
+    <div class="custom-header">
+        <div class="d-md-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="text-white font-weight-bolder mb-0">Equipment Management</h4>
+                <p class="text-white opacity-8 text-sm">Kelola inventaris peralatan dan alat berat secara terpusat.</p>
+            </div>
+            <div class="d-flex gap-2 mt-3 mt-md-0">
+                <a href="{{ route('api.export.alat') }}" class="btn btn-white btn-round mb-0 shadow-sm">
+                    <i class="fas fa-download text-primary me-2 text-xs"></i> Export
+                </a>
+                <a href="{{ route('admin.equipment-list.create') }}" class="btn btn-white btn-round mb-0 shadow-sm">
+                    <i class="fas fa-plus text-primary me-2 text-xs"></i> New Equipment
+                </a>
+            </div>
+        </div>
     </div>
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card mb-4 mx-4">
-                <div class="card-header pb-0">
-                    <div class="d-flex flex-row justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-0">All Equipment</h5>
+    <!-- Stats Cards -->
+    <div class="row px-3 mb-4">
+        @php
+            // ✅ Gunakan $summaryStats dari Controller (query terpisah, tanpa filter pagination)
+            $stats = [
+                [
+                    'label' => 'Total Equipment', 
+                    'val' => $summaryStats['total'] ?? 0, 
+                    'icon' => 'fa-tools', 
+                    'bg' => 'bg-gradient-dark'
+                ],
+                [
+                    'label' => 'Tersedia', 
+                    'val' => $summaryStats['tersedia'] ?? 0, 
+                    'icon' => 'fa-check-circle', 
+                    'bg' => 'bg-gradient-success'
+                ],
+                [
+                    'label' => 'Sedang Dipakai', 
+                    'val' => $summaryStats['dipakai'] ?? 0, 
+                    'icon' => 'fa-user', 
+                    'bg' => 'bg-gradient-info'
+                ],
+                [
+                    'label' => 'Perawatan/Rusak', 
+                    'val' => $summaryStats['maintenance'] ?? 0, 
+                    'icon' => 'fa-wrench', 
+                    'bg' => 'bg-gradient-warning'
+                ]
+            ];
+        @endphp
+        @foreach($stats as $s)
+        <div class="col-xl-3 col-sm-6 mb-3">
+            <div class="card stat-card">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-box {{ $s['bg'] }} shadow text-center">
+                            <i class="fas {{ $s['icon'] }} opacity-10"></i>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <div class="input-group input-group-sm w-auto">
-                        <span class="input-group-text bg-gradient-primary text-white border-0">
-                            <i class="fas fa-filter"></i>
-                        </span>
+                        <div class="ms-3">
+                            <p class="text-xs mb-0 text-uppercase font-weight-bold text-muted">{{ $s['label'] }}</p>
+                            <h5 class="font-weight-bolder mb-0">{{ $s['val'] }}</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-container mx-3">
+        <form action="{{ route('admin.equipment-list') }}" method="GET" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label text-xs font-weight-bold">Cari Equipment</label>
+                <div class="input-group shadow-none border-radius-sm">
+                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control border-0 bg-light text-sm" 
+                           placeholder="Nama atau kode..." value="{{ request('search') }}">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-xs font-weight-bold">Jenis Alat</label>
+                <select name="jenis" class="form-select border-0 bg-light text-sm">
+                    <option value="">Semua Jenis</option>
+                    @foreach($jenisList as $jenis)
+                        <option value="{{ $jenis }}" {{ request('jenis') == $jenis ? 'selected' : '' }}>
+                            {{ $jenis }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-xs font-weight-bold">Status</label>
+                <select name="status" class="form-select border-0 bg-light text-sm">
+                    <option value="">Semua Status</option>
+                    <option value="tersedia" {{ request('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
+                    <option value="dipakai" {{ request('status') == 'dipakai' ? 'selected' : '' }}>Dipakai</option>
+                    <option value="perawatan" {{ request('status') == 'perawatan' ? 'selected' : '' }}>Perawatan</option>
+                    <option value="rusak" {{ request('status') == 'rusak' ? 'selected' : '' }}>Rusak</option>
+                    <option value="tidak_aktif" {{ request('status') == 'tidak_aktif' ? 'selected' : '' }}>Tidak Aktif</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-primary btn-round w-100 mb-0">Filter</button>
+                <a href="{{ route('admin.equipment-list') }}" class="btn btn-light btn-round mb-0" title="Reset">
+                    <i class="fas fa-redo-alt"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table Section -->
+    <div class="card custom-table-card mx-3">
+        <div class="table-responsive">
+            <table class="table align-items-center mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-uppercase font-weight-bolder ps-4">Equipment</th>
+                        <th class="text-uppercase font-weight-bolder">Kode & Jenis</th>
+                        <th class="text-uppercase font-weight-bolder">Merk & Tahun</th>
+                        <th class="text-center text-uppercase font-weight-bolder">Lokasi</th>
+                        <th class="text-center text-uppercase font-weight-bolder">Status</th>
+                        <th class="text-center text-uppercase font-weight-bolder">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($equipment as $item)
+                    <tr>
+                        <!-- Equipment Info -->
+                        <td class="ps-4">
+                            <div class="d-flex flex-column">
+                                <span class="text-sm font-weight-bold text-dark">{{ $item->nama ?? '-' }}</span>
+                                @if($item->catatan)
+                                <span class="text-xxs text-muted">{{ Str::limit($item->catatan, 30) }}</span>
+                                @endif
+                            </div>
+                        </td>
                         
-                        <select 
-                            class="form-select form-select-sm" 
-                            id="searchJenisAlat"
-                            style="min-width: 220px; border-top-left-radius: 0; border-bottom-left-radius: 0;"
-                        >
-                            <option value="">-- Semua Jenis Alat --</option>
-                            @foreach($jenisList as $jenis)
-                                <option value="{{ $jenis }}" {{ $searchJenis == $jenis ? 'selected' : '' }}>
-                                    {{ $jenis }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <!-- Code & Type -->
+                        <td>
+                            <div class="d-flex flex-column text-xs">
+                                <span class="font-weight-bold text-primary">{{ $item->kode ?? '-' }}</span>
+                                <span class="text-muted mt-1">
+                                    <i class="fas fa-tag me-1"></i>{{ $item->jenis ?? '-' }}
+                                </span>
+                            </div>
+                        </td>
+                        
+                        <!-- Brand & Year -->
+                        <td>
+                            <div class="d-flex flex-column text-xs">
+                                <span><i class="fas fa-industry me-1 text-muted"></i>{{ $item->merk ?? '-' }}</span>
+                                @if($item->tahun)
+                                <span class="text-muted mt-1"><i class="far fa-calendar me-1"></i>{{ $item->tahun }}</span>
+                                @endif
+                            </div>
+                        </td>
+                        
+                        <!-- Location -->
+                        <td class="text-center text-xs">
+                            <span class="text-muted">
+                                <i class="fas fa-map-marker-alt me-1"></i>
+                                {{ Str::limit($item->lokasi_sekarang ?? '-', 15) }}
+                            </span>
+                        </td>
+                        
+                        <!-- Status Badge -->
+                        <td class="text-center">
+                            @php
+                                $statusConfig = [
+                                    'tersedia' => ['color' => 'success', 'label' => 'Tersedia'],
+                                    'dipakai' => ['color' => 'info', 'label' => 'Dipakai'],
+                                    'perawatan' => ['color' => 'warning', 'label' => 'Perawatan'],
+                                    'rusak' => ['color' => 'danger', 'label' => 'Rusak'],
+                                    'tidak_aktif' => ['color' => 'secondary', 'label' => 'Non-Aktif'],
+                                ];
+                                $config = $statusConfig[$item->status] ?? ['color' => 'secondary', 'label' => 'Unknown'];
+                            @endphp
+                            <span class="badge badge-equipment bg-gradient-{{ $config['color'] }} text-white">
+                                {{ $config['label'] }}
+                            </span>
+                        </td>
+                        
+                        <!-- Actions -->
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-1">
+                                <!-- Detail Button -->
+                                <button type="button" class="action-link text-primary detail-btn" 
+                                        data-id="{{ $item->id }}"
+                                        data-nama="{{ $item->nama }}"
+                                        data-kode="{{ $item->kode }}"
+                                        data-jenis="{{ $item->jenis }}"
+                                        data-merk="{{ $item->merk ?? '-' }}"
+                                        data-tahun="{{ $item->tahun ?? '-' }}"
+                                        data-no_polisi="{{ $item->no_polisi ?? '-' }}"
+                                        data-no_mesin="{{ $item->no_mesin ?? '-' }}"
+                                        data-status="{{ ucfirst(str_replace('_', ' ', $item->status)) }}"
+                                        data-lokasi="{{ $item->lokasi_sekarang ?? '-' }}"
+                                        data-catatan="{{ $item->catatan ?? '-' }}"
+                                        title="Lihat Detail">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </button>
+                                
+                                <!-- Edit Button -->
+                                <a href="{{ route('admin.equipment-list.edit', $item->id) }}" 
+                                   class="action-link text-info" title="Edit">
+                                    <i class="fas fa-pen text-xs"></i>
+                                </a>
+                                
+                                <!-- Delete Button -->
+                                <button type="button" class="action-link text-danger delete-btn" 
+                                        data-id="{{ $item->id }}" 
+                                        data-nama="{{ $item->nama }}"
+                                        title="Hapus">
+                                    <i class="fas fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="avatar avatar-lg bg-light rounded-circle mb-3">
+                                    <i class="fas fa-box-open text-muted fa-lg"></i>
+                                </div>
+                                <h6 class="text-muted mb-1">Tidak ada data equipment</h6>
+                                <p class="text-xs text-muted mb-3">
+                                    @if(request()->anyFilled(['search', 'jenis', 'status']))
+                                        Coba reset filter untuk melihat semua data
+                                    @else
+                                        Mulai tambahkan equipment baru untuk mengelola inventaris
+                                    @endif
+                                </p>
+                                @if(request()->anyFilled(['search', 'jenis', 'status']))
+                                <a href="{{ route('admin.equipment-list') }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-filter-slash me-1"></i> Reset Filter
+                                </a>
+                                @else
+                                <a href="{{ route('admin.equipment-list.create') }}" class="btn btn-sm bg-gradient-primary">
+                                    <i class="fas fa-plus me-1"></i> Tambah Equipment
+                                </a>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                        <button 
-                            class="btn btn-outline-secondary btn-sm mb-0" 
-                            type="button" 
-                            id="clearSearch" 
-                            title="Reset filter"
-                            style="border-left: none; text-transform: uppercase; font-weight: bold;"
-                        >
-                            X
-                        </button>
-                    </div>
-                            <a href="{{ route('admin.equipment-list.create') }}" class="btn bg-gradient-primary btn-sm mb-0" type="button">+&nbsp; New Equipment</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body px-0 pt-0 pb-2 mt-3">
-                    <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-4">
-                                        No
-                                    </th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                        Nama
-                                    </th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                        Kode
-                                    </th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                        Jenis
-                                    </th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                        Merk
-                                    </th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                        Status
-                                    </th>  
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
-                                        Action
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($equipment as $index => $item)
-                                <tr>
-                                    <td class="ps-4">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $loop->iteration }}</p>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ $item->nama ?? '-' }}</p>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ $item->kode ?? '-' }}</p>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-sm bg-gradient-info text-white">
-                                            {{ $item->jenis ?? '-' }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <p class="text-xs font-weight-bold mb-0">{{ $item->merk ?? '-' }}</p>
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge badge-sm 
-                                            @if($item->status === 'tersedia') bg-success
-                                            @elseif($item->status === 'dipakai') bg-info
-                                            @elseif($item->status === 'perawatan') bg-warning
-                                            @elseif($item->status === 'rusak') bg-danger
-                                            @elseif($item->status === 'tidak_aktif') bg-secondary
-                                            @else bg-secondary @endif">
-                                            {{ ucfirst(str_replace('_', ' ', $item->status)) }}
-                                        </span>
-                                    </td>
-                                    <td class="text-center">
-                                        <!-- Lihat Detail -->
-                                        <button 
-                                            type="button" 
-                                            class="mx-2 detail-btn" 
-                                            data-id="{{ $item->id }}"
-                                            data-nama="{{ $item->nama }}"
-                                            data-kode="{{ $item->kode }}"
-                                            data-jenis="{{ $item->jenis }}"
-                                            data-merk="{{ $item->merk ?? '-' }}"
-                                            data-tahun="{{ $item->tahun ?? '-' }}"
-                                            data-no_polisi="{{ $item->no_polisi ?? '-' }}"
-                                            data-no_mesin="{{ $item->no_mesin ?? '-' }}"
-                                            data-status="{{ ucfirst(str_replace('_', ' ', $item->status)) }}"
-                                            data-lokasi="{{ $item->lokasi_sekarang ?? '-' }}"
-                                            data-catatan="{{ $item->catatan ?? '-' }}"
-                                            title="Lihat Detail"
-                                        >
-                                            <i class="fas fa-eye text-primary"></i>
-                                        </button>
-                                        <a href="{{ route('admin.equipment-list.edit', $item->id) }}" class="mx-2" title="Edit">
-                                            <i class="fas fa-edit text-info"></i>
-                                        </a>
-                                        <button 
-                                            type="button" 
-                                            class="mx-2 delete-btn" 
-                                            data-id="{{ $item->id }}" 
-                                            data-nama="{{ $item->nama }}"
-                                            title="Hapus"
-                                        >
-                                            <i class="fas fa-trash text-danger"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="7" class="text-center text-muted py-4">
-                                        <div class="d-flex flex-column align-items-center">
-                                            <i class="fas fa-box-open fa-3x text-muted mb-2"></i>
-                                            <p class="mb-0">Tidak ada data equipment ditemukan</p>
-                                            @if($searchJenis)
-                                                <small class="text-muted mt-1">Coba hapus filter jenis alat untuk melihat semua data</small>
-                                            @endif
-                                        </div>
-                                    </td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    @if($equipment->count() > 0)
-                    <div class="card-footer px-4 py-3 bg-light border-top">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                Menampilkan {{ $filteredCount }} dari total {{ $totalEquipment }} equipment
-                            </small>
-                            @if($searchJenis)
-                                <small class="text-primary">
-                                    <i class="fas fa-filter"></i> Filter: {{ $searchJenis }}
-                                </small>
-                            @endif
-                        </div>
-                    </div>
-                    @endif
+        <!-- Pagination -->
+        @if(method_exists($equipment, 'hasPages') && $equipment->hasPages())
+        <div class="card-footer py-3 border-top">
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="text-xs text-secondary mb-0">
+                    Showing {{ $equipment->firstItem() }} to {{ $equipment->lastItem() }} of {{ $equipment->total() }} entries
+                </p>
+                <div>
+                    {{ $equipment->appends(request()->query())->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>
+        @endif
     </div>
 </div>
 
-<!-- Modal Detail Equipment -->
-<div class="modal fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+<!-- 🔍 Modal Detail Equipment -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-gradient-primary">
-                <h5 class="modal-title text-white" id="detailModalLabel">Detail Alat</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h6 class="modal-title font-weight-bold">Detail Equipment</h6>
+                <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="modal-body">
-                <table class="table table-borderless">
-                    <tr>
-                        <th width="30%">Nama</th>
-                        <td id="detail-nama"></td>
-                    </tr>
-                    <tr>
-                        <th>Kode</th>
-                        <td id="detail-kode"></td>
-                    </tr>
-                    <tr>
-                        <th>Jenis</th>
-                        <td id="detail-jenis"></td>
-                    </tr>
-                    <tr>
-                        <th>Merk</th>
-                        <td id="detail-merk"></td>
-                    </tr>
-                    <tr>
-                        <th>Tahun</th>
-                        <td id="detail-tahun"></td>
-                    </tr>
-                    <tr>
-                        <th>No. Polisi</th>
-                        <td id="detail-no-polisi"></td>
-                    </tr>
-                    <tr>
-                        <th>No. Mesin</th>
-                        <td id="detail-no-mesin"></td>
-                    </tr>
-                    <tr>
-                        <th>Status</th>
-                        <td id="detail-status"></td>
-                    </tr>
-                    <tr>
-                        <th>Lokasi Sekarang</th>
-                        <td id="detail-lokasi"></td>
-                    </tr>
-                    <tr>
-                        <th>Catatan</th>
-                        <td id="detail-catatan"></td>
-                    </tr>
-                </table>
+            <div class="modal-body pt-0">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Nama</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-nama"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Kode</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-kode"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Jenis</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-jenis"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Merk</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-merk"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Tahun</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-tahun"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">No. Polisi</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-no-polisi"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">No. Mesin</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-no-mesin"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Status</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-status"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Lokasi</small>
+                            <p class="text-sm font-weight-bold mb-0 mt-1" id="detail-lokasi"></p>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-3 bg-light rounded">
+                            <small class="text-muted text-xs text-uppercase font-weight-bold">Catatan</small>
+                            <p class="text-sm mb-0 mt-1" id="detail-catatan"></p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Konfirmasi Hapus -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<!-- 🗑️ Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white" id="deleteModalLabel">Konfirmasi Hapus</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h6 class="modal-title font-weight-bold">Konfirmasi Hapus</h6>
+                <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus alat <strong id="equipmentName"></strong>?</p>
-                <p class="text-muted">Ini akan menghapus data secara permanen.</p>
+            <div class="modal-body pt-0">
+                <p class="text-sm mb-0">
+                    Anda yakin ingin menghapus equipment <strong class="text-danger" id="equipmentName"></strong>? 
+                    Tindakan ini tidak dapat dibatalkan.
+                </p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <form id="deleteForm" method="POST" style="display:inline;">
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Batal</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Ya, Hapus</button>
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash me-1"></i>Ya, Hapus
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
-@if (session('success'))
-<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-success">
-                <h5 class="modal-title text-white">Berhasil</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- ✅ Toast Notification -->
+@if(session('success') || session('error'))
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div class="toast align-items-center text-white {{ session('success') ? 'bg-success' : 'bg-danger' }} border-0 show" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas {{ session('success') ? 'fa-check-circle' : 'fa-exclamation-circle' }} me-2"></i>
+                {{ session('success') ?? session('error') }}
             </div>
-            <div class="modal-body text-center">
-                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
-                <p class="mb-0">{{ session('success') }}</p>
-            </div>
-            <div class="modal-footer justify-content-center">
-                <button type="button" class="btn btn-success" data-bs-dismiss="modal">OK</button>
-            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
         </div>
     </div>
 </div>
@@ -286,71 +493,38 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const searchSelect = document.getElementById('searchJenisAlat');
-    const clearBtn = document.getElementById('clearSearch');
     
-    // Filter saat pilihan berubah
-    searchSelect.addEventListener('change', function () {
-        const jenis = this.value.trim();
-        let url = new URL(window.location.href);
-        
-        if (jenis) {
-            url.searchParams.set('jenis', jenis);
-        } else {
-            url.searchParams.delete('jenis');
-        }
-        
-        window.location.href = url.toString();
-    });
-    
-    // Clear filter
-    clearBtn.addEventListener('click', function () {
-        searchSelect.value = '';
-        let url = new URL(window.location.href);
-        url.searchParams.delete('jenis');
-        window.location.href = url.toString();
-    });
-
-    // === LIHAT DETAIL ===
+    // === DETAIL MODAL ===
     document.body.addEventListener('click', function (e) {
-        if (e.target.closest('.detail-btn')) {
-            const btn = e.target.closest('.detail-btn');
-            document.getElementById('detail-nama').textContent = btn.getAttribute('data-nama');
-            document.getElementById('detail-kode').textContent = btn.getAttribute('data-kode');
-            document.getElementById('detail-jenis').textContent = btn.getAttribute('data-jenis');
-            document.getElementById('detail-merk').textContent = btn.getAttribute('data-merk');
-            document.getElementById('detail-tahun').textContent = btn.getAttribute('data-tahun');
-            document.getElementById('detail-no-polisi').textContent = btn.getAttribute('data-no_polisi');
-            document.getElementById('detail-no-mesin').textContent = btn.getAttribute('data-no_mesin');
-            document.getElementById('detail-status').textContent = btn.getAttribute('data-status');
-            document.getElementById('detail-lokasi').textContent = btn.getAttribute('data-lokasi');
-            document.getElementById('detail-catatan').textContent = btn.getAttribute('data-catatan');
-
-            const modal = new bootstrap.Modal(document.getElementById('detailModal'));
-            modal.show();
+        const btn = e.target.closest('.detail-btn');
+        if (btn) {
+            const fields = ['nama', 'kode', 'jenis', 'merk', 'tahun', 'no-polisi', 'no-mesin', 'status', 'lokasi', 'catatan'];
+            fields.forEach(field => {
+                const dataAttr = 'data-' + field.replace('-', '_');
+                const value = btn.getAttribute(dataAttr) || '-';
+                document.getElementById('detail-' + field).textContent = value;
+            });
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
     });
 
-    // === DELETE BUTTON ===
+    // === DELETE MODAL ===
     document.body.addEventListener('click', function (e) {
-        if (e.target.closest('.delete-btn')) {
-            const btn = e.target.closest('.delete-btn');
-            const id = btn.getAttribute('data-id');
-            const nama = btn.getAttribute('data-nama');
-
-            document.getElementById('equipmentName').textContent = nama;
-            document.getElementById('deleteForm').action = '/admin/equipment-list/' + id;
-
+        const btn = e.target.closest('.delete-btn');
+        if (btn) {
+            document.getElementById('equipmentName').textContent = btn.dataset.nama;
+            document.getElementById('deleteForm').action = `/admin/equipment-list/${btn.dataset.id}`;
             new bootstrap.Modal(document.getElementById('deleteModal')).show();
         }
     });
 
-    // Tampilkan modal sukses jika ada
-    @if (session('success'))
-        new bootstrap.Modal(document.getElementById('successModal')).show();
-    @endif
+    // === AUTO-HIDE TOAST ===
+    const toastElList = document.querySelectorAll('.toast');
+    [...toastElList].map(toast => {
+        const bsToast = bootstrap.Toast.getOrCreateInstance(toast, { delay: 5000 });
+        bsToast.show();
+    });
 });
 </script>
 @endpush
-
 @endsection

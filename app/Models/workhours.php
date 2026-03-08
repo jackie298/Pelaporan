@@ -9,6 +9,8 @@ class WorkHours extends Model
 {
     use HasFactory;
 
+    protected $table = 'workhours';
+
     protected $fillable = [
         'alat_id',
         'tanggal',

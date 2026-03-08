@@ -6,158 +6,258 @@ use App\Models\Equipment;
 use App\Exports\AlatExport;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class EquipmentListController extends Controller
 {
     /**
-     * Tampilkan daftar Alat dengan fitur pencarian berdasarkan jenis
+     * Tampilkan daftar equipment dengan fitur filter & pagination
      */
     public function index(Request $request)
     {
-        $searchJenis = $request->query('jenis', '');
+        // ✅ Stats dihitung dari query TERPISAH (tanpa filter)
+        $equipmentModel = new \App\Models\Equipment();
         
-        $query = Equipment::query();
-        
-        // Filter berdasarkan jenis alat (case-insensitive partial match)
-        if ($searchJenis) {
-            $query->where('jenis', 'like', '%' . $searchJenis . '%');
+        $summaryStats = [
+            'total' => $equipmentModel::count(),
+            'tersedia' => $equipmentModel::where('status', 'tersedia')->count(),
+            'dipakai' => $equipmentModel::where('status', 'dipakai')->count(),
+            'maintenance' => $equipmentModel::whereIn('status', ['perawatan', 'rusak'])->count(),
+        ];
+
+        // ✅ Filter untuk table display
+        $searchFilter = $request->get('search');
+        $jenisFilter = $request->get('jenis');
+        $statusFilter = $request->get('status');
+
+        $query = $equipmentModel::query();
+
+        if ($searchFilter) {
+            $query->where(function($q) use ($searchFilter) {
+                $q->where('nama', 'like', "%{$searchFilter}%")
+                ->orWhere('kode', 'like', "%{$searchFilter}%")
+                ->orWhere('merk', 'like', "%{$searchFilter}%");
+            });
         }
-        
-        $equipment = $query->latest()->get();
-        $totalEquipment = Equipment::count(); // Total semua equipment
-        $filteredCount = $equipment->count(); // Jumlah yang difilter
-        
-        $jenisList = Equipment::select('jenis')
+        if ($jenisFilter) {
+            $query->where('jenis', 'like', "%{$jenisFilter}%");
+        }
+        if ($statusFilter) {
+            $query->where('status', $statusFilter);
+        }
+
+        $equipment = $query->latest()->paginate(15);
+
+        // ✅ Options untuk dropdown
+        $statusOptions = $equipmentModel::STATUS_OPTIONS ?? [
+            'tersedia' => 'Tersedia',
+            'dipakai' => 'Dipakai', 
+            'perawatan' => 'Perawatan',
+            'rusak' => 'Rusak',
+            'tidak_aktif' => 'Tidak Aktif',
+        ];
+
+        $jenisList = $equipmentModel::select('jenis')
                         ->distinct()
+                        ->whereNotNull('jenis')
+                        ->where('jenis', '!=', '')
                         ->orderBy('jenis')
-                        ->pluck('jenis')
-                        ->filter()
-                        ->values();
+                        ->pluck('jenis');
 
         return view('equipment-list.index', compact(
-            'equipment', 
-            'searchJenis', 
+            'equipment',
+            'summaryStats', 
+            'statusOptions',
             'jenisList',
-            'totalEquipment',
-            'filteredCount'
+            'searchFilter',
+            'jenisFilter', 
+            'statusFilter'
         ));
     }
 
     /**
-     * Tampilkan form tambah alat
+     * Tampilkan form tambah equipment
      */
     public function create()
     {
-        return view('equipment-list.create');
+        $statusOptions = Equipment::STATUS_OPTIONS ?? [
+            'tersedia' => 'Tersedia',
+            'dipakai' => 'Dipakai',
+            'perawatan' => 'Perawatan',
+            'rusak' => 'Rusak',
+            'tidak_aktif' => 'Tidak Aktif',
+        ];
+
+        return view('equipment-list.create', compact('statusOptions'));
     }
 
     /**
-     * Simpan data alat (equipment)
+     * Simpan data equipment baru
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama'             => 'required|string|max:255',
-            'kode'             => 'required|string|max:100|unique:equipments',
-            'jenis'            => 'required|string|max:100',
-            'merk'             => 'nullable|string|max:100',
-            'tahun'            => 'nullable|integer|min:1900|max:' . date('Y'),
-            'no_polisi'        => 'nullable|string|max:50',
-            'no_mesin'         => 'nullable|string|max:100',
-            'status'           => 'nullable|string|max:50',
-            'lokasi_sekarang'  => 'nullable|string|max:255',
-            'catatan'          => 'nullable|string',
+        // Uppercase fields yang perlu distandarisasi
+        if ($request->has('kode')) {
+            $request->merge(['kode' => strtoupper(trim($request->kode))]);
+        }
+        if ($request->has('no_polisi')) {
+            $request->merge(['no_polisi' => strtoupper(trim($request->no_polisi))]);
+        }
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => 'required|string|max:100|unique:equipments,kode',
+            'jenis' => 'required|string|max:100',
+            'merk' => 'nullable|string|max:100',
+            'tahun' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'no_polisi' => 'nullable|string|max:50',
+            'no_mesin' => 'nullable|string|max:100',
+            'status' => ['nullable', Rule::in(array_keys(Equipment::STATUS_OPTIONS ?? []))],
+            'lokasi_sekarang' => 'nullable|string|max:255',
+            'catatan' => 'nullable|string|max:500',
+        ], [
+            // Custom error messages
+            'nama.required' => 'Nama equipment harus diisi',
+            'nama.max' => 'Nama equipment maksimal 255 karakter',
+            'kode.required' => 'Kode equipment harus diisi',
+            'kode.unique' => 'Kode equipment sudah terdaftar di sistem',
+            'kode.max' => 'Kode equipment maksimal 100 karakter',
+            'jenis.required' => 'Jenis equipment harus diisi',
+            'tahun.integer' => 'Tahun harus berupa angka',
+            'tahun.min' => 'Tahun minimal 1900',
+            'tahun.max' => 'Tahun tidak boleh melebihi tahun sekarang',
+            'no_polisi.max' => 'Nomor polisi maksimal 50 karakter',
+            'no_mesin.max' => 'Nomor mesin maksimal 100 karakter',
+            'lokasi_sekarang.max' => 'Lokasi maksimal 255 karakter',
+            'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
 
-        // =============================
-        // SIMPAN DATABASE
-        // =============================
-        Equipment::create([
-            'nama'            => $request->nama,
-            'kode'            => $request->kode,
-            'jenis'           => $request->jenis,
-            'merk'            => $request->merk,
-            'tahun'           => $request->tahun,
-            'no_polisi'       => strtoupper($request->no_polisi),
-            'no_mesin'        => $request->no_mesin,
-            'status'          => $request->status,
-            'lokasi_sekarang' => $request->lokasi_sekarang,
-            'catatan'         => $request->catatan,
-        ]);
+        // Cek duplikasi kode (case-insensitive)
+        $isDuplicate = Equipment::whereRaw('LOWER(kode) = ?', [strtolower($validated['kode'])])->exists();
+        if ($isDuplicate) {
+            return back()
+                ->withErrors(['kode' => 'Kode equipment ' . $validated['kode'] . ' sudah terdaftar di sistem.'])
+                ->withInput();
+        }
+
+        DB::transaction(function () use ($validated) {
+            Equipment::create($validated);
+        });
 
         return redirect()
             ->route('admin.equipment-list')
-            ->with('success', 'Data alat berhasil disimpan.');
+            ->with('success', 'Data equipment berhasil disimpan.');
     }
 
     /**
-     * Tampilkan form edit alat
+     * Tampilkan form edit equipment
      */
     public function edit($id)
     {
         $equipment = Equipment::findOrFail($id);
+        $statusOptions = Equipment::STATUS_OPTIONS ?? [
+            'tersedia' => 'Tersedia',
+            'dipakai' => 'Dipakai',
+            'perawatan' => 'Perawatan',
+            'rusak' => 'Rusak',
+            'tidak_aktif' => 'Tidak Aktif',
+        ];
 
-        return view('equipment-list.edit', compact('equipment'));
+        return view('equipment-list.edit', compact('equipment', 'statusOptions'));
     }
 
     /**
-     * Perbarui data alat
+     * Update data equipment
      */
     public function update(Request $request, $id)
     {
         $equipment = Equipment::findOrFail($id);
 
-        $request->validate([
-            'nama'             => 'required|string|max:255',
-            'kode'             => 'required|string|max:100|unique:equipments,kode,' . $id,
-            'jenis'            => 'required|string|max:100',
-            'merk'             => 'nullable|string|max:100',
-            'tahun'            => 'nullable|integer|min:1900|max:' . date('Y'),
-            'no_polisi'        => 'nullable|string|max:50',
-            'no_mesin'         => 'nullable|string|max:100',
-            'status'           => 'nullable|string|max:50',
-            'lokasi_sekarang'  => 'nullable|string|max:255',
-            'catatan'          => 'nullable|string',
+        // Uppercase fields yang perlu distandarisasi
+        if ($request->has('kode')) {
+            $request->merge(['kode' => strtoupper(trim($request->kode))]);
+        }
+        if ($request->has('no_polisi')) {
+            $request->merge(['no_polisi' => strtoupper(trim($request->no_polisi))]);
+        }
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'kode' => ['required', 'string', 'max:100', Rule::unique('equipments', 'kode')->ignore($id)],
+            'jenis' => 'required|string|max:100',
+            'merk' => 'nullable|string|max:100',
+            'tahun' => 'nullable|integer|min:1900|max:' . date('Y'),
+            'no_polisi' => 'nullable|string|max:50',
+            'no_mesin' => 'nullable|string|max:100',
+            'status' => ['nullable', Rule::in(array_keys(Equipment::STATUS_OPTIONS ?? []))],
+            'lokasi_sekarang' => 'nullable|string|max:255',
+            'catatan' => 'nullable|string|max:500',
+        ], [
+            'nama.required' => 'Nama equipment harus diisi',
+            'nama.max' => 'Nama equipment maksimal 255 karakter',
+            'kode.required' => 'Kode equipment harus diisi',
+            'kode.unique' => 'Kode equipment sudah digunakan oleh data lain',
+            'kode.max' => 'Kode equipment maksimal 100 karakter',
+            'jenis.required' => 'Jenis equipment harus diisi',
+            'tahun.integer' => 'Tahun harus berupa angka',
+            'tahun.min' => 'Tahun minimal 1900',
+            'tahun.max' => 'Tahun tidak boleh melebihi tahun sekarang',
+            'no_polisi.max' => 'Nomor polisi maksimal 50 karakter',
+            'no_mesin.max' => 'Nomor mesin maksimal 100 karakter',
+            'lokasi_sekarang.max' => 'Lokasi maksimal 255 karakter',
+            'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
 
-        // =============================
-        // UPDATE DATABASE
-        // =============================
-        $equipment->update([
-            'nama'            => $request->nama,
-            'kode'            => $request->kode,
-            'jenis'           => $request->jenis,
-            'merk'            => $request->merk,
-            'tahun'           => $request->tahun,
-            'no_polisi'       => strtoupper($request->no_polisi),
-            'no_mesin'        => $request->no_mesin,
-            'status'          => $request->status,
-            'lokasi_sekarang' => $request->lokasi_sekarang,
-            'catatan'         => $request->catatan,
-        ]);
+        // Cek duplikasi kode (case-insensitive) kecuali milik record ini
+        $isDuplicate = Equipment::whereRaw('LOWER(kode) = ?', [strtolower($validated['kode'])])
+                                ->where('id', '!=', $id)
+                                ->exists();
+        if ($isDuplicate) {
+            return back()
+                ->withErrors(['kode' => 'Kode equipment ' . $validated['kode'] . ' sudah digunakan oleh data lain.'])
+                ->withInput();
+        }
+
+        DB::transaction(function () use ($equipment, $validated) {
+            $equipment->update($validated);
+        });
 
         return redirect()
             ->route('admin.equipment-list')
-            ->with('success', 'Data alat berhasil diperbarui.');
+            ->with('success', 'Data equipment berhasil diperbarui.');
     }
 
     /**
-     * Hapus data alat
+     * Hapus data equipment
      */
     public function destroy($id)
     {
         $equipment = Equipment::findOrFail($id);
-        $equipment->delete();
+
+        // Validasi: Cek apakah equipment sedang dipakai atau memiliki relasi terkait
+        // Contoh: jika ada model Usage/Log yang merujuk ke equipment ini
+        // if ($equipment->usages()->count() > 0) {
+        //     return redirect()
+        //         ->route('admin.equipment-list')
+        //         ->with('error', 'Equipment tidak dapat dihapus karena memiliki riwayat penggunaan.');
+        // }
+
+        DB::transaction(function () use ($equipment) {
+            $equipment->delete();
+        });
 
         return redirect()
             ->route('admin.equipment-list')
-            ->with('success', 'Data alat berhasil dihapus.');
+            ->with('success', 'Data equipment berhasil dihapus.');
     }
 
-    // Export data alat
+    /**
+     * Export data equipment ke Excel
+     */
     public function export()
     {
-        return (new AlatExport())->download('alat_export.xlsx');
+        return (new AlatExport())->download('equipment_export_' . date('Ymd') . '.xlsx');
     }
-
 }
