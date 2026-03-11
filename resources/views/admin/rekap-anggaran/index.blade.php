@@ -130,7 +130,7 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <span class="text-xs font-weight-bold">{{ $item->realisasi ?? '-' }}</span>
+                            <span class="text-xs font-weight-bold">{{ $item->realisasi ?? '-' }} %</span>
                         </td>
                         <td class="text-center">
                             <span class="text-sm font-weight-bolder text-dark">Rp {{ number_format($item->harga, 0, ',', '.') }}</span>
