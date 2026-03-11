@@ -11,10 +11,28 @@ use Illuminate\Support\Facades\Log;
 
 class RekapAnggaranController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $rekap_anggaran = RekapAnggaran::latest()->paginate(10);
-        $totalNilaiKontrak = RekapAnggaran::sum('harga');
+        $query = RekapAnggaran::query();
+
+        if ($request->filled('cari')) {
+            $query->where('nama', 'like', '%' . $request->cari . '%');
+        }
+
+        if ($request->has('bulan') && $request->bulan != '') {
+            $query->whereMonth('periode', $request->bulan);
+        }
+
+        if ($request->has('tahun') && $request->tahun != '') {
+            $query->whereYear('periode', $request->tahun);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $rekap_anggaran = $query->latest('periode')->paginate(10)->withQueryString();
+        $totalNilaiKontrak = $query->sum('harga');
 
         return view('admin.rekap-anggaran.index', compact('rekap_anggaran', 'totalNilaiKontrak'));
     }
@@ -25,19 +43,20 @@ class RekapAnggaranController extends Controller
     }
 
     /**
-     * Validasi Reusable (Untuk mempermudah maintenance)
+     * Validasi Reusable
      */
     protected function validationRules($isUpdate = false)
     {
         return [
             'nama'            => 'required|string|max:255',
-            'realisasi'       => 'required|string|max:255',
+            'realisasi'       => 'required|numeric|min:0|max:100', 
             'keterangan_jasa' => 'required|string|min:10',
             'harga'           => 'required|numeric|min:0',
             'status'          => 'required|in:open,close,pending,proses finance,hold',
             'keterangan'      => 'nullable|string',
             'uraian_rkab'     => 'nullable|string',
-            'file_kontrak'    => $isUpdate ? 'nullable|file|mimes:pdf,doc,docx|max:5120' : 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'periode'         => 'nullable|date',
+            'file_kontrak'    => 'nullable|file|mimes:pdf,doc,docx,jpeg,jpg,png|max:10240',
         ];
     }
 
@@ -45,18 +64,15 @@ class RekapAnggaranController extends Controller
     {
         return [
             'nama.required'             => 'Nama kontrak tidak boleh kosong.',
-            'nama.max'                  => 'Nama kontrak terlalu panjang (maksimal 255 karakter).',
-            'realisasi.required'        => 'Nomor realisasi wajib diisi.',
+            'realisasi.required'        => 'Realisasi wajib diisi.',
+            'realisasi.numeric'         => 'Realisasi harus berupa angka.',
+            'realisasi.min'             => 'Realisasi minimal adalah 0%.',
+            'realisasi.max'             => 'Realisasi maksimal adalah 100%.',
             'keterangan_jasa.required'  => 'Detail keterangan jasa pekerjaan wajib diisi.',
-            'keterangan_jasa.min'       => 'Keterangan jasa minimal berisi 10 karakter.',
             'harga.required'            => 'Nilai harga/anggaran wajib diisi.',
-            'harga.numeric'             => 'Harga harus berupa angka tanpa titik atau koma.',
-            'harga.min'                 => 'Harga tidak boleh minus.',
             'status.required'           => 'Silakan pilih status kontrak saat ini.',
-            'status.in'                 => 'Status yang dipilih tidak valid.',
-            'file_kontrak.mimes'        => 'Format berkas tidak didukung. Gunakan format: PDF, DOC, atau DOCX.',
-            'file_kontrak.max'          => 'Ukuran berkas terlalu besar. Maksimal adalah 5MB.',
-            'file_kontrak.file'         => 'Input harus berupa berkas dokumen.',
+            'file_kontrak.mimes'        => 'Format berkas tidak didukung.',
+            'file_kontrak.max'          => 'Ukuran berkas maksimal 10MB.',
         ];
     }
 
@@ -67,7 +83,6 @@ class RekapAnggaranController extends Controller
         try {
             $filePath = null;
             if ($request->hasFile('file_kontrak')) {
-                // Beri nama file unik agar tidak tertukar
                 $file = $request->file('file_kontrak');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $filePath = $file->storeAs('rekap_anggaran', $filename, 'public');
@@ -77,11 +92,11 @@ class RekapAnggaranController extends Controller
 
             return redirect()
                 ->route('admin.rekap-anggaran')
-                ->with('success', 'Data kontrak "' . $request->nama . '" berhasil disimpan ke sistem.');
+                ->with('success', 'Data kontrak "' . $request->nama . '" berhasil disimpan.');
 
         } catch (\Exception $e) {
             Log::error("Error Store Rekap Anggaran: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Gagal menyimpan data. Silakan hubungi admin atau coba lagi nanti.');
+            return back()->withInput()->with('error', 'Gagal menyimpan data.');
         }
     }
 
@@ -94,13 +109,10 @@ class RekapAnggaranController extends Controller
     public function update(Request $request, $id)
     {
         $rekap_anggaran = RekapAnggaran::findOrFail($id);
-        
-        // Gabungkan rules tambahan untuk update jika ada
         $validated = $request->validate($this->validationRules(true), $this->validationMessages());
 
         try {
             if ($request->hasFile('file_kontrak')) {
-                // Hapus file lama jika ada
                 if ($rekap_anggaran->file_kontrak && Storage::disk('public')->exists($rekap_anggaran->file_kontrak)) {
                     Storage::disk('public')->delete($rekap_anggaran->file_kontrak);
                 }
@@ -126,19 +138,17 @@ class RekapAnggaranController extends Controller
     {
         try {
             $rekap_anggaran = RekapAnggaran::findOrFail($id);
-
             if ($rekap_anggaran->file_kontrak && Storage::disk('public')->exists($rekap_anggaran->file_kontrak)) {
                 Storage::disk('public')->delete($rekap_anggaran->file_kontrak);
             }
-
             $rekap_anggaran->delete();
-
-            return back()->with('success', 'Data kontrak berhasil dihapus dari database.');
+            return back()->with('success', 'Data kontrak berhasil dihapus.');
         } catch (\Exception $e) {
             Log::error("Error Delete Rekap Anggaran: " . $e->getMessage());
-            return back()->with('error', 'Data gagal dihapus karena masih digunakan di bagian lain atau masalah server.');
+            return back()->with('error', 'Data gagal dihapus.');
         }
     }
+
 
     public function export()
     {

@@ -12,57 +12,97 @@
     .btn-action { width: 36px; height: 36px; border-radius: 10px !important; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; border: 1px solid #e9ecef; background: white; }
     .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .total-summary-row { background: #f8f9fa; border-top: 2px solid #fff; }
-    .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+    .filter-card { background: #ffffff; border-radius: 1rem; border: 1px solid #f1f1f1; }
+    .select-custom { border-radius: 0.5rem !important; border: 1px solid #e9ecef !important; padding: 0.5rem; font-size: 0.875rem; }
 </style>
 
 <div class="container-fluid py-4">
+    {{-- HEADER --}}
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h3 class="font-weight-bolder mb-0">Daftar Kontrak</h3>
-            <p class="text-muted mb-0">Overview status kontrak dan manajemen dokumen anggaran.</p>
+            <h3 class="font-weight-bolder mb-0">Rekap Anggaran</h3>
+            <p class="text-muted mb-0">Manajemen dokumen dan pemantauan status kontrak anggaran.</p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{{ route('api.export.rekapanggaran') }}" class="btn btn-outline-dark btn-sm mb-0 px-3">
-                <i class="fas fa-file-excel me-2 text-success"></i>Export Excel
+            <a href="{{ route('api.export.rekapanggaran', request()->query()) }}" class="btn btn-outline-dark btn-sm mb-0 px-3">
+                <i class="fas fa-file-excel me-2 text-success"></i>Ekspor Excel
             </a>
             <a href="{{ route('admin.rekap-anggaran.create') }}" class="btn bg-gradient-dark btn-sm mb-0 px-3">
-                <i class="fas fa-plus me-2"></i>Tambah Dokumen
+                <i class="fas fa-plus me-2"></i>Tambah Data
             </a>
         </div>
     </div>
 
-    <div class="card bg-white p-3 mb-4">
-        <div class="row g-3 align-items-center">
-            <div class="col-md-4">
+    {{-- PANEL FILTER --}}
+    <div class="card filter-card p-3 mb-4 shadow-sm">
+        <form action="{{ route('admin.rekap-anggaran') }}" method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label text-xs font-weight-bold text-uppercase">Cari Kontrak</label>
                 <div class="input-group">
                     <span class="input-group-text bg-transparent border-end-0"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control border-start-0 ps-0" placeholder="Cari di halaman ini..." id="searchInput">
+                    <input type="text" name="cari" class="form-control select-custom border-start-0 ps-0" 
+                           placeholder="Nama kontrak..." value="{{ request('cari') }}">
                 </div>
             </div>
-            <div class="col-md-3">
-                <select class="form-select border-0 bg-light" id="statusFilter">
-                    <option value="">Semua Status</option>
-                    <option value="open">Open</option>
-                    <option value="close">Close</option>
-                    <option value="pending">Pending</option>
-                    <option value="proses finance">Proses Finance</option>
-                    <option value="hold">Hold</option>
+
+            <div class="col-md-2">
+                <label class="form-label text-xs font-weight-bold text-uppercase">Bulan</label>
+                <select name="bulan" class="form-select select-custom" onchange="this.form.submit()">
+                    <option value="">Semua Bulan</option>
+                    @for ($m=1; $m<=12; $m++)
+                        <option value="{{ $m }}" {{ request('bulan') == $m ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                        </option>
+                    @endfor
                 </select>
             </div>
-            <div class="col-md-5 text-md-end text-center">
-                <span class="text-xs font-weight-bold text-dark p-2 bg-light rounded-3">
-                    Total: <span class="text-primary">{{ $rekap_anggaran->total() }}</span> Data Keseluruhan
-                </span>
+
+            <div class="col-md-2">
+                <label class="form-label text-xs font-weight-bold text-uppercase text-muted">Filter Tahun</label>
+                <div class="input-group">
+                    <select name="tahun" class="form-select select-custom border-start-0 ps-0" onchange="this.form.submit()">
+                        <option value="">Semua Tahun</option>
+                        
+                        @php
+                            $currentYear = date('Y');
+                            $selectedYear = request('tahun');
+                        @endphp
+                        
+                        @for ($y = $currentYear + 2; $y >= $currentYear - 10; $y--)
+                            <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>
+                                {{ $y }}
+                            </option>
+                        @endfor
+                    </select>
+                </div>
             </div>
-        </div>
+
+            <div class="col-md-2">
+                <label class="form-label text-xs font-weight-bold text-uppercase">Status</label>
+                <select name="status" class="form-select select-custom">
+                    <option value="">Semua Status</option>
+                    @php $raw_statuses = ['open', 'close', 'pending', 'proses finance', 'hold']; @endphp
+                    @foreach($raw_statuses as $st)
+                        <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>{{ strtoupper($st) }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn bg-gradient-primary btn-sm mb-0 w-100">Filter</button>
+                <a href="{{ route('admin.rekap-anggaran') }}" class="btn btn-outline-secondary btn-sm mb-0 w-100">Reset</a>
+            </div>
+        </form>
     </div>
 
+    {{-- TABEL DATA --}}
     <div class="card">
         <div class="table-responsive">
-            <table class="table align-items-center mb-0" id="contractsTable">
+            <table class="table align-items-center mb-0">
                 <thead>
                     <tr>
-                        <th class="text-xxs font-weight-bolder opacity-9">No</th>
+                        <th class="text-xxs font-weight-bolder opacity-9 ps-4">No</th>
+                        <th class="text-xxs font-weight-bolder opacity-9">Periode</th>
                         <th class="text-xxs font-weight-bolder opacity-9">Detail Kontrak</th>
                         <th class="text-xxs font-weight-bolder opacity-9 text-center">Realisasi</th>
                         <th class="text-xxs font-weight-bolder opacity-9 text-center">Harga</th>
@@ -73,43 +113,41 @@
                 </thead>
                 <tbody>
                     @forelse ( $rekap_anggaran as $index => $item )
-                    <tr data-nama="{{ strtolower($item->nama) }}" data-status="{{ strtolower($item->status) }}">
+                    <tr>
                         <td class="ps-4">
-                            <p class="text-xs font-weight-bold mb-0 text-secondary">
-                                {{ $rekap_anggaran->firstItem() + $index }}
+                            <p class="text-xs font-weight-bold mb-0 text-secondary">{{ $rekap_anggaran->firstItem() + $index }}</p>
+                        </td>
+                        <td>
+                            <p class="text-xs font-weight-bold mb-0 text-dark">
+                                <i class="far fa-calendar-alt me-1 text-primary"></i>
+                                {{ $item->periode ? $item->periode->format('F Y') : '-' }}
                             </p>
                         </td>
                         <td>
-                            <div class="d-flex px-2 py-1">
-                                <div class="d-flex flex-column justify-content-center">
-                                    <h6 class="mb-0 text-sm font-weight-bold">{{ $item->nama }}</h6>
-                                    <p class="text-xs text-muted mb-0">
-                                        <i class="fas fa-tag me-1 opacity-5"></i> {{ Str::limit($item->keterangan_jasa, 40) }}
-                                    </p>
-                                </div>
+                            <div class="py-1">
+                                <h6 class="mb-0 text-sm font-weight-bold text-dark">{{ $item->nama }}</h6>
+                                <p class="text-xs text-muted mb-0">{{ Str::limit($item->keterangan_jasa, 45) }}</p>
                             </div>
                         </td>
                         <td class="text-center">
                             <span class="text-xs font-weight-bold">{{ $item->realisasi ?? '-' }}</span>
                         </td>
                         <td class="text-center">
-                            <span class="text-sm font-weight-bolder text-dark">
-                                Rp{{ number_format($item->harga, 0, ',', '.') }}
-                            </span>
+                            <span class="text-sm font-weight-bolder text-dark">Rp {{ number_format($item->harga, 0, ',', '.') }}</span>
                         </td>
                         <td class="text-center">
                             @php
-                                $status = strtolower($item->status);
-                                $badgeStyle = [
+                                $colorMap = [
                                     'open' => 'bg-info',
                                     'close' => 'bg-success',
                                     'pending' => 'bg-warning',
                                     'proses finance' => 'bg-primary',
                                     'hold' => 'bg-danger',
-                                ][$status] ?? 'bg-secondary';
+                                ];
+                                $badgeColor = $colorMap[strtolower($item->status)] ?? 'bg-secondary';
                             @endphp
-                            <span class="badge badge-pill-md {{ $badgeStyle }} text-white">
-                                <span class="status-dot bg-white"></span>{{ ucfirst($item->status) }}
+                            <span class="badge badge-pill-md {{ $badgeColor }} text-white text-uppercase">
+                                {{ $item->status }}
                             </span>
                         </td>
                         <td class="text-center">
@@ -118,24 +156,20 @@
                                     <i class="fas fa-file-pdf"></i>
                                 </a>
                             @else
-                                <span class="text-xxs text-muted opacity-5">No File</span>
+                                <span class="text-xxs text-muted opacity-6">Tidak ada file</span>
                             @endif
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">
-                                <a href="{{ route('admin.rekap-anggaran.edit', $item->id) }}" class="btn-action text-dark" title="Edit">
-                                    <i class="fas fa-pen-nib text-xs"></i>
-                                </a>
-                                <button type="button" class="btn-action text-danger delete-btn" data-id="{{ $item->id }}" data-nama="{{ $item->nama }}">
-                                    <i class="fas fa-trash-alt text-xs"></i>
-                                </button>
+                                <a href="{{ route('admin.rekap-anggaran.edit', $item->id) }}" class="btn-action text-dark"><i class="fas fa-pen-nib text-xs"></i></a>
+                                <button type="button" class="btn-action text-danger delete-btn" data-id="{{ $item->id }}" data-nama="{{ $item->nama }}"><i class="fas fa-trash-alt text-xs"></i></button>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <p class="text-muted">Data tidak ditemukan.</p>
+                        <td colspan="8" class="text-center py-5">
+                            <p class="text-muted mb-0">Data tidak ditemukan untuk filter ini.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -143,13 +177,11 @@
                 @if($rekap_anggaran->count() > 0)
                 <tfoot>
                     <tr class="total-summary-row">
-                        <td colspan="3" class="text-end py-3">
-                            <span class="text-xxs font-weight-bolder text-uppercase text-secondary">Total Seluruh Anggaran:</span>
+                        <td colspan="4" class="text-end py-3">
+                            <span class="text-xxs font-weight-bolder text-uppercase text-secondary">Total Anggaran (Terfilter):</span>
                         </td>
                         <td class="text-center">
-                            <span class="text-md font-weight-bolder text-primary">
-                                Rp {{ number_format($totalNilaiKontrak, 0, ',', '.') }}
-                            </span>
+                            <span class="text-md font-weight-bolder text-primary">Rp {{ number_format($totalNilaiKontrak, 0, ',', '.') }}</span>
                         </td>
                         <td colspan="3"></td>
                     </tr>
@@ -161,11 +193,9 @@
         <div class="card-footer py-3 border-0 bg-transparent">
             <div class="d-md-flex justify-content-between align-items-center">
                 <p class="text-xs text-secondary font-weight-bold mb-3 mb-md-0">
-                    Menampilkan {{ $rekap_anggaran->firstItem() }} sampai {{ $rekap_anggaran->lastItem() }} dari {{ $rekap_anggaran->total() }} data
+                    Menampilkan {{ $rekap_anggaran->firstItem() ?? 0 }} - {{ $rekap_anggaran->lastItem() ?? 0 }} dari {{ $rekap_anggaran->total() }} data
                 </p>
-                <div>
-                    {{ $rekap_anggaran->links('pagination::bootstrap-5') }}
-                </div>
+                <div>{{ $rekap_anggaran->appends(request()->query())->links('pagination::bootstrap-5') }}</div>
             </div>
         </div>
     </div>
@@ -180,14 +210,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-sm">Apakah Anda yakin ingin menghapus <strong><span id="contractName"></span></strong>?</p>
+                <p class="text-sm">Hapus data kontrak <strong><span id="contractName"></span></strong>? Data tidak dapat dikembalikan.</p>
             </div>
             <div class="modal-footer border-top-0">
                 <button type="button" class="btn btn-link text-secondary" data-bs-dismiss="modal">Batal</button>
                 <form id="deleteForm" method="POST" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn bg-gradient-danger">Hapus Permanen</button>
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn bg-gradient-danger">Ya, Hapus</button>
                 </form>
             </div>
         </div>
@@ -203,10 +232,8 @@
                 <i class="fas fa-check text-lg"></i>
             </div>
             <h5 class="font-weight-bold">Berhasil!</h5>
-            <p class="text-sm text-muted px-4">{{ session('success') }}</p>
-            <div class="px-4">
-                <button type="button" class="btn bg-gradient-success w-100" data-bs-dismiss="modal">OK</button>
-            </div>
+            <p class="text-sm text-muted px-4 mb-3">{{ session('success') }}</p>
+            <button type="button" class="btn bg-gradient-success mx-4" data-bs-dismiss="modal">Tutup</button>
         </div>
     </div>
 </div>
@@ -215,12 +242,12 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Success Modal Auto-show
+        // Auto-show success modal
         @if(session('success'))
             new bootstrap.Modal(document.getElementById('successModal')).show();
         @endif
 
-        // Delete Logic
+        // Delete confirmation logic
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -229,25 +256,6 @@
                 deleteModal.show();
             });
         });
-
-        // Client-side Filter (for current page)
-        const searchInput = document.getElementById('searchInput');
-        const statusFilter = document.getElementById('statusFilter');
-        const rows = document.querySelectorAll('#contractsTable tbody tr[data-nama]');
-
-        function filterTable() {
-            const search = searchInput.value.toLowerCase();
-            const status = statusFilter.value.toLowerCase();
-
-            rows.forEach(row => {
-                const matchSearch = row.dataset.nama.includes(search);
-                const matchStatus = !status || row.dataset.status === status;
-                row.style.display = (matchSearch && matchStatus) ? '' : 'none';
-            });
-        }
-
-        searchInput.addEventListener('input', filterTable);
-        statusFilter.addEventListener('change', filterTable);
     });
 </script>
 @endpush

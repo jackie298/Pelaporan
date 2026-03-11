@@ -39,32 +39,43 @@
                     <form action="{{ route('admin.rekap-anggaran.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
-                        {{-- SEKSI 1: IDENTITAS --}}
+                        {{-- SEKSI 1: IDENTITAS & PERIODE --}}
                         <div class="section-divider">
-                            <span><i class="fas fa-id-card me-2"></i>Informasi Identitas</span>
+                            <span><i class="fas fa-id-card me-2"></i>Informasi Identitas & Periode</span>
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-7 mb-3">
-                                <label class="form-label">Nama Kontrak</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nama Kontrak <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-file-signature text-xs"></i></span>
                                     <input type="text" name="nama" value="{{ old('nama') }}" 
                                            class="form-control @error('nama') is-invalid @enderror" 
-                                           placeholder="Masukkan nama kontrak pekerjaan...">
+                                           placeholder="Contoh: Pengadaan Jasa IT Support">
                                 </div>
                                 @error('nama') <div class="text-danger text-xxs mt-1 ps-1">{{ $message }}</div> @enderror
                             </div>
 
-                            <div class="col-md-5 mb-3">
-                                <label class="form-label">Nomor Realisasi</label>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Realisasi (%) <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-tag text-xs"></i></span>
-                                    <input type="text" name="realisasi" value="{{ old('realisasi') }}" 
-                                           class="form-control @error('realisasi') is-invalid @enderror" 
-                                           placeholder="Contoh: RL-2024-001">
+                                    <span class="input-group-text"><i class="fas fa-percentage text-xs"></i></span>
+                                    <input type="number" name="realisasi" value="{{ old('realisasi') }}" 
+                                        class="form-control @error('realisasi') is-invalid @enderror" 
+                                        placeholder="0 - 100" min="0" max="100">
                                 </div>
                                 @error('realisasi') <div class="text-danger text-xxs mt-1 ps-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Periode Kontrak</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar text-xs"></i></span>
+                                    <input type="date" name="periode" value="{{ old('periode') }}" 
+                                           class="form-control @error('periode') is-invalid @enderror">
+                                </div>
+                                <div class="text-muted text-xxs mt-1">Kosongkan jika ingin mengikuti tanggal sistem</div>
+                                @error('periode') <div class="text-danger text-xxs mt-1 ps-1">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
@@ -75,18 +86,18 @@
 
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Nilai Kontrak (Harga)</label>
+                                <label class="form-label">Nilai Kontrak (Harga) <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text font-weight-bold text-xs">Rp</span>
                                     <input type="number" name="harga" value="{{ old('harga') }}" 
                                            class="form-control @error('harga') is-invalid @enderror" 
-                                           placeholder="0">
+                                           placeholder="0" step="0.01">
                                 </div>
                                 @error('harga') <div class="text-danger text-xxs mt-1 ps-1">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Status Pekerjaan</label>
+                                <label class="form-label">Status Pekerjaan <span class="text-danger">*</span></label>
                                 <select name="status" class="form-select @error('status') is-invalid @enderror">
                                     <option value="" selected disabled>-- Pilih Status --</option>
                                     <option value="open" {{ old('status') == 'open' ? 'selected' : '' }}>Open</option>
@@ -100,9 +111,12 @@
 
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Keterangan Singkat</label>
-                                <input type="text" name="keterangan" value="{{ old('keterangan') }}" 
-                                       class="form-control @error('keterangan') is-invalid @enderror" 
-                                       placeholder="Catatan kecil (opsional)">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-sticky-note text-xs"></i></span>
+                                    <input type="text" name="keterangan" value="{{ old('keterangan') }}" 
+                                           class="form-control @error('keterangan') is-invalid @enderror" 
+                                           placeholder="Catatan kecil (opsional)">
+                                </div>
                                 @error('keterangan') <div class="text-danger text-xxs mt-1 ps-1">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -114,10 +128,10 @@
 
                         <div class="row">
                             <div class="col-md-12 mb-3">
-                                <label class="form-label">Keterangan Jasa Pekerjaan</label>
+                                <label class="form-label">Keterangan Jasa Pekerjaan <span class="text-danger">*</span></label>
                                 <textarea name="keterangan_jasa" rows="3" 
                                           class="form-control @error('keterangan_jasa') is-invalid @enderror" 
-                                          placeholder="Tuliskan detail jasa pekerjaan secara lengkap...">{{ old('keterangan_jasa') }}</textarea>
+                                          placeholder="Tuliskan detail jasa pekerjaan secara lengkap (Min. 10 karakter)...">{{ old('keterangan_jasa') }}</textarea>
                                 @error('keterangan_jasa') <div class="text-danger text-xxs mt-1 ps-1">{{ $message }}</div> @enderror
                             </div>
 
@@ -125,7 +139,7 @@
                                 <label class="form-label">Uraian di Matriks 21 RKAB</label>
                                 <textarea name="uraian_rkab" rows="2" 
                                           class="form-control @error('uraian_rkab') is-invalid @enderror" 
-                                          placeholder="Sesuai matriks RKAB...">{{ old('uraian_rkab') }}</textarea>
+                                          placeholder="Tuliskan uraian sesuai matriks RKAB...">{{ old('uraian_rkab') }}</textarea>
                                 @error('uraian_rkab') <div class="text-danger text-xxs mt-1 ps-1">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -140,7 +154,7 @@
                                 <div class="upload-zone">
                                     <i class="fas fa-file-pdf text-gradient text-primary fa-2x mb-2"></i>
                                     <label class="d-block text-sm font-weight-bold mb-1">Upload File Kontrak</label>
-                                    <p class="text-xs text-muted mb-3">Format PDF atau Dokumen Gambar (Maks. 5MB)</p>
+                                    <p class="text-xs text-muted mb-3">Format: PDF, DOC, JPG, PNG (Maks. 10MB)</p>
                                     <input type="file" name="file_kontrak" class="form-control form-control-sm @error('file_kontrak') is-invalid @enderror">
                                     @error('file_kontrak') <div class="text-danger text-xxs mt-2">{{ $message }}</div> @enderror
                                 </div>
