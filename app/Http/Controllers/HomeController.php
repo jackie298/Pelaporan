@@ -124,10 +124,15 @@ class HomeController extends Controller
         $finalReklamasiValues = $lastSixMonths->map(fn($m) => $reklamasiData->get($m, 0));
 
         // --- WASTE WATER ---
-        $wasteWaterRaw = WasteWaterManagement::orderBy('tanggal_sampling', 'asc')->get();
-        $wasteWaterGroups = WasteWaterManagement::orderBy('tanggal_sampling', 'asc')
-            ->get()
-            ->groupBy(['lokasi_sampling', 'sampler']);
+        $tujuhHariLalu = Carbon::now()->subDays(7);
+
+        // Filter data mentah hanya yang >= 7 hari lalu
+        $wasteWaterRaw = WasteWaterManagement::where('tanggal_sampling', '>=', $tujuhHariLalu)
+            ->orderBy('tanggal_sampling', 'asc')
+            ->get();
+
+        // Kelompokkan data yang SUDAH difilter untuk keperluan looping chart
+        $wasteWaterGroups = $wasteWaterRaw->groupBy(['lokasi_sampling', 'sampler']);
 
         $phLabels = $wasteWaterRaw->map(function($item) {
             return Carbon::parse($item->tanggal_sampling)->format('d/m');

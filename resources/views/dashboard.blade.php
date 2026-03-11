@@ -545,7 +545,25 @@
         font-size: 0.8rem;
     }
 
-    /* ===== BAKU MUTU BADGE ===== */
+    /* ===== BAKU MUTU ATAS PH BADGE ===== */
+    .baku-mutu-atas-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        background: rgba(64, 251, 54, 0.1);
+        border: 1px solid rgba(54, 245, 63, 0.3);
+        border-radius: 20px;
+        color: var(--danger);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .baku-mutu-atas-badge i {
+        font-size: 0.7rem;
+    }
+
+    /* ===== BAKU MUTU TSS BADGE ===== */
     .baku-mutu-badge {
         display: inline-flex;
         align-items: center;
@@ -562,6 +580,7 @@
     .baku-mutu-badge i {
         font-size: 0.7rem;
     }
+
 
     /* ===== ANIMATIONS ===== */
     @keyframes fadeInUp {
@@ -1252,7 +1271,15 @@
                 <div class="card z-index-2 h-100">
                     <div class="card-header">
                         <h6><i class="fas fa-tint"></i>pH Air</h6>
-                        <p class="mb-0 text-xs text-muted">Monitoring tingkat keasaman air limbah</p>
+                        {{-- <p class="mb-3 text-xs text-muted">Monitoring air limbah</p> --}}
+                            <span class="baku-mutu-atas-badge">
+                                <i class="fa fa-arrow-up"></i>
+                                Baku Atas: {{ $bmAtas }} mg/L
+                            </span>
+                            <span class="baku-mutu-badge">
+                                <i class="fa fa-arrow-down"></i>
+                                Baku Bawah: {{ $bmBawah }} mg/L
+                            </span>
                     </div>
                     <div class="card-body p-3">
                         <div class="bg-gradient-dark border-radius-lg py-3 pe-1 mb-3">
