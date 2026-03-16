@@ -63,7 +63,7 @@ class RevegetasiController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.revegetasi')
+            ->route('revegetasi')
             ->with('success', 'Data revegetasi berhasil disimpan.');
     }
 
