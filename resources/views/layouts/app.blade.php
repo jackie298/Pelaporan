@@ -24,7 +24,7 @@
   <link id="pagestyle" href="{{ asset('assets/css/soft-ui-dashboard.css?v=1.0.3') }}" rel="stylesheet" />
 </head>
 
-<body class="g-sidenav-show bg-gray-100 {{ Request::is('rtl') ? 'rtl' : (Request::is('virtual-reality') ? 'virtual-reality' : '') }}">
+<body class="g-sidenav-show bg-gray-100">
 
   @auth
     @yield('auth')
@@ -42,8 +42,7 @@
   <script src="{{ asset('assets/js/plugins/fullcalendar.min.js') }}"></script>
   <script src="{{ asset('assets/js/plugins/chartjs.min.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-
-  @stack('rtl')
+  
   @stack('dashboard')
   @stack('scripts') 
 

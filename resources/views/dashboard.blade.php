@@ -762,97 +762,94 @@
 
 {{-- SECTION 1: DOKUMEN KONTRAK & STATUS --}}
 <div class="row mt-4">
-    <div class="col-lg-7 mb-lg-0 mb-4">
+    <div class="col-lg-6 mb-lg-0 mb-4">
         <div class="card z-index-2 h-100">
-    <div class="card-header">
-        <h6><i class="fas fa-file-contract"></i>Rekap Anggaran (Terbaru)</h6>
-    </div>
-    <div class="card-body p-3">
-        <div class="table-responsive">
-            <table class="table align-items-center mb-0">
-                <thead>
-                    <tr>
-                        <th class="ps-3">No</th>
-                        <th>Nama</th>
-                        <th class="text-center">Kontrak File</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($rekap_anggaran as $index => $item)
-                        <tr>
-                            <td class="ps-3">
-                                {{-- ✅ Rumus pagination agar nomor urut tetap berkesinambungan --}}
-                                <span class="row-number">
-                                    {{ ($rekap_anggaran->currentPage() - 1) * $rekap_anggaran->perPage() + $index + 1 }}
-                                </span>
-                            </td>
-                            <td>
-                                <p class="text-wrap fw-medium mb-0">{{ $item->nama }}</p>
-                            </td>
-                            <td class="align-middle text-center">
-                                @if($item->file_kontrak)
-                                    <a href="{{ asset('storage/' . $item->file_kontrak) }}" 
-                                       target="_blank" 
-                                       class="btn btn-link text-info"
-                                       title="Lihat Dokumen">
-                                        <i class="fa fa-file-pdf"></i>
-                                    </a>
-                                @else
-                                    <span class="text-xs text-muted">—</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3">
-                                <div class="table-empty py-4">
-                                    <i class="fas fa-folder-open"></i>
-                                    <p class="mb-0">Data belum tersedia</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        {{-- ✅ Pagination Section untuk Rekap Anggaran --}}
-        @if ($rekap_anggaran->hasPages())
-        <div class="card-footer px-3 py-3 border-0 bg-transparent">
-            <div class="d-md-flex justify-content-between align-items-center">
-                {{-- Info Text --}}
-                <p class="text-xs text-secondary font-weight-bold mb-3 mb-md-0">
-                    Menampilkan 
-                    <span class="text-info fw-bold">{{ $rekap_anggaran->firstItem() ?? 0 }}</span> - 
-                    <span class="text-info fw-bold">{{ $rekap_anggaran->lastItem() ?? 0 }}</span> 
-                    dari <span class="text-info fw-bold">{{ $rekap_anggaran->total() }}</span> data
-                </p>
-                
-                {{-- Pagination Links --}}
-                <div class="pagination-container">
-                    {{ $rekap_anggaran->appends(request()->query())->links('pagination::bootstrap-4') }}
-                </div>
-            </div>
-        </div>
-        @endif
-    </div>
-</div>
-    </div>
-
-    <div class="col-lg-5">
-        <div class="card z-index-2 h-100">
-            <div class="card-header">
-                <h6><i class="fas fa-chart-pie"></i>Grafik Status Dokumen</h6>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6><i class="fas fa-file-contract"></i> Rekap Anggaran (Terbaru)</h6>
+                <span class="badge bg-light text-dark text-xs">
+                    Periode: {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
+                </span>
             </div>
             <div class="card-body p-3">
-                <div class="chart-container">
+                <div class="table-responsive">
+                    <table class="table align-items-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">No</th>
+                                <th>Nama</th>
+                                <th class="text-center">Kontrak File</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($rekap_anggaran as $index => $item)
+                                <tr>
+                                    <td class="ps-3 text-sm">
+                                        {{ ($rekap_anggaran->currentPage() - 1) * $rekap_anggaran->perPage() + $index + 1 }}
+                                    </td>
+                                    <td>
+                                        <p class="text-wrap fw-medium mb-0 text-sm">{{ $item->nama }}</p>
+                                    </td>
+                                    <td class="align-middle text-center">
+                                        @if($item->file_kontrak)
+                                            <a href="{{ asset('storage/' . $item->file_kontrak) }}" target="_blank" class="btn btn-link text-info p-0">
+                                                <i class="fa fa-file-pdf"></i>
+                                            </a>
+                                        @else
+                                            <span class="text-xs text-muted">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="text-center py-4">Data belum tersedia</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                        <tfoot class="bg-gray-100">
+                            <tr>
+                                <td colspan="2" class="ps-3 py-2">
+                                    <span class="text-xs font-weight-bold">Total Anggaran (Bulan Ini)</span>
+                                </td>
+                                <td class="text-center py-2">
+                                    <span class="text-info text-sm font-weight-bolder">
+                                        Rp{{ number_format($totalAnggaranBulanIni, 0, ',', '.') }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                @if ($rekap_anggaran->hasPages())
+                <div class="card-footer px-3 py-3 border-0 bg-transparent">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <p class="text-xxs text-secondary mb-0">
+                            Menampilkan {{ $rekap_anggaran->firstItem() }}-{{ $rekap_anggaran->lastItem() }} dari {{ $rekap_anggaran->total() }}
+                        </p>
+                        <div class="pagination-container text-xxs">
+                            {{ $rekap_anggaran->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </div>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card z-index-2 h-100">
+            <div class="card-header pb-0">
+                <h6><i class="fas fa-chart-pie"></i> Grafik Status Dokumen</h6>
+            </div>
+            <div class="card-body p-3">
+                <div class="chart-container" style="position: relative; height:200px;">
                     <canvas id="chart-status-dokumen"></canvas>
                 </div>
                 <div class="d-flex flex-wrap justify-content-center mt-3">
                     @foreach(['open' => 'bg-info', 'close' => 'bg-success', 'pending' => 'bg-warning', 'proses finance' => 'bg-primary', 'hold' => 'bg-danger'] as $key => $color)
-                        <span class="badge badge-dot">
+                        <span class="badge badge-dot me-3">
                             <i class="{{ $color }}"></i>
-                            <span class="text-dark text-capitalize">
+                            <span class="text-dark text-xxs text-capitalize">
                                 {{ $key }}: <strong>{{ $statuscount[$key] ?? 0 }}</strong>
                             </span>
                         </span>

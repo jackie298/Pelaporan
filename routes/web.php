@@ -183,30 +183,31 @@ Route::group(['middleware' => 'auth', 'prevent-back-history'], function () {
     // --- END ROUTE DOKUMEN ---
 
     // ROUTING DOKUMENTASI KEGIATAN
-        Route::get('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'index'])
-            ->name('dokumentasi-kegiatan');
+    Route::get('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'index'])
+        ->name('dokumentasi-kegiatan');
 
-        // Gallery
-        Route::get('dokumentasi-kegiatan/gallery', [DokumentasiKegiatanController::class, 'gallery'])
-            ->name('dokumentasi-kegiatan.gallery');
+    // Gallery
+    Route::get('dokumentasi-kegiatan/gallery', [DokumentasiKegiatanController::class, 'gallery'])
+        ->name('dokumentasi-kegiatan.gallery');
 
-        // CREATE
-        Route::get('dokumentasi-kegiatan/create', [DokumentasiKegiatanController::class, 'create'])
-            ->name('dokumentasi-kegiatan.create');
+    // CREATE
+    Route::get('dokumentasi-kegiatan/create', [DokumentasiKegiatanController::class, 'create'])
+        ->name('dokumentasi-kegiatan.create');
 
-        Route::post('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'store'])
-            ->name('dokumentasi-kegiatan.store');
+    Route::post('dokumentasi-kegiatan', [DokumentasiKegiatanController::class, 'store'])
+        ->name('dokumentasi-kegiatan.store');
 
-        // EDIT
-        Route::get('dokumentasi-kegiatan/{id}/edit', [DokumentasiKegiatanController::class, 'edit'])
-            ->name('dokumentasi-kegiatan.edit');
+    // EDIT
+    Route::get('dokumentasi-kegiatan/{id}/edit', [DokumentasiKegiatanController::class, 'edit'])
+        ->name('dokumentasi-kegiatan.edit');
 
-        Route::put('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'update'])
-            ->name('dokumentasi-kegiatan.update');
+    Route::put('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'update'])
+        ->name('dokumentasi-kegiatan.update');
 
-        // DELETE
-        Route::delete('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'destroy'])
-            ->name('dokumentasi-kegiatan.destroy');
+    // DELETE
+    Route::delete('dokumentasi-kegiatan/{id}', [DokumentasiKegiatanController::class, 'destroy'])
+        ->name('dokumentasi-kegiatan.destroy');
+    // END ROUTING DOKUMENTASI KEGIATAN
 
     // ROUTING WASTE WATER MANAGEMENT
     Route::get('waste-water-management', [WasteWaterManagementController::class, 'index'])

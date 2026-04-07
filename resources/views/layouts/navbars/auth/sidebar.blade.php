@@ -107,7 +107,7 @@
                         <li class="nav-item">
                             <a class="nav-link {{ Route::is('rencana-revegetasi') ? 'active' : '' }}" href="{{ route('rencana-revegetasi') }}">
                                 <span class="dot-indicator {{ Route::is('rencana-revegetasi') ? 'bg-primary' : 'bg-secondary' }}"></span>
-                                <span class="sidenav-normal text-xs ps-2"> Rencana Bulanan </span>
+                                <span class="sidenav-normal text-xs ps-2"> Rencana Penanaman </span>
                             </a>
                         </li>
                         <li class="nav-item">

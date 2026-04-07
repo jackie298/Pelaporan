@@ -26,22 +26,25 @@ class HomeController extends Controller
 
         $rekap_anggaran = RekapAnggaran::latest()->paginate(5);
 
-        // grafik/count tetap menghitung SEMUA data, bukan hanya yang tampil di halaman
+        // 1. Hitung total anggaran bulan ini saja (untuk card informasi)
+        $totalAnggaranBulanIni = RekapAnggaran::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->sum('harga');
+
+        // 2. Hitung statistik status untuk Grafik Lingkar (Pie Chart)
         $counts = RekapAnggaran::selectRaw('LOWER(status) as status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
 
-        // Merge dengan default values
+        // Merge dengan default values (Agar chart tidak error jika ada status yang kosong)
         $statuscount = array_merge([
             'open' => 0,
             'close' => 0,
             'pending' => 0,
             'proses finance' => 0,
             'hold' => 0,
-        ], $counts);
-
-        $totalNilaiKontrak = RekapAnggaran::sum('harga');
+        ], $counts); // <-- Pastikan di sini tetap menggunakan $counts, bukan $totalAnggaranBulanIni
 
         // --- END REKAP ANGGARAN ---
 
@@ -145,7 +148,7 @@ class HomeController extends Controller
             return Carbon::parse($item->tanggal_sampling)->format('d/m');
         });
         $tssValues = $wasteWaterRaw->pluck('tss');
-        $bmTss = 200;
+        $bmTss = 75;
 
         // --- REVEGETASI & NURSERY ---
         $dataRevegetasi = Revegetasi::select('lokasi_revegetasi')
@@ -229,9 +232,10 @@ class HomeController extends Controller
 
         // --- RETURN VIEW ---
         return view('dashboard', compact(
-            'rekap_anggaran', 
+            'rekap_anggaran',
+            'totalAnggaranBulanIni',
             'statuscount',
-            'compliances',        // ✅ Sekarang ini adalah objek Paginator
+            'compliances',       
             'complianceCounts',
             'severityStats',
             'ritaseLabels', 
