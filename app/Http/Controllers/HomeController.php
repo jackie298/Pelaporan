@@ -24,7 +24,10 @@ class HomeController extends Controller
     {
         // --- START REKAP ANGGARAN ---
 
-        $rekap_anggaran = RekapAnggaran::latest()->paginate(5);
+        $rekap_anggaran = RekapAnggaran::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->latest()
+            ->paginate(5);
 
         // 1. Hitung total anggaran bulan ini saja (untuk card informasi)
         $totalAnggaranBulanIni = RekapAnggaran::whereMonth('created_at', Carbon::now()->month)

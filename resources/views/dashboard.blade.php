@@ -762,11 +762,11 @@
 
 {{-- SECTION 1: DOKUMEN KONTRAK & STATUS --}}
 <div class="row mt-4">
-    <div class="col-lg-6 mb-lg-0 mb-4">
+    <div class="col-lg-7 mb-lg-0 mb-4">
         <div class="card z-index-2 h-100">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h6><i class="fas fa-file-contract"></i> Rekap Anggaran (Terbaru)</h6>
-                <span class="badge bg-light text-dark text-xs">
+                <h6><i class="fas fa-file-contract"></i> Rekap Anggaran</h6>
+                <span class="badge bg-gradient-info text-white text-xs">
                     Periode: {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
                 </span>
             </div>
@@ -775,9 +775,9 @@
                     <table class="table align-items-center mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-3">No</th>
-                                <th>Nama</th>
-                                <th class="text-center">Kontrak File</th>
+                                <th class="ps-3 text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">No</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nama Kegiatan/Dokumen</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">File</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -788,27 +788,32 @@
                                     </td>
                                     <td>
                                         <p class="text-wrap fw-medium mb-0 text-sm">{{ $item->nama }}</p>
+                                        <span class="text-xxs text-muted">Input: {{ $item->created_at->format('d/m/Y') }}</span>
                                     </td>
                                     <td class="align-middle text-center">
                                         @if($item->file_kontrak)
-                                            <a href="{{ asset('storage/' . $item->file_kontrak) }}" target="_blank" class="btn btn-link text-info p-0">
-                                                <i class="fa fa-file-pdf"></i>
+                                            <a href="{{ asset('storage/' . $item->file_kontrak) }}" target="_blank" class="btn btn-link text-info p-0 mb-0">
+                                                <i class="fa fa-file-pdf text-lg"></i>
                                             </a>
                                         @else
-                                            <span class="text-xs text-muted">—</span>
+                                            <span class="text-xs text-muted">Tidak ada file</span>
                                         @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center py-4">Data belum tersedia</td>
+                                    <td colspan="3" class="text-center py-5">
+                                        <p class="text-sm mb-0">Belum ada data anggaran untuk periode <strong>{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</strong></p>
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
+                        
+                        @if($rekap_anggaran->count() > 0)
                         <tfoot class="bg-gray-100">
                             <tr>
-                                <td colspan="2" class="ps-3 py-2">
-                                    <span class="text-xs font-weight-bold">Total Anggaran (Bulan Ini)</span>
+                                <td colspan="2" class="ps-3 py-2 text-end">
+                                    <span class="text-xs font-weight-bold">Total Anggaran {{ \Carbon\Carbon::now()->translatedFormat('F') }}:</span>
                                 </td>
                                 <td class="text-center py-2">
                                     <span class="text-info text-sm font-weight-bolder">
@@ -817,17 +822,19 @@
                                 </td>
                             </tr>
                         </tfoot>
+                        @endif
                     </table>
                 </div>
 
+                {{-- Pagination --}}
                 @if ($rekap_anggaran->hasPages())
                 <div class="card-footer px-3 py-3 border-0 bg-transparent">
                     <div class="d-flex justify-content-between align-items-center">
                         <p class="text-xxs text-secondary mb-0">
-                            Menampilkan {{ $rekap_anggaran->firstItem() }}-{{ $rekap_anggaran->lastItem() }} dari {{ $rekap_anggaran->total() }}
+                            Hal {{ $rekap_anggaran->currentPage() }} dari {{ $rekap_anggaran->lastPage() }}
                         </p>
                         <div class="pagination-container text-xxs">
-                            {{ $rekap_anggaran->appends(request()->query())->links('pagination::bootstrap-4') }}
+                            {{ $rekap_anggaran->links('pagination::bootstrap-4') }}
                         </div>
                     </div>
                 </div>
@@ -836,7 +843,7 @@
         </div>
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-lg-5">
         <div class="card z-index-2 h-100">
             <div class="card-header pb-0">
                 <h6><i class="fas fa-chart-pie"></i> Grafik Status Dokumen</h6>
