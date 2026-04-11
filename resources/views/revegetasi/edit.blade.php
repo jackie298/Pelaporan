@@ -71,7 +71,8 @@
 
                             {{-- JENIS VEGETASI --}}
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Jenis Vegetasi</label>
+                                {{-- Jenis Vegetasi == Jenis Kegiatan --}}
+                                <label class="form-label">Jenis Kegiatan</label>
                                 <select name="jenis_vegetasi"
                                         class="form-select @error('jenis_vegetasi') is-invalid @enderror">
                                     <option value="">-- Pilih Jenis --</option>

@@ -581,6 +581,126 @@
         font-size: 0.7rem;
     }
 
+    /* ===== MODAL VISUAL DOKUMEN ===== */
+    .nka-card {
+        background: #fff;
+        border: 2px solid #0d4435;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: auto;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        max-width: 100%;
+    }
+
+    .nka-grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 4px;
+        background-color: #eee;
+        padding: 4px;
+    }
+
+    .nka-grid-container.single-photo {
+        grid-template-columns: 1fr;
+    }
+
+    .nka-grid-item {
+        position: relative;
+        aspect-ratio: 4/3;
+        overflow: hidden;
+        background: #333;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .nka-grid-item:hover {
+        transform: scale(1.02);
+        z-index: 5;
+    }
+
+    .nka-grid-item img.main-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .nka-logo-watermark {
+        position: absolute;
+        bottom: 8px;
+        left: 8px;
+        width: 40px;
+        filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+        z-index: 10;
+        opacity: 0.9;
+    }
+
+    .nka-header-box {
+        background-color: #0d4435;
+        color: #ffffff;
+        padding: 15px 20px;
+        border-top: 4px solid #c05c2e;
+    }
+
+    .nka-footer-label {
+        color: #2ecc71;
+        font-weight: bold;
+        text-decoration: underline;
+        font-size: 0.85rem;
+    }
+
+    .nka-info-text {
+        font-size: 0.8rem;
+        margin-bottom: 3px;
+        line-height: 1.4;
+        color: rgba(255,255,255,0.9);
+    }
+
+    /* Lightbox overlay untuk zoom foto */
+    .nka-lightbox {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.9);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .nka-lightbox.active {
+        display: flex;
+    }
+
+    .nka-lightbox img {
+        max-width: 90vw;
+        max-height: 90vh;
+        border-radius: 8px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+
+    .nka-lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: #fff;
+        font-size: 2rem;
+        cursor: pointer;
+        background: rgba(255,255,255,0.1);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+
+    .nka-lightbox-close:hover {
+        background: rgba(255,255,255,0.2);
+        transform: rotate(90deg);
+    }
+
 
     /* ===== ANIMATIONS ===== */
     @keyframes fadeInUp {
@@ -947,9 +1067,15 @@
                                 {{ $item->Tingkat_keparahan }}
                             </span>
                         </td>
-                        <td class="align-middle text-center">
+                       <td class="align-middle text-center">
                             @if($item->file_dokumentasi && count((array)$item->file_dokumentasi) > 0)
                                 <button class="btn btn-link text-info p-0 detail-visual-btn" 
+                                        data-nama="{{ $item->Nama_pelapor }}"
+                                        data-departemen="{{ $item->Departemen }}"
+                                        data-lokasi="{{ $item->Lokasi }}"
+                                        data-jenis-insiden="{{ $item->Jenis_insiden ?? '-' }}"
+                                        data-jenis-inspeksi="{{ $item->Jenis_inspeksi ?? '-' }}"
+                                        data-tanggal="{{ $item->Tanggal_lapor ? \Carbon\Carbon::parse($item->Tanggal_lapor)->format('d/m/Y') : '-' }}"
                                         data-fotos='@json($item->file_dokumentasi)'
                                         title="Lihat Foto">
                                     <i class="fas fa-camera"></i>
@@ -1324,12 +1450,52 @@
     <hr class="horizontal dark my-5">
 @endforeach
 
+<!-- ======================================== -->
+<!-- MODAL VISUAL DOKUMEN COMPLIANCE          -->
+<!-- ======================================== -->
+<div class="modal fade" id="detailKegiatanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-body p-0">
+                <div class="nka-card" id="visual-content-area">
+                    <div id="photo-grid" class="nka-grid-container">
+                        <!-- Photos will be inserted here dynamically -->
+                    </div>
+                    
+                    <div class="nka-header-box">
+                        <h6 id="v-nama" class="text-white text-uppercase mb-2" style="font-weight: 800; letter-spacing: 1px;"></h6>
+                        <p class="nka-info-text"><span class="nka-footer-label">Departemen:</span> <span id="v-departemen" class="ms-1"></span></p>
+                        <p class="nka-info-text"><span class="nka-footer-label">Lokasi:</span> <span id="v-lokasi" class="ms-1"></span></p>
+                        <p class="nka-info-text"><span class="nka-footer-label">Jenis Insiden:</span> <span id="v-jenis-insiden" class="ms-1"></span></p>
+                        <p class="nka-info-text"><span class="nka-footer-label">Jenis Inspeksi:</span> <span id="v-jenis-inspeksi" class="ms-1"></span></p>
+                        <div class="d-flex justify-content-between mt-3 opacity-8" style="font-size: 0.7rem;">
+                            <span id="v-tanggal"></span>
+                            <span>PT NUSA KARYA ARINDO</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="button" class="btn btn-white btn-sm" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lightbox untuk Zoom Foto -->
+<div class="nka-lightbox" id="nkaLightbox">
+    <span class="nka-lightbox-close" id="nkaLightboxClose">&times;</span>
+    <img src="" id="nkaLightboxImg" alt="Zoomed">
+</div>
+
 @endsection
 
 @push('dashboard')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize all charts
+    // === Initialize all charts ===
     @include('chart.status-dokumen')
     @include('chart.compliace')
     @include('chart.bukaanlahan-reklamasi')
@@ -1340,14 +1506,14 @@ document.addEventListener('DOMContentLoaded', function () {
     @include('chart.work-hours')
     @include('chart.waste-water')
     
-    // Add hover effect to table rows
+    // === Table row hover effect ===
     document.querySelectorAll('.table tbody tr').forEach(row => {
         row.addEventListener('mouseenter', function() {
             this.style.zIndex = '1';
         });
     });
     
-    // Add tooltip to badges
+    // === Badge hover effect ===
     document.querySelectorAll('.badge-dot').forEach(badge => {
         badge.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-2px)';
@@ -1355,6 +1521,123 @@ document.addEventListener('DOMContentLoaded', function () {
         badge.addEventListener('mouseleave', function() {
             this.style.transform = 'translateY(0)';
         });
+    });
+
+    // === MODAL VISUAL HANDLER ===
+    document.body.addEventListener('click', function (e) {
+        const btn = e.target.closest('.detail-visual-btn');
+        if (!btn) return;
+        
+        e.preventDefault();
+        
+        // Parse data foto dari atribut data-fotos (JSON)
+        const fotos = JSON.parse(btn.getAttribute('data-fotos') || '[]');
+        
+        // Populate text fields di modal
+        document.getElementById('v-nama').textContent = "Pelapor: " + (btn.getAttribute('data-nama') || '-');
+        document.getElementById('v-departemen').textContent = btn.getAttribute('data-departemen') || '-';
+        document.getElementById('v-lokasi').textContent = btn.getAttribute('data-lokasi') || '-';
+        document.getElementById('v-jenis-insiden').textContent = btn.getAttribute('data-jenis-insiden') || '-';
+        document.getElementById('v-jenis-inspeksi').textContent = btn.getAttribute('data-jenis-inspeksi') || '-';
+        document.getElementById('v-tanggal').textContent = "📅 " + (btn.getAttribute('data-tanggal') || '-');
+
+        // Render grid foto
+        const grid = document.getElementById('photo-grid');
+        grid.innerHTML = '';
+        grid.classList.toggle('single-photo', fotos.length === 1);
+
+        if (fotos.length > 0) {
+            fotos.forEach((path, idx) => {
+                const ext = (path.split('.').pop() || '').toLowerCase();
+                let content = '';
+                const storagePath = `/storage/${path}`;
+                const fallbackImg = `{{ asset('assets/img/default-image.png') }}`;
+                
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
+                    // Image: clickable for lightbox
+                    content = `
+                        <img src="${storagePath}" 
+                             class="main-img nka-zoomable" 
+                             data-full="${storagePath}"
+                             onerror="this.src='${fallbackImg}'"
+                             alt="Dokumentasi ${idx + 1}">
+                    `;
+                } else if (ext === 'pdf') {
+                    content = `
+                        <a href="${storagePath}" target="_blank" class="text-decoration-none">
+                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 100%;">
+                                <i class="fas fa-file-pdf fa-4x text-danger"></i>
+                                <div class="mt-2 text-xs text-muted">Klik untuk buka PDF</div>
+                            </div>
+                        </a>
+                    `;
+                } else {
+                    content = `
+                        <a href="${storagePath}" target="_blank" class="text-decoration-none">
+                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 100%;">
+                                <i class="fas fa-file fa-4x text-muted"></i>
+                                <div class="mt-2 text-xs text-muted">${ext.toUpperCase()}</div>
+                            </div>
+                        </a>
+                    `;
+                }
+                
+                grid.innerHTML += `
+                    <div class="nka-grid-item">
+                        ${content}
+                        <img src="{{ asset('assets/img/logoperusahaan.png') }}" class="nka-logo-watermark" alt="Logo">
+                    </div>
+                `;
+            });
+        } else {
+            grid.innerHTML = '<div class="p-4 text-center w-100 text-muted">Tidak ada dokumen visual.</div>';
+        }
+
+        // Show modal using Bootstrap 5
+        const modalEl = document.getElementById('detailKegiatanModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    });
+
+    // === LIGHTBOX HANDLER ===
+    const lightbox = document.getElementById('nkaLightbox');
+    const lightboxImg = document.getElementById('nkaLightboxImg');
+    const lightboxClose = document.getElementById('nkaLightboxClose');
+
+    // Delegated event for dynamically added images
+    document.getElementById('photo-grid')?.addEventListener('click', function(e) {
+        const zoomable = e.target.closest('.nka-zoomable');
+        if (zoomable) {
+            e.preventDefault();
+            const fullSrc = zoomable.getAttribute('data-full') || zoomable.src;
+            lightboxImg.src = fullSrc;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+    });
+
+    // Close lightbox
+    function closeLightbox() {
+        lightbox.classList.remove('active');
+        lightboxImg.src = '';
+        document.body.style.overflow = '';
+    }
+
+    lightboxClose?.addEventListener('click', closeLightbox);
+    lightbox?.addEventListener('click', function(e) {
+        if (e.target === lightbox) closeLightbox();
+    });
+
+    // Close with ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+            closeLightbox();
+        }
+    });
+
+    // === CLEANUP: Reset modal content when closed ===
+    document.getElementById('detailKegiatanModal')?.addEventListener('hidden.bs.modal', function () {
+        document.getElementById('photo-grid').innerHTML = '';
     });
 });
 </script>
