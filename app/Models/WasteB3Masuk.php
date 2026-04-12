@@ -172,6 +172,95 @@ class WasteB3Masuk extends Model
     }
 
     /**
+     * Accessor: Hitung sisa waktu batas penyimpanan dalam format terstruktur.
+     * 
+     * @return array{
+     *     tahun: int,
+     *     bulan: int,
+     *     hari: int,
+     *     total_hari: int|null,
+     *     is_expired: bool,
+     *     label: string,
+     *     badge_color: string,
+     *     icon: string,
+     *     raw_date: string
+     * }
+     */
+    public function getSisaWaktuAttribute(): array
+    {
+        $batas = $this->maksimal_penyimpanan ? \Carbon\Carbon::parse($this->maksimal_penyimpanan) : null;
+        
+        if (!$batas) {
+            return [
+                'tahun' => 0,
+                'bulan' => 0,
+                'hari' => 0,
+                'total_hari' => null,
+                'is_expired' => false,
+                'label' => 'Tidak ada batas',
+                'badge_color' => 'secondary',
+                'icon' => 'fa-circle-question',
+                'raw_date' => '-'
+            ];
+        }
+
+        $now = \Carbon\Carbon::now();
+        $isExpired = $batas->lessThan($now);
+        $diff = $now->diff($batas);
+        $totalHari = $now->diffInDays($batas, false);
+        
+        // FIX: Gunakan format yang benar
+        if ($isExpired) {
+            $years = $diff->y;
+            $months = $diff->m;
+            $days = $diff->d;
+            $label = 'Terlambat ';
+            if ($years > 0) $label .= "{$years} thn ";
+            if ($months > 0) $label .= "{$months} bln ";
+            $label .= "{$days} hr";
+            
+            $badgeColor = 'danger';
+            $icon = 'fa-skull-crossbones';
+        } elseif ($totalHari == 0) {
+            $label = 'Hari ini!';
+            $badgeColor = 'warning';
+            $icon = 'fa-bell';
+        } elseif ($totalHari <= 3) {
+            $label = 'Sangat Mendesak';
+            $badgeColor = 'warning';
+            $icon = 'fa-exclamation-triangle';
+        } elseif ($totalHari <= 7) {
+            $label = 'Mendesak';
+            $badgeColor = 'info';
+            $icon = 'fa-hourglass-half';
+        } elseif ($totalHari <= 30) {
+            $label = "{$diff->d} hari lagi";
+            $badgeColor = 'success';
+            $icon = 'fa-clock';
+        } elseif ($totalHari <= 365) {
+            $label = "{$diff->m} bulan, {$diff->d} hari";
+            $badgeColor = 'success';
+            $icon = 'fa-calendar-days';
+        } else {
+            $label = "{$diff->y} thn, {$diff->m} bln, {$diff->d} hr";
+            $badgeColor = 'primary';
+            $icon = 'fa-calendar-check';
+        }
+
+        return [
+            'tahun' => $diff->y,
+            'bulan' => $diff->m,
+            'hari' => $diff->d,
+            'total_hari' => $totalHari,
+            'is_expired' => $isExpired,
+            'label' => $label,
+            'badge_color' => $badgeColor,
+            'icon' => $icon,
+            'raw_date' => $batas->format('d M Y')
+        ];
+    }
+
+    /**
      * Scope untuk filter berdasarkan jenis limbah.
      */
     public function scopeJenisLimbah($query, string $jenis)

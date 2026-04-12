@@ -13,6 +13,7 @@ use App\Models\Revegetasi;
 use App\Models\Nursery;
 use App\Models\RencanaRevegetasi;
 use App\Models\Compliance;
+use App\Models\WasteB3Masuk;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +51,32 @@ class HomeController extends Controller
         ], $counts); // <-- Pastikan di sini tetap menggunakan $counts, bukan $totalAnggaranBulanIni
 
         // --- END REKAP ANGGARAN ---
+
+        // Data untuk Logbook Limbah B3 di Dashboard
+        $wasteB3Preview = WasteB3Masuk::query()
+            ->with(['pengeluaran']) // pastikan nama relasi sesuai model Anda
+            ->orderByRaw("
+                CASE 
+                    WHEN status IN ('belum_dikeluarkan', 'sebagian_dikeluarkan') AND maksimal_penyimpanan >= NOW() THEN 0
+                    WHEN status IN ('belum_dikeluarkan', 'sebagian_dikeluarkan') AND maksimal_penyimpanan < NOW() THEN 1
+                    ELSE 2
+                END
+            ")
+            ->orderBy('maksimal_penyimpanan', 'asc')
+            ->paginate(5); // ✅ Ganti limit(5)->get() dengan paginate(5)
+
+        // Stats dengan breakdown urgency (TETAP PAKAI count/sum, tidak terpengaruh pagination)
+        $summaryStats = [
+            'total' => WasteB3Masuk::count(),
+            'belum_dikeluarkan' => WasteB3Masuk::whereIn('status', ['belum_dikeluarkan', 'sebagian_dikeluarkan'])->count(),
+            'kadaluarsa' => WasteB3Masuk::where('maksimal_penyimpanan', '<', now())->count(),
+            'total_ton' => WasteB3Masuk::sum('jumlah_ton'),
+            'urgensi_tinggi' => WasteB3Masuk::whereIn('status', ['belum_dikeluarkan', 'sebagian_dikeluarkan'])
+                ->whereBetween('maksimal_penyimpanan', [now(), now()->addDays(3)])->count(),
+            'urgensi_sedang' => WasteB3Masuk::whereIn('status', ['belum_dikeluarkan', 'sebagian_dikeluarkan'])
+                ->whereBetween('maksimal_penyimpanan', [now()->addDays(4), now()->addDays(14)])->count(),
+        ];
+        // END LIMBAH B3 KELUAR
 
         // --- START COMPLIANCE (DIPERBAIKI DENGAN PAGINATION) ---
         $compliances = Compliance::latest()->paginate(5);
@@ -238,6 +265,8 @@ class HomeController extends Controller
             'rekap_anggaran',
             'totalAnggaranBulanIni',
             'statuscount',
+            'wasteB3Preview',
+            'summaryStats',
             'compliances',       
             'complianceCounts',
             'severityStats',

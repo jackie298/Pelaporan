@@ -730,6 +730,88 @@
         50% { opacity: 0.7; }
     }
 
+    /* ===== URGENCY BORDER INDICATORS ===== */
+    tr.urgency-critical td:first-child {
+        border-left: 4px solid #f5365c !important;
+        animation: pulse-critical 2.5s infinite;
+    }
+    tr.urgency-high td:first-child {
+        border-left: 4px solid #fb6340 !important;
+    }
+    tr.urgency-medium td:first-child {
+        border-left: 4px solid #1171ef !important;
+    }
+
+    @keyframes pulse-critical {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(245, 54, 92, 0.15); }
+        50% { box-shadow: 0 0 0 8px rgba(245, 54, 92, 0); }
+    }
+
+    /* ===== TOOLTIP CUSTOM ===== */
+    .time-detail-tooltip {
+        position: relative;
+        cursor: help;
+    }
+    .time-detail-tooltip:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #344767;
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+        z-index: 100;
+        margin-bottom: 4px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .time-detail-tooltip:hover::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%) rotate(45deg);
+        width: 8px;
+        height: 8px;
+        background: #344767;
+        margin-bottom: -4px;
+        z-index: 99;
+    }
+
+    /* ===== PAGINATION STYLING ===== */
+    .pagination-container .pagination {
+        gap: 4px;
+        margin: 0;
+        flex-wrap: wrap;
+    }
+    .pagination-container .page-item .page-link {
+        border: none;
+        border-radius: 8px !important;
+        color: var(--text-secondary, #67748e);
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        margin: 0 2px;
+        transition: all 0.2s ease;
+        background: var(--light, #f8f9fa);
+    }
+    .pagination-container .page-item.active .page-link {
+        background: var(--info, #1171ef) !important;
+        color: #fff !important;
+        font-weight: 600;
+    }
+    .pagination-container .page-item:not(.active) .page-link:hover {
+        background: var(--info, #1171ef);
+        color: #fff !important;
+        transform: translateY(-1px);
+    }
+    .pagination-container .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
     .loading {
         animation: pulse 1.5s ease-in-out infinite;
     }
@@ -982,6 +1064,249 @@
                         </span>
                     @endforeach
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- LOGBOOK LIMBAH B3 SECTION --}}
+<div class="section-divider">
+    <i class="fas fa-drumstick-bite"></i>
+    <span>Logbook Limbah B3</span>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card z-index-2">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6><i class="fas fa-clipboard-list"></i> Monitoring Limbah Berbahaya</h6>
+                <a href="{{ route('waste-b3') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="fas fa-eye"></i> Lihat Semua
+                </a>
+            </div>
+            <div class="card-body p-3">
+                
+                {{-- Stats Cards dengan Urgency Breakdown --}}
+                <div class="row px-1 mb-3">
+                    @php
+                        $stats = [
+                            [
+                                'label' => 'Total Log', 
+                                'val' => $summaryStats['total'] ?? 0, 
+                                'icon' => 'fa-database', 
+                                'color' => '#344767',
+                                'sub' => 'semua data'
+                            ],
+                            [
+                                'label' => 'Aktif', 
+                                'val' => $summaryStats['belum_dikeluarkan'] ?? 0, 
+                                'icon' => 'fa-warehouse', 
+                                'color' => '#1171ef',
+                                'sub' => 'perlu tindakan'
+                            ],
+                            [
+                                'label' => '🔥 Mendesak', 
+                                'val' => $summaryStats['urgensi_tinggi'] ?? 0, 
+                                'icon' => 'fa-fire', 
+                                'color' => '#fb6340',
+                                'sub' => '≤ 3 hari',
+                                'highlight' => ($summaryStats['urgensi_tinggi'] ?? 0) > 0
+                            ],
+                            [
+                                'label' => '⚠️ Kadaluarsa', 
+                                'val' => $summaryStats['kadaluarsa'] ?? 0, 
+                                'icon' => 'fa-exclamation-triangle', 
+                                'color' => '#f5365c',
+                                'sub' => 'sudah lewat'
+                            ],
+                        ];
+                    @endphp
+                    @foreach($stats as $s)
+                    <div class="col-xl-3 col-sm-6 mb-2">
+                        <div class="card h-100 {{ $s['highlight'] ?? false ? 'border-warning border-2' : '' }}">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box shadow text-center" 
+                                         style="width:40px;height:40px;border-radius:10px;background:{{ $s['color'] }};display:flex;align-items:center;justify-content:center;color:#fff;">
+                                        <i class="fas {{ $s['icon'] }} opacity-10" style="font-size:1rem;"></i>
+                                    </div>
+                                    <div class="ms-3">
+                                        <p class="text-xxs mb-0 text-uppercase font-weight-bold text-muted">{{ $s['label'] }}</p>
+                                        <h6 class="font-weight-bolder mb-0 {{ $s['highlight'] ?? false ? 'text-warning' : '' }}">
+                                            {{ is_numeric($s['val']) ? number_format($s['val']) : $s['val'] }}
+                                        </h6>
+                                        @if(isset($s['sub']))
+                                            <span class="text-xxs text-muted">{{ $s['sub'] }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                {{-- Table Preview --}}
+                <div class="table-responsive">
+                    <table class="table align-items-center mb-0">
+                        <thead>
+                            <tr>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-3">Jenis Limbah</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Asal & Tanggal</th>
+                                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sisa / Total</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Batas Simpan</th>
+                                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                                <th class="text-center text-secondary text-xxs font-weight-bolder opacity-7">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($wasteB3Preview as $data)
+                            @php
+                                $sisa = $data->sisa_waktu;
+                                $urgencyClass = $sisa['is_expired'] ? 'urgency-critical' : 
+                                               ($sisa['total_hari'] !== null && $sisa['total_hari'] <= 3 ? 'urgency-high' : 
+                                               ($sisa['total_hari'] !== null && $sisa['total_hari'] <= 7 ? 'urgency-medium' : ''));
+                            @endphp
+                            <tr class="{{ $urgencyClass }}">
+                                <td class="ps-3">
+                                    <div class="d-flex flex-column">
+                                        <span class="text-sm font-weight-bold">{{ $data->jenis_limbah }}</span>
+                                        <span class="text-xxs text-info">{{ $data->kode_limbah }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column text-xs">
+                                        <span><i class="far fa-calendar-alt me-1 text-muted"></i> {{ $data->tanggal_masuk_formatted }}</span>
+                                        <span class="text-muted mt-1"><i class="fas fa-map-marker-alt me-1"></i> {{ Str::limit($data->sumber_limbah, 25) }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="text-xxs font-weight-bold">{{ $data->sisa_limbah_formatted }} / {{ $data->jumlah_ton_formatted }}</span>
+                                        @php 
+                                            $p = ($data->jumlah_ton > 0) ? min(100, ($data->sisa_limbah / $data->jumlah_ton) * 100) : 0;
+                                            $barColor = $p > 50 ? '#2dce89' : ($p > 15 ? '#fb6340' : '#f5365c');
+                                        @endphp
+                                        <div class="progress" style="height:4px;border-radius:10px;background:#f0f2f5;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width:{{ $p }}%;background:{{ $barColor }};border-radius:10px;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                                {{-- Kolom Batas Simpan dengan Detail Waktu --}}
+                                <td class="text-center" style="min-width: 140px;">
+                                    <div class="d-flex flex-column align-items-center">
+                                        {{-- Tanggal batas --}}
+                                        <span class="text-xxs text-muted mb-1">
+                                            <i class="far fa-calendar me-1"></i>{{ $sisa['raw_date'] }}
+                                        </span>
+                                        
+                                        {{-- Badge sisa waktu --}}
+                                        <span class="badge badge-sm bg-gradient-{{ $sisa['badge_color'] }} text-xxs px-2 py-1 mb-1" 
+                                            style="border-radius: 12px; min-width: 110px;">
+                                            <i class="fas {{ $sisa['icon'] }} me-1"></i>
+                                            {{ $sisa['label'] }}
+                                        </span>
+
+                                        {{-- Tampilkan detail breakdown di bawahnya --}}
+                                        @if(!$sisa['is_expired'])
+                                            <span class="text-xxs text-secondary">
+                                                @if($sisa['tahun'] > 0)
+                                                    <strong>{{ $sisa['tahun'] }} tahun</strong>
+                                                @endif
+                                                @if($sisa['bulan'] > 0)
+                                                    {{ $sisa['tahun'] > 0 ? '• ' : '' }}<strong>{{ $sisa['bulan'] }} bulan</strong>
+                                                @endif
+                                                @if($sisa['hari'] > 0)
+                                                    {{ ($sisa['tahun'] > 0 || $sisa['bulan'] > 0) ? '• ' : '' }}<strong>{{ $sisa['hari'] }} hari</strong>
+                                                @endif
+                                            </span>
+                                        @endif
+                                        
+                                        {{-- Progress bar mini --}}
+                                        @if($sisa['total_hari'] !== null && $sisa['total_hari'] >= 0)
+                                            @php
+                                                $maxDays = 365;
+                                                $progress = min(100, max(0, ($sisa['total_hari'] / $maxDays) * 100));
+                                                $progressColor = $sisa['total_hari'] <= 3 ? '#f5365c' : 
+                                                                ($sisa['total_hari'] <= 7 ? '#fb6340' : 
+                                                                ($sisa['total_hari'] <= 30 ? '#1171ef' : '#2dce89'));
+                                            @endphp
+                                            <div class="progress mt-1" style="height: 3px; width: 100px; background: #f0f2f5; border-radius: 10px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ $progress }}%; background: {{ $progressColor }}; border-radius: 10px;"></div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
+                                
+                                <td class="text-center">
+                                    @php
+                                        // Status colors sesuai STATUS_OPTIONS di model
+                                        $statusColors = [
+                                            'belum_dikeluarkan' => 'info',
+                                            'sebagian_dikeluarkan' => 'warning',
+                                            'sudah_dikeluarkan' => 'success',
+                                            'kadaluarsa' => 'danger',
+                                        ];
+                                        $badgeColor = $statusColors[$data->status] ?? 'secondary';
+                                    @endphp
+                                    <span class="badge badge-sm bg-gradient-{{ $badgeColor }} text-xxs px-3 py-2" style="border-radius:20px;">
+                                        {{ $data->status_label }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-1">
+                                        @if($data->can_be_dikeluarkan && !$sisa['is_expired'])
+                                        <a href="{{ route('waste-b3-keluar.create1', ['masuk_id' => $data->id]) }}" 
+                                           class="btn btn-link text-success p-0 mb-0" title="Proses Keluar">
+                                            <i class="fas fa-sign-out-alt text-xs"></i>
+                                        </a>
+                                        @endif
+                                        <a href="{{ route('waste-b3.edit', $data->id) }}" 
+                                           class="btn btn-link text-info p-0 mb-0" title="Edit">
+                                            <i class="fas fa-pen text-xs"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center py-4">
+                                    <div class="table-empty">
+                                        <i class="fas fa-drumstick-bite text-secondary mb-2" style="font-size:1.8rem;"></i>
+                                        <p class="text-xs text-secondary mb-0">Belum ada data limbah B3.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                
+                {{-- Pagination Links --}}
+                @if($wasteB3Preview->hasPages())
+                <div class="card-footer py-3 border-0 bg-transparent">
+                    <div class="d-md-flex justify-content-between align-items-center">
+                        <p class="text-xs text-secondary font-weight-bold mb-3 mb-md-0">
+                            Menampilkan {{ $wasteB3Preview->firstItem() ?? 0 }} sampai {{ $wasteB3Preview->lastItem() ?? 0 }} 
+                            dari {{ $wasteB3Preview->total() }} data
+                        </p>
+                        <div class="pagination-container">
+                            {{ $wasteB3Preview->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                {{-- Footer Link --}}
+                <div class="text-center mt-2">
+                    <a href="{{ route('waste-b3') }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-list me-1"></i> Buka Halaman Lengkap
+                    </a>
+                </div>
+                
             </div>
         </div>
     </div>
