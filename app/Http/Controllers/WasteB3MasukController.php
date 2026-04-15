@@ -123,14 +123,7 @@ class WasteB3MasukController extends Controller
             'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
 
-        // 2. Cek apakah KODE LIMBAH sudah ada di database (Case Insensitive karena sudah di-uppercase)
-        $isDuplicate = WasteB3Masuk::where('kode_limbah', $validated['kode_limbah'])->exists();
-
-        if ($isDuplicate) {
-            return back()
-                ->withErrors(['kode_limbah' => 'Kode limbah ' . $validated['kode_limbah'] . ' sudah terdaftar di sistem.'])
-                ->withInput();
-        }
+       
 
         $validated['created_by'] = Auth::id();
 

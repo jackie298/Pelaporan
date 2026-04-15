@@ -26,6 +26,7 @@ class WasteB3Masuk extends Model
         'tanggal_masuk',
         'sumber_limbah',
         'jumlah_ton',
+        'jumlah_tersisa_ton',
         'maksimal_penyimpanan',
         'status',
         'jumlah_tersisa_ton',
