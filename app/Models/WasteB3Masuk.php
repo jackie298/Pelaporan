@@ -26,11 +26,11 @@ class WasteB3Masuk extends Model
         'tanggal_masuk',
         'sumber_limbah',
         'jumlah_ton',
-        'jumlah_tersisa_ton',
         'maksimal_penyimpanan',
         'status',
-        'jumlah_tersisa_ton',
+        'jumlah_tersisa_ton', // ✅ Duplicate removed
         'nomor_manifest',
+        'berita_acara',
         'catatan',
         'created_by',
     ];
@@ -41,8 +41,8 @@ class WasteB3Masuk extends Model
     protected $casts = [
         'tanggal_masuk' => 'date:Y-m-d',
         'maksimal_penyimpanan' => 'date:Y-m-d',
-        'jumlah_ton' => 'decimal:2',
-        'jumlah_tersisa_ton' => 'decimal:2',
+        'jumlah_ton' => 'decimal:3',
+        'jumlah_tersisa_ton' => 'decimal:3',
         'status' => 'string',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -121,19 +121,23 @@ class WasteB3Masuk extends Model
     }
 
     /**
-     * Accessor: Format jumlah ton dengan satuan.
+     * Accessor: Format jumlah ton dengan satuan (3 desimal).
+     * ✅ UPDATED: Changed from 2 to 3 decimal places
      */
     public function getJumlahTonFormattedAttribute(): string
     {
-        return number_format($this->jumlah_ton, 2, ',', '.') . ' ton';
+        // Parameter ke-2 pada number_format diubah dari 2 menjadi 3
+        return number_format($this->jumlah_ton, 3, ',', '.') . ' ton';
     }
 
     /**
-     * Accessor: Format sisa limbah dengan satuan.
+     * Accessor: Format sisa limbah dengan satuan (3 desimal).
+     * ✅ UPDATED: Changed from 2 to 3 decimal places
      */
     public function getSisaLimbahFormattedAttribute(): string
     {
-        return number_format($this->sisa_limbah, 2, ',', '.') . ' ton';
+        // Parameter ke-2 pada number_format diubah dari 2 menjadi 3
+        return number_format($this->sisa_limbah, 3, ',', '.') . ' ton';
     }
 
     /**

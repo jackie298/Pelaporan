@@ -81,6 +81,28 @@
         border: none;
     }
     .action-link:hover { background: #e9ecef; color: #344767; }
+    
+    /* File indicator badge */
+    .file-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.5rem;
+        background: rgba(33, 82, 255, 0.1);
+        color: #2152ff;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+    .file-badge:hover {
+        background: rgba(33, 82, 255, 0.2);
+        text-decoration: none;
+        color: #2152ff;
+    }
+    .file-badge.no-file {
+        background: #f0f2f5;
+        color: #8392ab;
+    }
 </style>
 
 <div class="main-content-wrapper">
@@ -126,7 +148,7 @@
 
     <div class="filter-container mx-3">
         <form action="{{ route('waste-b3') }}" method="GET" class="row g-2 align-items-end">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <label class="form-label text-xs font-weight-bold">Jenis Limbah</label>
                 <div class="input-group shadow-none border-radius-sm">
                     <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
@@ -150,7 +172,7 @@
                     <input type="date" name="tanggal_sampai" class="form-control border-0 bg-light text-sm" value="{{ request('tanggal_sampai') }}">
                 </div>
             </div>
-            <div class="col-md-2 d-flex gap-1">
+            <div class="col-md-3 d-flex gap-1">
                 <button type="submit" class="btn btn-primary btn-round w-100 mb-0">Filter</button>
                 <a href="{{ route('waste-b3') }}" class="btn btn-light btn-round mb-0"><i class="fas fa-redo-alt"></i></a>
             </div>
@@ -166,6 +188,7 @@
                         <th class="text-uppercase font-weight-bolder">Asal & Tanggal</th>
                         <th class="text-uppercase font-weight-bolder">Kapasitas Sisa</th>
                         <th class="text-center text-uppercase font-weight-bolder">Batas Simpan</th>
+                        <th class="text-center text-uppercase font-weight-bolder">Berita Acara</th>
                         <th class="text-center text-uppercase font-weight-bolder">Status</th>
                         <th class="text-center text-uppercase font-weight-bolder">Aksi</th>
                     </tr>
@@ -177,6 +200,9 @@
                             <div class="d-flex flex-column">
                                 <span class="text-sm font-weight-bold text-dark">{{ $data->jenis_limbah }}</span>
                                 <span class="text-xxs text-primary font-weight-bold">{{ $data->kode_limbah }}</span>
+                                @if($data->nomor_manifest)
+                                    <span class="text-xxs text-muted mt-1"><i class="fas fa-file-alt me-1"></i>{{ Str::limit($data->nomor_manifest, 15) }}</span>
+                                @endif
                             </div>
                         </td>
                         <td>
@@ -187,9 +213,15 @@
                         </td>
                         <td style="min-width: 150px;">
                             <div class="d-flex flex-column">
-                                <span class="text-xxs font-weight-bold">{{ $data->sisa_limbah_formatted }} / {{ $data->jumlah_ton_formatted }}</span>
+                                {{-- ✅ PERUBAHAN DI SINI: Format 3 angka desimal --}}
+                                <span class="text-xxs font-weight-bold">
+                                    {{ number_format($data->sisa_limbah, 3, ',', '.') }} Ton / {{ $data->jumlah_ton_formatted }}
+                                </span>
                                 @php 
-                                    $p = ($data->jumlah_ton > 0) ? min(100, ($data->sisa_limbah / $data->jumlah_ton) * 100) : 0;
+                                    // Pastikan perhitungan progress bar menggunakan nilai float, bukan string formatted
+                                    $sisa = is_numeric($data->sisa_limbah) ? $data->sisa_limbah : floatval(str_replace(',', '.', $data->sisa_limbah_formatted));
+                                    $total = $data->jumlah_ton;
+                                    $p = ($total > 0) ? min(100, ($sisa / $total) * 100) : 0;
                                     $c = $p > 50 ? 'bg-gradient-success' : ($p > 15 ? 'bg-gradient-warning' : 'bg-gradient-danger');
                                 @endphp
                                 <div class="progress progress-slim">
@@ -201,6 +233,22 @@
                             <span class="{{ $data->is_kadaluarsa ? 'text-danger' : 'text-muted' }}">
                                 <i class="far fa-clock me-1"></i>{{ $data->maksimal_penyimpanan_formatted }}
                             </span>
+                        </td>
+                        <td class="text-center">
+                            @if($data->berita_acara)
+                                <a href="{{ Storage::url('waste-b3/berita-acara/' . $data->berita_acara) }}" 
+                                   target="_blank" 
+                                   class="file-badge" 
+                                   title="Download: {{ $data->berita_acara }}">
+                                    <i class="fas fa-file-{{ pathinfo($data->berita_acara, PATHINFO_EXTENSION) == 'pdf' ? 'pdf' : 'image' }}"></i>
+                                    <span class="d-none d-md-inline">{{ Str::limit(pathinfo($data->berita_acara, PATHINFO_FILENAME), 10) }}</span>
+                                </a>
+                            @else
+                                <span class="file-badge no-file">
+                                    <i class="fas fa-minus"></i>
+                                    <span class="d-none d-md-inline">-</span>
+                                </span>
+                            @endif
                         </td>
                         <td class="text-center">
                             <span class="badge badge-sm bg-gradient-{{ $data->status_badge_color }} text-xxs px-3 py-2" style="border-radius: 20px;">
@@ -217,6 +265,9 @@
                                 <a href="{{ route('waste-b3.edit', $data->id) }}" class="action-link text-info" title="Edit">
                                     <i class="fas fa-pen text-xs"></i>
                                 </a>
+                                {{-- <a href="{{ route('waste-b3.show', $data->id) }}" class="action-link text-secondary" title="Detail">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </a> --}}
                                 <button type="button" class="action-link text-danger delete-btn" data-id="{{ $data->id }}" data-nama="{{ $data->jenis_limbah }}">
                                     <i class="fas fa-trash text-xs"></i>
                                 </button>
@@ -224,7 +275,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="6" class="text-center py-5 text-muted">Belum ada data tersedia.</td></tr>
+                    <tr><td colspan="7" class="text-center py-5 text-muted">Belum ada data tersedia.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -245,6 +296,7 @@
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg">
@@ -258,6 +310,9 @@
                 <p class="text-sm mb-0">
                     Anda yakin ingin menghapus data limbah <strong class="text-danger" id="wasteName"></strong>? 
                     Tindakan ini tidak dapat dibatalkan.
+                </p>
+                <p class="text-xs text-muted mt-2 mb-0">
+                    <i class="fas fa-info-circle me-1"></i>File berita acara juga akan dihapus permanen.
                 </p>
             </div>
             <div class="modal-footer border-top-0 pt-0">
@@ -274,6 +329,7 @@
     </div>
 </div>
 
+<!-- Toast Notification -->
 @if(session('success') || session('error'))
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
     <div class="toast align-items-center text-white {{ session('success') ? 'bg-success' : 'bg-danger' }} border-0 show" role="alert">

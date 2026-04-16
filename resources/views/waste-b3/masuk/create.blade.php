@@ -230,7 +230,7 @@
         <!-- Form Section -->
         <div class="col-lg-8 mb-4">
             <div class="card form-card p-4">
-                <form action="{{ route('waste-b3.store') }}" method="POST" id="wasteForm">
+                <form action="{{ route('waste-b3.store') }}" method="POST" id="wasteForm" enctype="multipart/form-data">
                     @csrf
                     
                     <div class="row">
@@ -295,11 +295,11 @@
                         <div class="col-md-4 mb-4">
                             <label class="form-label-custom"><i class="fas fa-weight-hanging me-1"></i>Jumlah (Ton)</label>
                             <div class="input-group-custom" id="jumlah_group">
-                                <input type="number" step="0.01" min="0.01" name="jumlah_ton" id="jumlah_ton" class="form-control" 
-                                       placeholder="0.00" value="{{ old('jumlah_ton') }}" required>
+                                <input type="number" step="any" name="jumlah_ton" id="jumlah_ton" class="form-control" 
+                                       placeholder="0.000" value="{{ old('jumlah_ton') }}" required>
                             </div>
                             <div id="jumlah-error" class="invalid-feedback-custom ps-1">
-                                <i class="fas fa-exclamation-circle me-1"></i> Minimal 0.01 ton
+                                <i class="fas fa-exclamation-circle me-1"></i> Minimal 0.001 ton
                             </div>
                         </div>
 
@@ -309,9 +309,24 @@
                                 <input type="date" name="maksimal_penyimpanan" id="maksimal_penyimpanan" class="form-control" 
                                        min="{{ date('Y-m-d') }}" value="{{ old('maksimal_penyimpanan') }}" required>
                             </div>
-                            <div id="batas-error" class="invalid-feedback-custom ps-1">
-                                <i class="fas fa-exclamation-circle me-1"></i> Harus setelah tanggal masuk
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label-custom">
+                                <i class="fas fa-file-signature me-1"></i>Berita Acara
+                            </label>
+                            <div class="input-group-custom">
+                                <input type="file" name="berita_acara" id="berita_acara" class="form-control" 
+                                    accept=".pdf,.jpg,.jpeg,.png">
                             </div>
+                            <small class="text-xxs text-muted ps-1 mt-1 d-block">
+                                <i class="fas fa-info-circle me-1"></i>Opsional. Format: PDF, JPG, PNG (Maks. 10MB)
+                            </small>
+                            @error('berita_acara')
+                                <div class="invalid-feedback-custom" style="display:block;">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                </div>
+                            @enderror
                         </div>
 
                         {{-- SECTION: Catatan --}}
@@ -394,6 +409,14 @@
                         <span class="preview-label d-block">Status</span>
                         <span class="status-badge-preview mt-1"><i class="fas fa-circle"></i>Belum Dikeluarkan</span>
                     </div>
+
+                    {{-- Preview Berita Acara --}}
+                    <div class="preview-item" id="preview_berita_acara_wrapper" style="display: none;">
+                        <span class="preview-label d-block">Berita Acara</span>
+                        <span id="view_berita_acara" class="preview-value d-block text-truncate" style="max-width: 100%;">
+                            <i class="fas fa-paperclip me-1"></i><span id="view_berita_acara_name"></span>
+                        </span>
+                    </div>
                 </div>
                 
                 <!-- Validation Summary -->
@@ -428,7 +451,8 @@ document.addEventListener('DOMContentLoaded', function() {
         tglMasuk: document.getElementById('tanggal_masuk'),
         jumlah: document.getElementById('jumlah_ton'),
         batas: document.getElementById('maksimal_penyimpanan'),
-        catatan: document.querySelector('textarea[name="catatan"]')
+        catatan: document.querySelector('textarea[name="catatan"]'),
+        beritaAcara: document.getElementById('berita_acara')
     };
 
     const views = {
@@ -437,14 +461,15 @@ document.addEventListener('DOMContentLoaded', function() {
         sumber: document.getElementById('view_sumber'),
         tglMasuk: document.getElementById('view_tgl_masuk'),
         jumlah: document.getElementById('view_jumlah'),
-        batas: document.getElementById('view_batas')
+        batas: document.getElementById('view_batas'),
+        beritaAcaraWrapper: document.getElementById('preview_berita_acara_wrapper'),
+        beritaAcaraName: document.getElementById('view_berita_acara_name')
     };
 
     const submitBtn = document.getElementById('submitBtn');
     const jumlahGroup = document.getElementById('jumlah_group');
     const jumlahError = document.getElementById('jumlah-error');
     const batasGroup = document.getElementById('batas_group');
-    const batasError = document.getElementById('batas-error');
     const validationSummary = document.getElementById('validation_summary');
     const validationList = document.getElementById('validation_list');
     const successAlert = document.querySelector('.alert-soft-success');
@@ -459,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Helper: Format number
     const formatNumber = (num) => {
         if (!num) return '--';
-        return parseFloat(num).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Ton';
+        return parseFloat(num).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }) + ' Ton';
     };
 
     // Auto-set batas penyimpanan = tanggal masuk + 6 bulan
@@ -484,10 +509,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validasi: Jumlah
         if (inputs.jumlah?.value) {
             const val = parseFloat(inputs.jumlah.value);
-            if (val < 0.01) {
+            if (val < 0.001) {
                 jumlahGroup.classList.add('is-invalid-custom');
                 jumlahError.style.display = 'block';
-                errors.push('Jumlah minimal 0.01 ton');
+                errors.push('Jumlah minimal 0.001 ton');
             } else {
                 jumlahGroup.classList.remove('is-invalid-custom');
                 jumlahError.style.display = 'none';
@@ -500,11 +525,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const tglBatas = new Date(inputs.batas.value);
             if (tglBatas <= tglMasuk) {
                 batasGroup.classList.add('is-invalid-custom');
-                batasError.style.display = 'block';
                 errors.push('Batas penyimpanan harus setelah tanggal masuk');
             } else {
                 batasGroup.classList.remove('is-invalid-custom');
-                batasError.style.display = 'none';
+            }
+        }
+
+        // Validasi: Berita Acara (file)
+        if (inputs.beritaAcara?.files?.[0]) {
+            const file = inputs.beritaAcara.files[0];
+            const maxSizeMB = 10;
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            
+            if (!validTypes.includes(file.type)) {
+                errors.push('Format berita acara harus PDF, JPG, atau PNG');
+            }
+            if (file.size > maxSizeMB * 1024 * 1024) {
+                errors.push(`Ukuran file berita acara maksimal ${maxSizeMB}MB`);
             }
         }
 
@@ -534,6 +571,27 @@ document.addEventListener('DOMContentLoaded', function() {
     Object.values(inputs).forEach(input => {
         input?.addEventListener('input', updateUI);
         input?.addEventListener('change', updateUI);
+    });
+
+    // Preview filename untuk berita_acara
+    inputs.beritaAcara?.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2); // MB
+            
+            // Update preview
+            if (views.beritaAcaraWrapper && views.beritaAcaraName) {
+                views.beritaAcaraName.textContent = `${fileName} (${fileSize} MB)`;
+                views.beritaAcaraWrapper.style.display = 'block';
+            }
+        } else {
+            // Reset jika file dihapus
+            if (views.beritaAcaraWrapper) {
+                views.beritaAcaraWrapper.style.display = 'none';
+            }
+        }
+        updateUI(); // Trigger validation update
     });
 
     // Auto-update batas when tanggal_masuk changes

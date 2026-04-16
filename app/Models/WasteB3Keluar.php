@@ -19,6 +19,7 @@ class WasteB3Keluar extends Model
 
     /**
      * Kolom yang bisa diisi mass assignment.
+     * ✅ UPDATED: Added 'berita_acara' to fillable
      */
     protected $fillable = [
         'waste_b3_masuk_id',
@@ -26,16 +27,18 @@ class WasteB3Keluar extends Model
         'jumlah_keluar_ton',
         'tujuan_penyerahan',
         'nomor_dokumen_keluar',
+        'berita_acara',  
         'file_dokumen',
         'catatan',
     ];
 
     /**
      * Kolom yang harus di-cast ke tipe tertentu.
+     * ✅ UPDATED: Changed decimal:2 to decimal:3 for consistency
      */
     protected $casts = [
         'tanggal_keluar' => 'date:Y-m-d',
-        'jumlah_keluar_ton' => 'decimal:2',
+        'jumlah_keluar_ton' => 'decimal:3',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -58,11 +61,12 @@ class WasteB3Keluar extends Model
     }
 
     /**
-     * Accessor: Format jumlah keluar dengan satuan.
+     * Accessor: Format jumlah keluar dengan satuan (3 desimal).
      */
     public function getJumlahKeluarTonFormattedAttribute(): string
     {
-        return number_format($this->jumlah_keluar_ton, 2, ',', '.') . ' ton';
+        // Parameter ke-2 pada number_format diubah dari 2 menjadi 3
+        return number_format($this->jumlah_keluar_ton, 3, ',', '.') . ' ton';
     }
 
     /**
@@ -72,6 +76,82 @@ class WasteB3Keluar extends Model
     {
         return ucwords(strtolower($this->tujuan_penyerahan));
     }
+
+    // ========================================
+    // ✅ NEW: Accessors for Berita Acara File
+    // ========================================
+
+    /**
+     * Accessor: URL lengkap untuk file berita acara.
+     */
+    public function getBeritaAcaraUrlAttribute(): ?string
+    {
+        if (empty($this->berita_acara)) {
+            return null;
+        }
+
+        // Jika sudah URL lengkap, return langsung
+        if (filter_var($this->berita_acara, FILTER_VALIDATE_URL)) {
+            return $this->berita_acara;
+        }
+
+        // Jika path relatif, tambahkan storage path
+        // Asumsi file disimpan di: storage/app/public/waste-b3/berita-acara-keluar/
+        return Storage::url('waste-b3/berita-acara-keluar/' . $this->berita_acara);
+    }
+
+    /**
+     * Accessor: Cek apakah file berita acara ada di storage.
+     */
+    public function getBeritaAcaraExistsAttribute(): bool
+    {
+        if (empty($this->berita_acara)) {
+            return false;
+        }
+
+        // Cek di storage
+        $path = 'public/waste-b3/berita-acara-keluar/' . $this->berita_acara;
+        return Storage::exists($path);
+    }
+
+    /**
+     * Accessor: Badge HTML untuk status file berita acara.
+     */
+    public function getBeritaAcaraStatusBadgeAttribute(): string
+    {
+        if (empty($this->berita_acara)) {
+            return '<span class="badge badge-sm bg-gradient-secondary">Belum Upload</span>';
+        }
+
+        if ($this->berita_acara_exists) {
+            $ext = pathinfo($this->berita_acara, PATHINFO_EXTENSION);
+            $icon = $ext === 'pdf' ? 'fa-file-pdf' : 'fa-file-image';
+            return "<span class=\"badge badge-sm bg-gradient-success\"><i class=\"fas {$icon}\"></i> Tersedia</span>";
+        }
+
+        return '<span class="badge badge-sm bg-gradient-danger"><i class="fas fa-times"></i> File Hilang</span>';
+    }
+
+    /**
+     * Accessor: Icon class untuk file berita acara (untuk tombol/link).
+     */
+    public function getBeritaAcaraIconAttribute(): string
+    {
+        if (empty($this->berita_acara)) {
+            return 'fa-file';
+        }
+        
+        $ext = pathinfo($this->berita_acara, PATHINFO_EXTENSION);
+        return match($ext) {
+            'pdf' => 'fa-file-pdf',
+            'jpg', 'jpeg', 'png' => 'fa-file-image',
+            default => 'fa-file',
+        };
+    }
+
+    // ========================================
+    // Existing Accessors for file_dokumen
+    // ========================================
 
     /**
      * Accessor: URL lengkap untuk file dokumen.

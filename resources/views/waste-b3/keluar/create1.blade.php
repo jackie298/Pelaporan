@@ -2,395 +2,368 @@
 
 @section('content')
 <style>
-    /* ===== MODERN SOFT UI - CREATE FORM ===== */
-    :root {
-        --primary-gradient: linear-gradient(310deg, #7928ca 0%, #ff0080 100%);
-        --surface-blur: rgba(255, 255, 255, 0.95);
-    }
+    .main-content-wrapper { padding: 1.5rem; animation: fadeIn 0.5s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .main-content-wrapper { 
-        padding: 1.5rem; 
-        animation: fadeIn 0.5s ease; 
-    }
-    @keyframes fadeIn { 
-        from { opacity: 0; transform: translateY(10px); } 
-        to { opacity: 1; transform: translateY(0); } 
-    }
-
-    /* Header dengan Gradient */
     .custom-header {
-        background: var(--primary-gradient);
+        background: linear-gradient(310deg, #7928ca 0%, #ff0080 100%);
         border-radius: 1.25rem;
         padding: 2.5rem 2rem 5rem 2rem;
         margin-bottom: -4rem;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 8px 26px -4px rgba(121, 40, 202, 0.3);
-    }
-    .custom-header::before,
-    .custom-header::after {
-        content: '';
-        position: absolute;
-        background: rgba(255,255,255,0.1);
-        border-radius: 50%;
-        animation: float 8s ease-in-out infinite;
-    }
-    .custom-header::before { top: -30%; right: -5%; width: 250px; height: 250px; }
-    .custom-header::after { bottom: -20%; left: -10%; width: 180px; height: 180px; animation-delay: -4s; }
-    @keyframes float {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(-15px, 10px) scale(1.08); }
     }
 
-    /* Card Form dengan Glassmorphism */
     .form-card {
-        background: var(--surface-blur);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-radius: 1.25rem;
         border: none;
         box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .form-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 25px 35px 0 rgba(0,0,0,0.08);
     }
 
-    /* Label & Input Custom */
     .form-label-custom {
-        font-size: 0.7rem;
+        font-size: 0.75rem;
         font-weight: 700;
-        color: #67748e;
-        margin-bottom: 0.4rem;
+        color: #344767;
+        margin-bottom: 0.5rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         display: block;
     }
 
     .input-group-custom {
         border-radius: 0.75rem;
-        transition: all 0.2s ease;
+        transition: all 0.2s;
         border: 1px solid #d2d6da;
         background: #fff;
         overflow: hidden;
     }
+
     .input-group-custom:focus-within {
-        border-color: #7928ca;
-        box-shadow: 0 0 0 3px rgba(121, 40, 202, 0.15);
+        border-color: #cb0c9f;
+        box-shadow: 0 0 0 2px rgba(203, 12, 159, 0.2);
     }
+
     .input-group-custom .form-control, 
-    .input-group-custom .form-select,
-    .input-group-custom textarea {
+    .input-group-custom .form-select {
         border: none;
         box-shadow: none;
-        padding: 0.75rem 1rem;
+        padding: 0.75rem;
         font-size: 0.875rem;
         background: transparent;
     }
-    .input-group-custom textarea { resize: vertical; min-height: 80px; }
+    
+    /* Readonly Input Styling */
+    .input-group-custom.readonly {
+        background: #f8f9fa;
+        border-color: #e9ecef;
+    }
+    .input-group-custom.readonly .form-control {
+        color: #67748e;
+        cursor: not-allowed;
+        background: transparent;
+    }
 
-    /* Info Box untuk Limbah Terpilih (Mode Auto-Select) */
-    .info-box {
+    .preview-card {
+        background: #f8f9fa;
+        border-radius: 1rem;
+        border: 1px solid #ebeef1;
+        position: sticky;
+        top: 20px;
+    }
+
+    /* Stock Info Box */
+    .stock-info-box {
         background: linear-gradient(145deg, #f8f9fa, #ffffff);
         border: 1px solid rgba(121, 40, 202, 0.2);
         border-radius: 1rem;
         padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
     }
-    .info-box .badge {
-        font-weight: 600;
-        padding: 0.4em 0.8em;
-        border-radius: 50px;
+    .stock-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px dashed #e9ecef;
     }
+    .stock-item:last-child { border-bottom: none; }
+    .stock-label { font-size: 0.75rem; color: #67748e; font-weight: 600; }
+    .stock-value { font-weight: 700; color: #344767; }
+    .stock-value.warning { color: #f53939; }
 
     /* File Upload Styling */
     .file-upload-wrapper {
         border: 2px dashed #dee2e6;
         background: #fafafa;
-        border-radius: 1rem;
-        transition: all 0.3s ease;
+        transition: all 0.3s;
         cursor: pointer;
-        padding: 1.5rem;
+        border-radius: 0.75rem;
     }
-    .file-upload-wrapper:hover,
-    .file-upload-wrapper.dragover {
-        border-color: #7928ca;
-        background: linear-gradient(145deg, #fdf2fb, #fff);
+    .file-upload-wrapper:hover {
+        border-color: #cb0c9f;
+        background: #fdf2fb;
     }
-    .file-upload-wrapper i {
-        transition: transform 0.2s ease;
+
+    /* File Preview Box */
+    .file-preview-box {
+        background: #f8f9fa;
+        border: 1px dashed #d2d6da;
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
     }
-    .file-upload-wrapper:hover i {
-        transform: scale(1.1);
+    .file-preview-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: #fff;
+        border-radius: 0.5rem;
+    }
+    .file-preview-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(121, 40, 202, 0.1);
+        border-radius: 0.35rem;
+        color: #7928ca;
+    }
+    .file-preview-info { flex: 1; min-width: 0; }
+    .file-preview-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #344767;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+    }
+    .file-preview-meta {
+        font-size: 0.65rem;
+        color: #67748e;
     }
 
     /* Validasi State */
-    .is-invalid-custom { 
-        border-color: #fd5c70 !important; 
-        background-color: rgba(253, 92, 112, 0.05);
-    }
-    .invalid-feedback-custom { 
-        color: #fd5c70; 
-        font-size: 0.75rem; 
-        margin-top: 4px; 
-        display: none; 
-        font-weight: 600;
-    }
+    .is-invalid-custom { border-color: #fd5c70 !important; background-color: rgba(253, 92, 112, 0.05); }
+    .invalid-feedback-custom { color: #fd5c70; font-size: 0.75rem; margin-top: 4px; display: none; font-weight: 600; }
     .is-invalid-custom + .invalid-feedback-custom { display: block; }
     
-    /* Preview Sidebar */
-    .preview-card {
-        background: var(--surface-blur);
-        backdrop-filter: blur(10px);
-        border-radius: 1.25rem;
-        border: none;
-        box-shadow: 0 20px 27px 0 rgba(0,0,0,0.05);
-        position: sticky;
-        top: 20px;
-    }
-    .preview-item {
-        padding: 0.75rem 0;
-        border-bottom: 1px dashed #e9ecef;
-    }
-    .preview-item:last-child { border-bottom: none; }
-    
-    /* Buttons */
-    .btn-round { border-radius: 0.75rem; padding: 0.6rem 1.5rem; font-weight: 600; }
-    .btn-gradient-primary {
-        background: var(--primary-gradient);
-        border: none;
-        color: #fff;
-    }
-    .btn-gradient-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(121, 40, 202, 0.4);
-    }
-
-    /* Responsive */
-    @media (max-width: 991px) {
-        .preview-card { position: static; margin-top: 1rem; }
-        .custom-header { padding: 1.5rem; }
-    }
-
-    /* Utility */
-    .text-gradient-primary {
-        background: var(--primary-gradient);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    .border-soft { border-color: rgba(0,0,0,0.08) !important; }
-    .ls-1 { letter-spacing: 1px; }
+    .btn-round { border-radius: 0.75rem; }
 </style>
 
 <div class="main-content-wrapper">
-    <!-- Page Header -->
     <div class="custom-header">
         <div class="d-flex align-items-center">
-            <a href="{{ route('waste-b3-keluar') }}" class="btn btn-link text-white p-0 me-3 shadow-none" title="Kembali">
-                <i class="fas fa-chevron-left fa-lg"></i>
+            <a href="{{ route('waste-b3-keluar') }}" class="btn btn-link text-white p-0 me-3">
+                <i class="fas fa-chevron-left"></i>
             </a>
             <div>
-                <h4 class="text-white font-weight-bolder mb-0">
-                    <i class="fas fa-truck-loading me-2"></i>Input Pengeluaran Limbah B3
-                </h4>
-                <p class="text-white text-xs opacity-8 mb-0">
-                    Catat mutasi limbah keluar dari TPS ke pihak ketiga pengolah.
-                </p>
+                <h4 class="text-white font-weight-bolder mb-0">Input Pengeluaran Limbah B3</h4>
+                <p class="text-white text-xs opacity-8 mb-0">Catat mutasi limbah keluar dari TPS ke pihak ketiga</p>
             </div>
         </div>
     </div>
 
     <div class="row px-3 mt-n4">
-        <!-- Form Section -->
         <div class="col-lg-8 mb-4">
             <div class="card form-card p-4">
                 <form action="{{ route('waste-b3-keluar.store') }}" method="POST" enctype="multipart/form-data" id="wasteForm">
                     @csrf
                     
+                    {{-- Tampilkan Error Validasi Global --}}
+                    @if ($errors->any())
+                        <div class="alert-soft alert-soft-warning mb-4" style="background: rgba(245, 57, 57, 0.1); border-radius: 1rem; padding: 1rem;">
+                            <i class="fas fa-exclamation-circle me-2" style="color: #f53939;"></i>
+                            <strong class="d-block mb-1" style="color: #344767;">Terjadi kesalahan validasi:</strong>
+                            <ul class="text-xxs mb-0 ps-3" style="color: #67748e;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     <div class="row">
-                        {{-- SECTION: Pilih Limbah --}}
-                        <div class="col-12 mb-4">
-                            <label class="form-label-custom">
-                                <i class="fas fa-database me-1"></i>Pilih Limbah dari TPS
-                            </label>
+                        {{-- ✅ INFO LIMBAH TERPILIH (READONLY) --}}
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label-custom">Limbah yang Dikeluarkan</label>
                             
-                            @if(isset($limbahMasuk) && $limbahMasuk)
-                                <!-- Mode: Auto-select dari halaman index -->
-                                <div class="info-box">
-                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                        <div>
-                                            <h6 class="mb-0 text-dark font-weight-bold">{{ $limbahMasuk->jenis_limbah }}</h6>
-                                            <span class="text-xxs text-primary font-weight-bold">{{ $limbahMasuk->kode_limbah }}</span>
-                                            <div class="mt-2 text-xxs text-secondary">
-                                                <i class="far fa-calendar-alt me-1"></i>{{ $limbahMasuk->tanggal_masuk_formatted }}
-                                                <span class="mx-2">•</span>
-                                                <i class="fas fa-map-pin me-1"></i>{{ $limbahMasuk->sumber_limbah }}
-                                            </div>
-                                        </div>
-                                        <div class="text-end">
-                                            <span class="text-xxs text-secondary d-block mb-1">Stok Tersedia</span>
-                                            <span class="badge bg-gradient-success" id="maxValue">
-                                                {{ number_format($limbahMasuk->jumlah_tersisa_ton, 2) }}
-                                            </span> <small class="text-xxs">Ton</small>
-                                        </div>
+                            @if($limbahMasuk)
+                                {{-- Tampilkan Info Box --}}
+                                <div class="stock-info-box">
+                                    <div class="stock-item">
+                                        <span class="stock-label">Jenis Limbah</span>
+                                        <span class="stock-value">{{ $limbahMasuk->jenis_limbah }}</span>
                                     </div>
-                                    <input type="hidden" name="waste_b3_masuk_id" value="{{ $limbahMasuk->id }}">
+                                    <div class="stock-item">
+                                        <span class="stock-label">Kode</span>
+                                        <span class="stock-value text-primary">{{ $limbahMasuk->kode_limbah }}</span>
+                                    </div>
+                                    <div class="stock-item border-top pt-2 mt-2">
+                                        <span class="stock-label">Sisa Stok Tersedia</span>
+                                        <span class="stock-value warning" id="stock_value">
+                                            {{ number_format($limbahMasuk->jumlah_tersisa_ton, 3, ',', '.') }} Ton
+                                        </span>
+                                    </div>
                                 </div>
+                                
+                                {{-- Hidden Input untuk Submit --}}
+                                <input type="hidden" name="waste_b3_masuk_id" id="waste_id" value="{{ $limbahMasuk->id }}" 
+                                       data-sisa="{{ $limbahMasuk->jumlah_tersisa_ton }}"
+                                       data-kode="{{ $limbahMasuk->kode_limbah }}"
+                                       data-nama="{{ $limbahMasuk->jenis_limbah }}">
                             @else
-                                <!-- Mode: Dropdown manual -->
-                                <div class="input-group-custom">
-                                    <select name="waste_b3_masuk_id" id="waste_id" class="form-select @error('waste_b3_masuk_id') is-invalid @enderror" required>
-                                        <option value="" data-sisa="0" data-kode="" data-nama="">-- Pilih Jenis Limbah --</option>
-                                        @foreach($limbahMasukOptions as $opt)
-                                            @if($opt->jumlah_tersisa_ton > 0)
-                                                <option value="{{ $opt->id }}" 
-                                                        data-sisa="{{ $opt->jumlah_tersisa_ton }}" 
-                                                        data-kode="{{ $opt->kode_limbah }}"
-                                                        data-nama="{{ $opt->jenis_limbah }}"
-                                                        {{ old('waste_b3_masuk_id') == $opt->id ? 'selected' : '' }}>
-                                                    [{{ $opt->kode_limbah }}] {{ $opt->jenis_limbah }} • Sisa: {{ number_format($opt->jumlah_tersisa_ton, 2) }} Ton
-                                                </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
+                                {{-- Fallback jika tidak ada data (seharusnya tidak terjadi) --}}
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Data limbah tidak ditemukan. <a href="{{ route('waste-b3') }}">Kembali ke daftar</a>.
                                 </div>
-                                @error('waste_b3_masuk_id') 
-                                    <small class="text-danger text-xs ms-1 mt-1 d-block">
-                                        <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
-                                    </small> 
-                                @enderror
                             @endif
                         </div>
 
-                        {{-- SECTION: Detail Transaksi --}}
+                        {{-- Tanggal Keluar --}}
                         <div class="col-md-6 mb-4">
-                            <label class="form-label-custom"><i class="far fa-calendar me-1"></i>Tanggal Keluar</label>
+                            <label class="form-label-custom">Tanggal Keluar</label>
                             <div class="input-group-custom">
-                                <input type="date" name="tanggal_keluar" id="tgl_keluar" class="form-control" value="{{ old('tanggal_keluar', date('Y-m-d')) }}" required>
+                                <input type="date" name="tanggal_keluar" id="tgl_keluar" class="form-control" 
+                                       value="{{ old('tanggal_keluar', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
 
+                        {{-- Jumlah Keluar --}}
                         <div class="col-md-6 mb-4">
-                            <label class="form-label-custom"><i class="fas fa-weight-hanging me-1"></i>Jumlah Keluar (Ton)</label>
+                            <label class="form-label-custom">Jumlah Keluar (Ton)</label>
                             <div class="input-group-custom" id="berat_group">
-                                <input type="number" step="0.01" min="0.01" name="jumlah_keluar_ton" id="berat_keluar" class="form-control" placeholder="0.00" value="{{ old('jumlah_keluar_ton') }}" required>
+                                <input type="number" step="0.001" min="0.001" name="jumlah_keluar_ton" id="berat_keluar" 
+                                       class="form-control" placeholder="0.000" value="{{ old('jumlah_keluar_ton') }}" required>
                             </div>
                             <div id="berat-error" class="invalid-feedback-custom ps-1">
                                 <i class="fas fa-exclamation-circle me-1"></i> Jumlah melebihi stok tersedia!
                             </div>
-                        </div>
-
-                        <div class="col-md-6 mb-4">
-                            <label class="form-label-custom"><i class="fas fa-building me-1"></i>Perusahaan Tujuan</label>
-                            <div class="input-group-custom">
-                                <input type="text" name="tujuan_penyerahan" id="tujuan" class="form-control" placeholder="PT. Pengolah Limbah Aman" value="{{ old('tujuan_penyerahan') }}" required>
+                            <div id="berat-min-error" class="invalid-feedback-custom ps-1">
+                                <i class="fas fa-exclamation-circle me-1"></i> Minimal 0.001 ton
                             </div>
                         </div>
 
+                        {{-- Perusahaan Tujuan --}}
                         <div class="col-md-6 mb-4">
-                            <label class="form-label-custom"><i class="fas fa-file-contract me-1"></i>Nomor Manifest</label>
+                            <label class="form-label-custom">Nama Perusahaan Tujuan</label>
                             <div class="input-group-custom">
-                                <input type="text" name="nomor_dokumen_keluar" id="no_dok" class="form-control" placeholder="MNF-2024-XXX" value="{{ old('nomor_dokumen_keluar') }}" required>
+                                <input type="text" name="tujuan_penyerahan" id="tujuan" class="form-control" 
+                                       placeholder="PT. Pengolah Limbah Aman" value="{{ old('tujuan_penyerahan') }}" maxlength="200" required>
                             </div>
                         </div>
 
-                        {{-- SECTION: Upload Dokumen --}}
-                        <div class="col-12 mb-4">
-                            <label class="form-label-custom"><i class="fas fa-cloud-upload-alt me-1"></i>Unggah File Manifest</label>
-                            <div class="file-upload-wrapper text-center" id="drop_zone">
-                                <input type="file" name="file_dokumen" id="file_dokumen" class="d-none" accept=".pdf,.jpg,.jpeg,.png">
-                                <i class="fas fa-file-pdf text-primary mb-2 fa-2x"></i>
-                                <p class="text-sm mb-1 text-dark font-weight-bold" id="file_name_display">Klik atau drag file ke sini</p>
-                                <span class="text-xxs text-muted d-block mb-2">PDF/JPG/PNG • Maksimal 5MB</span>
-                                <label for="file_dokumen" class="btn btn-sm btn-gradient-primary mb-0 cursor-pointer">
-                                    <i class="fas fa-folder-open me-1"></i>Pilih File
-                                </label>
-                                <div id="file_error" class="text-danger text-xxs mt-2" style="display:none;">
-                                    <i class="fas fa-exclamation-circle me-1"></i><span id="file_error_msg"></span>
+                        {{-- Nomor Dokumen --}}
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label-custom">Nomor Dokumen / Manifest</label>
+                            <div class="input-group-custom">
+                                <input type="text" name="nomor_dokumen_keluar" id="no_dok" class="form-control" 
+                                       placeholder="Contoh: MNF-2024-001" value="{{ old('nomor_dokumen_keluar') }}" maxlength="100" required>
+                            </div>
+                        </div>
+
+                        {{-- SECTION: Dokumen --}}
+                        <div class="col-12 mb-2">
+                            <div style="display: flex; align-items: center; margin: 1rem 0; color: #67748e; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <span style="padding: 0 1rem; color: #7928ca;"><i class="fas fa-file-signature me-1"></i>Dokumen</span>
+                            </div>
+                        </div>
+
+                        {{-- Unggah Berita Acara --}}
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label-custom">Berita Acara</label>
+                            <div class="file-upload-wrapper border-radius-lg p-4 text-center">
+                                <i class="fas fa-file-signature text-success mb-2 fa-2x"></i>
+                                <input type="file" name="berita_acara" id="berita_acara" class="form-control d-none" accept=".pdf,.jpg,.jpeg,.png">
+                                <p class="text-sm mb-1 text-dark font-weight-bold" id="ba_name_display">Klik untuk memilih file</p>
+                                <label for="berita_acara" class="btn btn-xs bg-gradient-success mb-0">Pilih File</label>
+                                <div class="mt-2 text-xxs text-muted">Format: PDF/JPG/PNG (Maks 10MB)</div>
+                            </div>
+                            @error('berita_acara')
+                                <div class="invalid-feedback-custom d-block mt-1">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                </div>
+                            @enderror
+                        </div>
+
+                        {{-- Preview File yang Dipilih --}}
+                        <div class="col-md-12 mb-4" id="file_preview_section" style="display: none;">
+                            <div class="file-preview-box">
+                                <div class="file-preview-item" id="preview_berita_acara" style="display: none;">
+                                    <div class="file-preview-icon"><i class="fas fa-file-signature"></i></div>
+                                    <div class="file-preview-info">
+                                        <div class="file-preview-name" id="preview_ba_name">-</div>
+                                        <div class="file-preview-meta"><i class="fas fa-upload text-warning me-1"></i>Akan diupload</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- SECTION: Catatan --}}
-                        <div class="col-12 mb-4">
-                            <label class="form-label-custom"><i class="fas fa-sticky-note me-1"></i>Catatan Tambahan</label>
+                        {{-- Catatan --}}
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label-custom">Catatan Tambahan</label>
                             <div class="input-group-custom">
-                                <textarea name="catatan" class="form-control" rows="3" placeholder="Informasi tambahan mengenai pengiriman...">{{ old('catatan') }}</textarea>
+                                <textarea name="catatan" class="form-control" rows="3" placeholder="Informasi tambahan pengiriman..." maxlength="500">{{ old('catatan') }}</textarea>
                             </div>
+                            <small class="text-xxs text-muted ps-1 mt-1 d-block">Opsional. Maksimal 500 karakter.</small>
                         </div>
                     </div>
 
-                    <!-- Form Actions -->
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <button type="button" class="btn btn-link text-secondary mb-0 ps-0" onclick="window.history.back()">
-                            <i class="fas fa-arrow-left me-1"></i>Batal
-                        </button>
-                        <button type="submit" id="submitBtn" class="btn btn-gradient-primary btn-round mb-0">
-                            <i class="fas fa-save me-2"></i>Simpan Data
-                        </button>
+                    <div class="d-flex justify-content-end align-items-center pt-3 border-top">
+                        <button type="button" class="btn btn-link text-secondary mb-0 me-3" onclick="window.history.back()">Batal</button>
+                        <button type="submit" id="submitBtn" class="btn bg-gradient-dark btn-round px-5 mb-0">Simpan Data</button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Live Preview Sidebar -->
+        {{-- Preview Sidebar --}}
         <div class="col-lg-4">
-            <div class="card preview-card p-4">
-                <h6 class="font-weight-bolder mb-3 text-gradient-primary">
-                    <i class="fas fa-eye me-2"></i>Live Preview
-                </h6>
-                
-                <div class="p-3 bg-white border-radius-lg shadow-sm border-soft">
-                    <p class="text-xxs font-weight-bolder text-muted mb-3 text-uppercase ls-1">Ringkasan Pengeluaran</p>
+            <div class="card form-card p-4 preview-card shadow-none">
+                <h6 class="font-weight-bolder mb-3"><i class="fas fa-eye me-2 text-primary"></i> Live Preview</h6>
+                <div class="p-3 bg-white border-radius-lg shadow-sm border border-soft">
+                    <p class="text-xxs font-weight-bolder text-muted mb-1 text-uppercase ls-1">Ringkasan Pengeluaran</p>
                     
-                    <div class="preview-item">
-                        <span class="text-xxs text-secondary d-block">Jenis Limbah</span>
-                        <span id="view_jenis" class="text-sm font-weight-bold text-dark">-- Pilih limbah --</span>
-                        <span id="view_kode" class="text-xxs text-primary d-block"></span>
+                    {{-- Info Limbah --}}
+                    <h5 id="view_jenis" class="mb-1 text-dark">--</h5>
+                    <p id="view_kode" class="text-xs text-primary font-weight-bold mb-2">--</p>
+                    
+                    <p id="view_tujuan" class="text-xs text-secondary mb-3 font-weight-bold">Tujuan belum diisi</p>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-xs text-secondary font-weight-bold">Tanggal:</span>
+                        <span id="view_tgl" class="text-xs font-weight-bolder text-dark">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 border-top pt-2">
+                        <span class="text-xs text-secondary font-weight-bold">Berat Keluar:</span>
+                        <span id="view_berat" class="text-xs font-weight-bolder text-danger">-</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-xs text-secondary font-weight-bold">Manifest ID:</span>
+                        <span id="view_dok" class="text-xs font-weight-bolder text-dark">-</span>
                     </div>
                     
-                    <div class="preview-item">
-                        <span class="text-xxs text-secondary d-block">Tujuan Penyerahan</span>
-                        <span id="view_tujuan" class="text-sm font-weight-bold text-dark">-</span>
-                    </div>
-                    
-                    <div class="preview-item d-flex justify-content-between">
-                        <span class="text-xxs text-secondary">Tanggal Keluar</span>
-                        <span id="view_tgl" class="text-sm font-weight-bold text-dark">-</span>
-                    </div>
-                    
-                    <div class="preview-item d-flex justify-content-between">
-                        <span class="text-xxs text-secondary">Volume Keluar</span>
-                        <span id="view_berat" class="text-sm font-weight-bold text-danger">-</span>
-                    </div>
-                    
-                    <div class="preview-item d-flex justify-content-between">
-                        <span class="text-xxs text-secondary">No. Manifest</span>
-                        <span id="view_dok" class="text-sm font-weight-bold text-dark">-</span>
-                    </div>
-                    
-                    <div class="preview-item">
-                        <span class="text-xxs text-secondary d-block">File Dokumen</span>
-                        <span id="view_file" class="text-xxs text-success font-weight-bold">
-                            <i class="fas fa-times-circle me-1"></i>Belum dipilih
-                        </span>
+                    {{-- Preview File --}}
+                    <div id="preview_files_wrapper" style="display: none; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed #e9ecef;">
+                        <span class="text-xxs text-muted font-weight-bold d-block mb-1">Dokumen:</span>
+                        <div id="preview_files_list" class="text-xxs"></div>
                     </div>
                 </div>
                 
-                <!-- Info Box -->
-                <div class="alert alert-info border-radius-lg mt-4 p-3 shadow-none border-0 d-flex align-items-start" style="background: rgba(33, 82, 255, 0.1);">
-                    <i class="fas fa-shield-alt mt-1 me-2 text-info"></i>
-                    <p class="text-xs text-dark mb-0">
-                        <strong class="d-block text-info">Auto Inventory Update</strong>
-                        Sistem akan otomatis mengurangi stok limbah di TPS setelah data ini disimpan dan divalidasi.
-                    </p>
+                <div class="alert alert-info border-radius-lg mt-4 p-3 shadow-none border-0" style="background: rgba(17, 205, 239, 0.1);">
+                    <div class="d-flex align-items-start">
+                        <i class="fas fa-shield-alt mt-1 me-2 text-info"></i>
+                        <p class="text-xs text-info mb-0 font-weight-bold">Sistem akan otomatis mengurangi sisa saldo limbah di TPS setelah data disimpan.</p>
+                    </div>
                 </div>
-
-                <!-- Stok Warning -->
-                <div id="stok_warning" class="alert alert-warning border-radius-lg mt-3 p-3 shadow-none border-0 d-none" style="background: rgba(245, 57, 57, 0.1);">
-                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
-                    <span class="text-xs text-dark font-weight-bold">Stok Menipis!</span>
-                    <p class="text-xxs text-dark mb-0 mt-1">Sisa stok setelah transaksi ini: <strong id="sisa_setelah" class="text-danger"></strong></p>
+                
+                {{-- Validation Summary --}}
+                <div id="validation_summary" class="alert-soft alert-soft-warning mt-4 p-3 d-none" style="background: rgba(245, 57, 57, 0.1); border-radius: 1rem;">
+                    <i class="fas fa-exclamation-triangle me-2" style="color: #f53939;"></i>
+                    <span class="text-xs font-weight-bold" style="color: #344767;">Periksa Kembali:</span>
+                    <ul class="text-xxs mb-0 mt-1 ps-3" id="validation_list" style="color: #67748e;"></ul>
                 </div>
             </div>
         </div>
@@ -401,19 +374,17 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Elements
-    const wasteSelect = document.getElementById('waste_id');
+    const wasteIdInput = document.getElementById('waste_id'); // Hidden input
     const beratInput = document.getElementById('berat_keluar');
     const submitBtn = document.getElementById('submitBtn');
     const beratError = document.getElementById('berat-error');
+    const beratMinError = document.getElementById('berat-min-error');
     const beratGroup = document.getElementById('berat_group');
-    const fileInput = document.getElementById('file_dokumen');
-    const fileDisplay = document.getElementById('file_name_display');
-    const fileError = document.getElementById('file_error');
-    const fileErrorMsg = document.getElementById('file_error_msg');
-    const dropZone = document.getElementById('drop_zone');
-    const stokWarning = document.getElementById('stok_warning');
-    const sisaSetelah = document.getElementById('sisa_setelah');
-
+    
+    // File inputs
+    const fileBAInput = document.getElementById('berita_acara');
+    const filePreviewSection = document.getElementById('file_preview_section');
+    
     // Preview elements
     const views = {
         jenis: document.getElementById('view_jenis'),
@@ -422,7 +393,8 @@ document.addEventListener('DOMContentLoaded', function() {
         tgl: document.getElementById('view_tgl'),
         berat: document.getElementById('view_berat'),
         dok: document.getElementById('view_dok'),
-        file: document.getElementById('view_file')
+        filesWrapper: document.getElementById('preview_files_wrapper'),
+        filesList: document.getElementById('preview_files_list')
     };
 
     const inputs = {
@@ -431,166 +403,168 @@ document.addEventListener('DOMContentLoaded', function() {
         no_dok: document.getElementById('no_dok')
     };
 
-    // Helper: Format tanggal Indonesia
+    // Helper: Format number with 3 decimals (Indonesian locale)
+    const formatNumber = (num) => {
+        if (!num && num !== 0) return '--';
+        return parseFloat(num).toLocaleString('id-ID', { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    };
+
+    // Helper: Format date to Indonesian format
     const formatDate = (dateStr) => {
         if (!dateStr) return '-';
         const [y, m, d] = dateStr.split('-');
         return `${d}/${m}/${y}`;
     };
 
-    // Helper: Format number dengan koma
-    const formatNumber = (num) => {
-        return parseFloat(num).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    // File name display logic for Berita Acara
+    const handleFileSelect = (input, displayName, previewId, previewNameId) => {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+            
+            // Update display name
+            displayName.textContent = `${fileName} (${fileSize} MB)`;
+            
+            // Update preview box
+            document.getElementById(previewId).style.display = 'flex';
+            document.getElementById(previewNameId).textContent = `${fileName} (${fileSize} MB)`;
+            filePreviewSection.style.display = 'block';
+            
+            // Update sidebar preview
+            updateFilesPreview();
+        }
     };
 
-    // File Upload: Display filename
-    fileInput?.addEventListener('change', function() {
-        if (this.files && this.files.length > 0) {
-            const file = this.files[0];
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            
-            // Validasi ukuran file
-            if (file.size > maxSize) {
-                fileError.style.display = 'block';
-                fileErrorMsg.textContent = `Ukuran file "${file.name}" melebihi 5MB!`;
-                fileInput.value = '';
-                fileDisplay.textContent = 'Klik atau drag file ke sini';
-                views.file.innerHTML = '<i class="fas fa-times-circle me-1"></i>Belum dipilih';
-                return;
-            }
-            
-            // Validasi tipe file
-            const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
-            if (!validTypes.includes(file.type)) {
-                fileError.style.display = 'block';
-                fileErrorMsg.textContent = 'Format file tidak didukung! Gunakan PDF/JPG/PNG.';
-                fileInput.value = '';
-                fileDisplay.textContent = 'Klik atau drag file ke sini';
-                views.file.innerHTML = '<i class="fas fa-times-circle me-1"></i>Belum dipilih';
-                return;
-            }
-            
-            // Success
-            fileError.style.display = 'none';
-            fileDisplay.textContent = file.name;
-            views.file.innerHTML = `<i class="fas fa-check-circle me-1"></i>${file.name.substring(0, 20)}${file.name.length > 20 ? '...' : ''}`;
-        }
+    fileBAInput.addEventListener('change', function() {
+        handleFileSelect(this, document.getElementById('ba_name_display'), 'preview_berita_acara', 'preview_ba_name');
     });
 
-    // Drag & Drop for file upload
-    if (dropZone && fileInput) {
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            });
-        });
+    // Update files preview in sidebar
+    const updateFilesPreview = () => {
+        const files = [];
         
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
-        });
+        if (fileBAInput.files[0]) {
+            const f = fileBAInput.files[0];
+            files.push(`<div><i class="fas fa-file-signature me-1 text-success"></i>Berita Acara: ${f.name}</div>`);
+        }
         
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
-        });
-        
-        dropZone.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files.length) {
-                fileInput.files = files;
-                fileInput.dispatchEvent(new Event('change'));
-            }
-        });
-        
-        dropZone.addEventListener('click', () => fileInput.click());
-    }
+        if (files.length > 0) {
+            views.filesWrapper.style.display = 'block';
+            views.filesList.innerHTML = files.join('');
+        } else {
+            views.filesWrapper.style.display = 'none';
+            views.filesList.innerHTML = '';
+        }
+    };
 
-    // Real-time Validation & Preview Update
+    // Real-time Validation & Preview
     const updateUI = () => {
-        let selected = { dataset: { sisa: 0, kode: '', nama: '' } };
+        const errors = [];
         
-        // Cek mode: auto-select atau dropdown
-        const maxValueSpan = document.getElementById('maxValue');
-        if (maxValueSpan) {
-            // Mode auto-select: ambil dari info box
-            selected.dataset.sisa = maxValueSpan.textContent.trim();
-            selected.dataset.nama = document.querySelector('.info-box h6')?.textContent || '';
-            selected.dataset.kode = document.querySelector('.info-box .text-primary')?.textContent || '';
-        } else if (wasteSelect) {
-            // Mode dropdown
-            selected = wasteSelect.options[wasteSelect.selectedIndex] || { dataset: { sisa: 0, kode: '', nama: '' } };
-        }
-
-        const sisaStok = parseFloat(selected.dataset.sisa) || 0;
+        // Get stock from hidden input data attribute
+        const sisaStok = wasteIdInput ? (parseFloat(wasteIdInput.dataset.sisa) || 0) : 0;
         const inputBerat = parseFloat(beratInput.value) || 0;
-        const sisaBaru = sisaStok - inputBerat;
 
-        // ===== UPDATE PREVIEW =====
-        views.jenis.textContent = selected.dataset.nama || '-- Pilih limbah --';
-        views.kode.textContent = selected.dataset.kode ? `[${selected.dataset.kode}]` : '';
-        views.tujuan.textContent = inputs.tujuan?.value || '-';
-        views.tgl.textContent = formatDate(inputs.tgl?.value);
-        views.berat.textContent = inputBerat > 0 ? `${formatNumber(inputBerat)} Ton` : '-';
-        views.dok.textContent = inputs.no_dok?.value || '-';
-
-        // Update warning stok
-        if (inputBerat > 0 && sisaStok > 0) {
-            if (sisaBaru > 0) {
-                stokWarning.classList.remove('d-none');
-                sisaSetelah.textContent = `${formatNumber(sisaBaru)} Ton`;
-                sisaSetelah.className = 'text-warning';
-            } else if (sisaBaru === 0) {
-                stokWarning.classList.remove('d-none');
-                sisaSetelah.textContent = 'HABIS (0 Ton)';
-                sisaSetelah.className = 'text-danger';
-            }
+        // Update Preview Text (using hidden input data)
+        if (wasteIdInput && wasteIdInput.dataset.nama) {
+            views.jenis.textContent = wasteIdInput.dataset.nama;
+            views.kode.textContent = `[${wasteIdInput.dataset.kode}]`;
         } else {
-            stokWarning.classList.add('d-none');
+            views.jenis.textContent = '--';
+            views.kode.textContent = '--';
+        }
+        
+        views.tujuan.textContent = inputs.tujuan.value || 'Tujuan belum diisi';
+        views.tgl.textContent = formatDate(inputs.tgl.value);
+        views.berat.textContent = inputBerat > 0 ? `${formatNumber(inputBerat)} Ton` : '-';
+        views.dok.textContent = inputs.no_dok.value || '-';
+
+        // Validation: Jumlah Keluar
+        if (beratInput.value) {
+            if (inputBerat < 0.001) {
+                beratGroup.classList.add('is-invalid-custom');
+                beratMinError.style.display = 'block';
+                beratError.style.display = 'none';
+                errors.push('Jumlah minimal 0.001 ton');
+            } else if (inputBerat > sisaStok && sisaStok > 0) {
+                beratGroup.classList.add('is-invalid-custom');
+                beratError.style.display = 'block';
+                beratMinError.style.display = 'none';
+                errors.push(`Jumlah (${formatNumber(inputBerat)} Ton) melebihi stok tersedia (${formatNumber(sisaStok)} Ton)`);
+            } else {
+                beratGroup.classList.remove('is-invalid-custom');
+                beratError.style.display = 'none';
+                beratMinError.style.display = 'none';
+            }
         }
 
-        // ===== VALIDASI BERAT =====
-        if (inputBerat > sisaStok && sisaStok > 0) {
-            beratGroup.classList.add('is-invalid-custom');
-            beratError.style.display = 'block';
+        // Validation: Required fields
+        const requiredFields = [
+            { el: wasteIdInput, msg: 'Limbah harus dipilih' },
+            { el: inputs.tgl, msg: 'Tanggal keluar wajib diisi' },
+            { el: beratInput, msg: 'Jumlah keluar wajib diisi' },
+            { el: inputs.tujuan, msg: 'Tujuan penyerahan wajib diisi' },
+            { el: inputs.no_dok, msg: 'Nomor dokumen wajib diisi' }
+        ];
+
+        requiredFields.forEach(({ el, msg }) => {
+            if (!el || !el.value) {
+                errors.push(msg);
+            }
+        });
+
+        // Validation: File types
+        const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+        if (fileBAInput.files[0] && !validTypes.includes(fileBAInput.files[0].type)) {
+            errors.push('Format berita acara harus PDF, JPG, atau PNG');
+        }
+
+        // Update validation summary
+        const validationSummary = document.getElementById('validation_summary');
+        const validationList = document.getElementById('validation_list');
+        
+        if (errors.length > 0) {
+            validationSummary.classList.remove('d-none');
+            validationList.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
             submitBtn.disabled = true;
-            submitBtn.classList.add('disabled');
             submitBtn.style.opacity = '0.6';
-        } else if (inputBerat <= 0 && beratInput.value !== '') {
-            beratGroup.classList.add('is-invalid-custom');
-            submitBtn.disabled = true;
         } else {
-            beratGroup.classList.remove('is-invalid-custom');
-            beratError.style.display = 'none';
+            validationSummary.classList.add('d-none');
             submitBtn.disabled = false;
-            submitBtn.classList.remove('disabled');
             submitBtn.style.opacity = '1';
         }
     };
 
-    // Event listeners untuk real-time update
-    const trackedInputs = [wasteSelect, beratInput, inputs.tujuan, inputs.tgl, inputs.no_dok].filter(el => el);
-    trackedInputs.forEach(el => {
-        el?.addEventListener('input', updateUI);
-        el?.addEventListener('change', updateUI);
-    });
-    
-    // Initial run
-    updateUI();
-
-    // Form submit: prevent if invalid
-    document.getElementById('wasteForm')?.addEventListener('submit', function(e) {
-        if (submitBtn.disabled) {
-            e.preventDefault();
-            // Scroll to error
-            beratInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            beratInput?.focus();
+    // Event listeners
+    [beratInput, inputs.tujuan, inputs.tgl, inputs.no_dok].forEach(el => {
+        if (el) {
+            el.addEventListener('input', updateUI);
+            el.addEventListener('change', updateUI);
         }
     });
 
-    // Optional: Show success toast if redirected back with session
-    @if(session('success'))
-        // Bisa tambahkan toast notification di sini jika diperlukan
-    @endif
+    // Form submit validation
+    document.getElementById('wasteForm')?.addEventListener('submit', function(e) {
+        updateUI();
+        if (submitBtn.disabled) {
+            e.preventDefault();
+            const firstError = document.querySelector('.is-invalid-custom');
+            firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+            submitBtn.disabled = true;
+        }
+    });
+
+    // Initial run
+    updateUI();
+    
+    // ✅ Auto-trigger change if waste is pre-selected to update preview immediately
+    if (wasteIdInput && wasteIdInput.value) {
+        wasteIdInput.dispatchEvent(new Event('change'));
+    }
 });
 </script>
 @endpush

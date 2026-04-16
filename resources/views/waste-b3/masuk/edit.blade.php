@@ -93,10 +93,6 @@
         cursor: not-allowed;
         opacity: 1;
     }
-    .input-group-custom .form-control:read-only + .input-group-text {
-        background: #f0f2f5;
-        border-color: #d2d6da;
-    }
 
     /* Readonly Badge */
     .readonly-badge {
@@ -219,7 +215,6 @@
     }
     .alert-soft-info { background: rgba(33, 82, 255, 0.1); color: #344767; }
     .alert-soft-warning { background: rgba(245, 57, 57, 0.1); color: #344767; }
-    .alert-soft-warning strong { color: #f53939; }
 
     /* Validasi State */
     .is-invalid-custom { 
@@ -256,7 +251,68 @@
         padding: 1rem;
         margin-bottom: 1rem;
     }
-    .pengeluaran-warning i { color: #f53939; }
+
+    /* File Preview Box */
+    .file-preview-box {
+        background: #f8f9fa;
+        border: 1px dashed #d2d6da;
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    .file-preview-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: #fff;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    .file-preview-item:last-child { margin-bottom: 0; }
+    .file-preview-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(121, 40, 202, 0.1);
+        border-radius: 0.35rem;
+        color: #7928ca;
+    }
+    .file-preview-info { flex: 1; min-width: 0; }
+    .file-preview-name {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #344767;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 200px;
+    }
+    .file-preview-meta {
+        font-size: 0.65rem;
+        color: #67748e;
+    }
+    .file-preview-actions {
+        display: flex;
+        gap: 0.25rem;
+    }
+    .file-action-btn {
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.35rem;
+        background: #f0f2f5;
+        color: #67748e;
+        transition: all 0.2s;
+        border: none;
+        font-size: 0.7rem;
+    }
+    .file-action-btn:hover { background: #e9ecef; color: #344767; }
+    .file-action-btn.danger:hover { background: #fee2e2; color: #dc2626; }
 
     /* Responsive */
     @media (max-width: 991px) {
@@ -297,10 +353,9 @@
         <!-- Form Section -->
         <div class="col-lg-8 mb-4">
             <div class="card form-card p-4">
-                <form action="{{ route('waste-b3.update', $data->id) }}" method="POST" id="wasteForm">
+                <form action="{{ route('waste-b3.update', $data->id) }}" method="POST" id="wasteForm" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    
                     <div class="row">
                         {{-- Warning: Sudah Ada Pengeluaran --}}
                         @if($data->pengeluaran->count() > 0)
@@ -404,7 +459,7 @@
                         <div class="col-md-4 mb-4">
                             <label class="form-label-custom"><i class="fas fa-weight-hanging me-1"></i>Jumlah (Ton)</label>
                             <div class="input-group-custom" id="jumlah_group">
-                                <input type="number" step="0.01" min="0.01" name="jumlah_ton" id="jumlah_ton" class="form-control" 
+                                <input type="number" step="any" name="jumlah_ton" id="jumlah_ton" class="form-control" 
                                        placeholder="0.00" value="{{ old('jumlah_ton', $data->jumlah_ton) }}" 
                                        {{ $data->pengeluaran->count() > 0 ? 'readonly' : '' }} required>
                                 @if($data->pengeluaran->count() > 0)
@@ -415,7 +470,7 @@
                                 <span class="readonly-badge"><i class="fas fa-lock"></i>Terkunci</span>
                             @endif
                             <div id="jumlah-error" class="invalid-feedback-custom ps-1">
-                                <i class="fas fa-exclamation-circle me-1"></i> Minimal 0.01 ton
+                                <i class="fas fa-exclamation-circle me-1"></i> Minimal 0.001 ton
                             </div>
                         </div>
 
@@ -428,6 +483,64 @@
                             <div id="batas-error" class="invalid-feedback-custom ps-1">
                                 <i class="fas fa-exclamation-circle me-1"></i> Harus setelah tanggal masuk
                             </div>
+                        </div>
+
+                        {{-- SECTION: Berita Acara --}}
+                        <div class="col-12 mb-2">
+                            <div class="section-divider"><span><i class="fas fa-file-signature me-1"></i>Dokumen</span></div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label-custom">
+                                <i class="fas fa-file-signature me-1"></i>Berita Acara
+                            </label>
+                            <div class="input-group-custom">
+                                <input type="file" name="berita_acara" id="berita_acara" class="form-control" 
+                                    accept=".pdf,.jpg,.jpeg,.png">
+                            </div>
+                            <small class="text-xxs text-muted ps-1 mt-1 d-block">
+                                <i class="fas fa-info-circle me-1"></i>Opsional. Format: PDF, JPG, PNG (Maks. 10MB)
+                            </small>
+                            @error('berita_acara')
+                                <div class="invalid-feedback-custom" style="display:block;">
+                                    <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                                </div>
+                            @enderror
+
+                            {{-- Preview File Lama --}}
+                            @if($data->berita_acara)
+                            <div class="file-preview-box" id="existing_file_preview">
+                                <div class="file-preview-item">
+                                    <div class="file-preview-icon">
+                                        <i class="fas fa-file-{{ pathinfo($data->berita_acara, PATHINFO_EXTENSION) == 'pdf' ? 'pdf' : 'image' }}"></i>
+                                    </div>
+                                    <div class="file-preview-info">
+                                        <div class="file-preview-name" title="{{ $data->berita_acara }}">
+                                            {{ $data->berita_acara }}
+                                        </div>
+                                        <div class="file-preview-meta">
+                                            <i class="fas fa-check-circle text-success me-1"></i>File tersimpan
+                                        </div>
+                                    </div>
+                                    <div class="file-preview-actions">
+                                        <a href="{{ Storage::url('waste-b3/berita-acara/' . $data->berita_acara) }}" 
+                                           target="_blank" 
+                                           class="file-action-btn" 
+                                           title="Lihat File">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="file-action-btn danger" id="remove_file_btn" title="Hapus File">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="keep_existing_file" id="keep_existing_file" value="1">
+                                <small class="text-xxs text-muted d-block mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Upload file baru untuk mengganti, atau klik <strong>🗑️</strong> untuk menghapus.
+                                </small>
+                            </div>
+                            @endif
                         </div>
 
                         {{-- SECTION: Catatan --}}
@@ -512,7 +625,7 @@
                     <div class="preview-item d-flex justify-content-between">
                         <span class="preview-label">Volume</span>
                         <span id="view_jumlah" class="preview-value text-danger">
-                            {{ number_format(old('jumlah_ton', $data->jumlah_ton), 2) }} Ton
+                            {{ number_format(old('jumlah_ton', $data->jumlah_ton), 3, ',', '.') }} Ton
                             @if($data->pengeluaran->count() > 0)
                                 <i class="fas fa-lock text-secondary ms-1" title="Terkunci"></i>
                             @endif
@@ -523,6 +636,18 @@
                         <span class="preview-label">Batas Simpan</span>
                         <span id="view_batas" class="preview-value {{ $data->maksimal_penyimpanan?->format('Y-m-d') != old('maksimal_penyimpanan') && old('maksimal_penyimpanan') ? 'changed' : '' }}">
                             {{ \Carbon\Carbon::parse(old('maksimal_penyimpanan', $data->maksimal_penyimpanan))->format('d/m/Y') }}
+                        </span>
+                    </div>
+
+                    {{-- Preview Berita Acara di Sidebar --}}
+                    <div class="preview-item" id="preview_berita_acara_wrapper" style="{{ $data->berita_acara ? '' : 'display: none;' }}">
+                        <span class="preview-label d-block">Berita Acara</span>
+                        <span id="view_berita_acara" class="preview-value d-block text-truncate" style="max-width: 100%;">
+                            <i class="fas fa-paperclip me-1"></i>
+                            <span id="view_berita_acara_name">{{ $data->berita_acara ?? '' }}</span>
+                            <span id="view_berita_acara_status" class="text-success ms-1">
+                                @if($data->berita_acara)<i class="fas fa-check-circle" title="File tersimpan"></i>@endif
+                            </span>
                         </span>
                     </div>
 
@@ -575,7 +700,8 @@ document.addEventListener('DOMContentLoaded', function() {
         tglMasuk: document.getElementById('tanggal_masuk'),
         jumlah: document.getElementById('jumlah_ton'),
         batas: document.getElementById('maksimal_penyimpanan'),
-        catatan: document.getElementById('catatan')
+        catatan: document.getElementById('catatan'),
+        beritaAcara: document.getElementById('berita_acara')
     };
 
     const views = {
@@ -584,7 +710,10 @@ document.addEventListener('DOMContentLoaded', function() {
         sumber: document.getElementById('view_sumber'),
         tglMasuk: document.getElementById('view_tgl_masuk'),
         jumlah: document.getElementById('view_jumlah'),
-        batas: document.getElementById('view_batas')
+        batas: document.getElementById('view_batas'),
+        beritaAcaraWrapper: document.getElementById('preview_berita_acara_wrapper'),
+        beritaAcaraName: document.getElementById('view_berita_acara_name'),
+        beritaAcaraStatus: document.getElementById('view_berita_acara_status')
     };
 
     const submitBtn = document.getElementById('submitBtn');
@@ -602,11 +731,13 @@ document.addEventListener('DOMContentLoaded', function() {
         sumber: `{{ $data->sumber_limbah }}`,
         tglMasuk: `{{ $data->tanggal_masuk?->format('Y-m-d') }}`,
         jumlah: `{{ $data->jumlah_ton }}`,
-        batas: `{{ $data->maksimal_penyimpanan?->format('Y-m-d') }}`
+        batas: `{{ $data->maksimal_penyimpanan?->format('Y-m-d') }}`,
+        beritaAcara: `{{ $data->berita_acara ?? '' }}`
     };
 
     // Check if field is readonly (jumlah_ton with pengeluaran)
     const isJumlahReadonly = {{ $data->pengeluaran->count() > 0 ? 'true' : 'false' }};
+    const hasExistingFile = {{ $data->berita_acara ? 'true' : 'false' }};
 
     // Helper: Format tanggal Indonesia
     const formatDate = (dateStr) => {
@@ -618,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Helper: Format number
     const formatNumber = (num) => {
         if (!num) return '--';
-        return parseFloat(num).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Ton';
+        return parseFloat(num).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 3 }) + ' Ton';
     };
 
     // Helper: Check if value changed from original
@@ -652,10 +783,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validasi: Jumlah (hanya jika tidak readonly)
         if (inputs.jumlah?.value && !isJumlahReadonly) {
             const val = parseFloat(inputs.jumlah.value);
-            if (val < 0.01) {
+            if (val < 0.001) {
                 jumlahGroup.classList.add('is-invalid-custom');
                 jumlahError.style.display = 'block';
-                errors.push('Jumlah minimal 0.01 ton');
+                errors.push('Jumlah minimal 0.001 ton');
             } else {
                 jumlahGroup.classList.remove('is-invalid-custom');
                 jumlahError.style.display = 'none';
@@ -676,6 +807,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        // Validasi: Berita Acara (file)
+        if (inputs.beritaAcara?.files?.[0]) {
+            const file = inputs.beritaAcara.files[0];
+            const maxSizeMB = 10;
+            const validTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+            
+            if (!validTypes.includes(file.type)) {
+                errors.push('Format berita acara harus PDF, JPG, atau PNG');
+            }
+            if (file.size > maxSizeMB * 1024 * 1024) {
+                errors.push(`Ukuran file berita acara maksimal ${maxSizeMB}MB`);
+            }
+        }
+
         // Validasi: Field wajib (kecuali jumlah jika readonly)
         const requiredFields = [
             { field: 'jenis', label: 'Jenis Limbah' },
@@ -685,7 +830,6 @@ document.addEventListener('DOMContentLoaded', function() {
             { field: 'batas', label: 'Batas Penyimpanan' }
         ];
         
-        // Tambah jumlah ke required fields hanya jika tidak readonly
         if (!isJumlahReadonly) {
             requiredFields.push({ field: 'jumlah', label: 'Jumlah Limbah' });
         }
@@ -711,21 +855,114 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event listeners
     Object.values(inputs).forEach(input => {
-        // Skip readonly fields
         if (input && !input.readOnly) {
             input.addEventListener('input', updateUI);
             input.addEventListener('change', updateUI);
         }
     });
 
-    // Form submit validation
-    document.getElementById('wasteForm')?.addEventListener('submit', function(e) {
+    // Preview filename untuk berita_acara
+    inputs.beritaAcara?.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const file = this.files[0];
+            const fileName = file.name;
+            const fileSize = (file.size / 1024 / 1024).toFixed(2);
+            
+            // Update preview sidebar
+            if (views.beritaAcaraWrapper && views.beritaAcaraName) {
+                views.beritaAcaraName.textContent = `${fileName} (${fileSize} MB)`;
+                views.beritaAcaraWrapper.style.display = 'block';
+                views.beritaAcaraStatus.innerHTML = '<i class="fas fa-upload text-warning" title="Akan diupload"></i>';
+            }
+
+            // Hide existing file preview if user selects new file
+            const existingPreview = document.getElementById('existing_file_preview');
+            const keepInput = document.getElementById('keep_existing_file');
+            if (existingPreview && keepInput) {
+                existingPreview.style.display = 'none';
+                keepInput.value = '0'; // Mark to not keep existing file
+            }
+        } else {
+            // Reset if file input cleared
+            if (views.beritaAcaraWrapper && hasExistingFile) {
+                views.beritaAcaraName.textContent = originalValues.beritaAcara;
+                views.beritaAcaraStatus.innerHTML = '<i class="fas fa-check-circle text-success" title="File tersimpan"></i>';
+            } else if (views.beritaAcaraWrapper) {
+                views.beritaAcaraWrapper.style.display = 'none';
+            }
+
+            // Show existing file preview again if no new file selected
+            const existingPreview = document.getElementById('existing_file_preview');
+            const keepInput = document.getElementById('keep_existing_file');
+            if (existingPreview && keepInput && hasExistingFile) {
+                existingPreview.style.display = 'block';
+                keepInput.value = '1';
+            }
+        }
         updateUI();
+    });
+
+    // Handle remove existing file button
+    const removeFileBtn = document.getElementById('remove_file_btn');
+    const existingPreview = document.getElementById('existing_file_preview');
+    const keepInput = document.getElementById('keep_existing_file');
+    
+    if (removeFileBtn && existingPreview && keepInput) {
+        removeFileBtn.addEventListener('click', function() {
+            // Hide preview
+            existingPreview.style.display = 'none';
+            keepInput.value = '0';
+            
+            // Update sidebar preview
+            if (views.beritaAcaraWrapper) {
+                views.beritaAcaraWrapper.style.display = 'none';
+            }
+            
+            // Reset file input
+            if (inputs.beritaAcara) {
+                inputs.beritaAcara.value = '';
+            }
+        });
+    }
+
+    // Form submit validation - IMPROVED
+    document.getElementById('wasteForm')?.addEventListener('submit', function(e) {
+        console.log('🔄 Form submit triggered');
+        
+        // Run UI update for visual feedback
+        updateUI();
+        
+        // Check if button is disabled due to JS validation
         if (submitBtn.disabled) {
-            e.preventDefault();
-            // Scroll to first error
-            const firstError = document.querySelector('.is-invalid-custom');
-            firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Look for visible error indicators (not just class presence)
+            const visibleErrors = document.querySelectorAll('.is-invalid-custom');
+            const hasVisibleError = Array.from(visibleErrors).some(el => {
+                const feedback = el.nextElementSibling;
+                return feedback && 
+                    feedback.classList.contains('invalid-feedback-custom') && 
+                    feedback.style.display !== 'none';
+            });
+            
+            if (hasVisibleError) {
+                // Real validation error - block submit and scroll to error
+                console.log('❌ Blocking submit: visible validation errors found');
+                e.preventDefault();
+                const firstError = document.querySelector('.is-invalid-custom');
+                firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                // No visible errors but button disabled - likely JS false positive
+                // Allow submit to proceed so Laravel can validate properly
+                console.log('✅ Allowing submit: button disabled but no visible errors (letting server validate)');
+                // Show loading state
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+                submitBtn.style.opacity = '0.8';
+                // Don't preventDefault - let form submit to server
+            }
+        } else {
+            console.log('✅ Submit allowed: button enabled');
+            // Show loading state
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...';
+            submitBtn.style.opacity = '0.8';
         }
     });
 

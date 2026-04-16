@@ -7,6 +7,7 @@ use App\Models\WasteB3Keluar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage; // ✅ Tambahkan ini
 
 class WasteB3MasukController extends Controller
 {
@@ -96,9 +97,10 @@ class WasteB3MasukController extends Controller
             'kode_limbah' => 'required|string|max:50',
             'tanggal_masuk' => 'required|date|before_or_equal:today',
             'sumber_limbah' => 'required|string|max:100',
-            'jumlah_ton' => 'required|numeric|min:0.01|max:999999.99',
+            'jumlah_ton' => 'required|numeric|min:0.001|max:999999.99',
             'maksimal_penyimpanan' => 'required|date|after:tanggal_masuk',
             'nomor_manifest' => 'nullable|string|max:100',
+            'berita_acara' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240', // ✅ Validasi file (10MB)
             'catatan' => 'nullable|string|max:500',
         ], [
             'jenis_limbah.required' => 'Jenis limbah harus diisi',
@@ -114,18 +116,24 @@ class WasteB3MasukController extends Controller
             'sumber_limbah.max' => 'Sumber limbah maksimal 100 karakter',
             'jumlah_ton.required' => 'Jumlah ton harus diisi',
             'jumlah_ton.numeric' => 'Jumlah ton harus berupa angka',
-            'jumlah_ton.min' => 'Jumlah ton minimal 0.01',
+            'jumlah_ton.min' => 'Jumlah ton minimal 0.001',
             'jumlah_ton.max' => 'Jumlah ton maksimal 999.999,99 ton',
             'maksimal_penyimpanan.required' => 'Tanggal maksimal penyimpanan harus diisi',
             'maksimal_penyimpanan.date' => 'Format tanggal tidak valid',
             'maksimal_penyimpanan.after' => 'Tanggal maksimal penyimpanan harus setelah tanggal masuk',
             'nomor_manifest.max' => 'Nomor manifest maksimal 100 karakter',
+            'berita_acara.file' => 'Berita acara harus berupa file',
+            'berita_acara.mimes' => 'Format file berita acara harus: pdf, jpg, jpeg, png',
+            'berita_acara.max' => 'Ukuran file berita acara maksimal 10MB',
             'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
 
-       
-
         $validated['created_by'] = Auth::id();
+
+        // ✅ Handle upload file berita_acara
+        if ($request->hasFile('berita_acara')) {
+            $validated['berita_acara'] = $this->handleFileUpload($request->file('berita_acara'));
+        }
 
         DB::transaction(function () use ($validated) {
             WasteB3Masuk::create($validated);
@@ -166,9 +174,10 @@ class WasteB3MasukController extends Controller
             'kode_limbah' => 'required|string|max:50',
             'tanggal_masuk' => 'required|date|before_or_equal:today',
             'sumber_limbah' => 'required|string|max:100',
-            'jumlah_ton' => 'required|numeric|min:0.01|max:999999.99',
+            'jumlah_ton' => 'required|numeric|min:0.001|max:999999.99',
             'maksimal_penyimpanan' => 'required|date|after:tanggal_masuk',
             'nomor_manifest' => 'nullable|string|max:100',
+            'berita_acara' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240', // ✅ Validasi file
             'catatan' => 'nullable|string|max:500',
         ], [
             'jenis_limbah.required' => 'Jenis limbah harus diisi',
@@ -184,29 +193,31 @@ class WasteB3MasukController extends Controller
             'sumber_limbah.max' => 'Sumber limbah maksimal 100 karakter',
             'jumlah_ton.required' => 'Jumlah ton harus diisi',
             'jumlah_ton.numeric' => 'Jumlah ton harus berupa angka',
-            'jumlah_ton.min' => 'Jumlah ton minimal 0.01',
+            'jumlah_ton.min' => 'Jumlah ton minimal 0.001',
             'jumlah_ton.max' => 'Jumlah ton maksimal 999.999,99 ton',
             'maksimal_penyimpanan.required' => 'Tanggal maksimal penyimpanan harus diisi',
             'maksimal_penyimpanan.date' => 'Format tanggal tidak valid',
             'maksimal_penyimpanan.after' => 'Tanggal maksimal penyimpanan harus setelah tanggal masuk',
             'nomor_manifest.max' => 'Nomor manifest maksimal 100 karakter',
+            'berita_acara.file' => 'Berita acara harus berupa file',
+            'berita_acara.mimes' => 'Format file berita acara harus: pdf, jpg, jpeg, png',
+            'berita_acara.max' => 'Ukuran file berita acara maksimal 10MB',
             'catatan.max' => 'Catatan maksimal 500 karakter',
         ]);
-
-        // 2. Cek duplikasi kode_limbah kecuali milik data ini sendiri
-        $isDuplicate = WasteB3Masuk::where('kode_limbah', $validated['kode_limbah'])
-                                    ->where('id', '!=', $id)
-                                    ->exists();
-
-        if ($isDuplicate) {
-            return back()
-                ->withErrors(['kode_limbah' => 'Kode limbah ' . $validated['kode_limbah'] . ' sudah digunakan oleh data lain.'])
-                ->withInput();
-        }
 
         // Validasi jumlah_ton jika sudah ada pengeluaran
         if ($data->pengeluaran()->count() > 0 && $data->jumlah_ton != $validated['jumlah_ton']) {
             return back()->withErrors(['jumlah_ton' => 'Jumlah ton tidak dapat diubah karena sudah ada riwayat pengeluaran'])->withInput();
+        }
+
+        // ✅ Handle upload file berita_acara (update)
+        if ($request->hasFile('berita_acara')) {
+            // Hapus file lama jika ada
+            if ($data->berita_acara) {
+                $this->deleteFile($data->berita_acara);
+            }
+            // Upload file baru
+            $validated['berita_acara'] = $this->handleFileUpload($request->file('berita_acara'));
         }
 
         DB::transaction(function () use ($data, $validated) {
@@ -232,6 +243,11 @@ class WasteB3MasukController extends Controller
                 ->with('error', 'Data tidak dapat dihapus karena sudah ada riwayat pengeluaran.');
         }
 
+        // ✅ Hapus file berita_acara jika ada
+        if ($data->berita_acara) {
+            $this->deleteFile($data->berita_acara);
+        }
+
         $data->delete();
 
         return redirect()
@@ -249,6 +265,36 @@ class WasteB3MasukController extends Controller
         return view('waste-b3.masuk.show', compact('data'));
     }
 
+    // ========================================
+    // ✅ HELPER METHODS FOR FILE HANDLING
+    // ========================================
+
+    /**
+     * Handle file upload dengan nama unik
+     */
+    private function handleFileUpload($file)
+    {
+        $folder = 'public/waste-b3/berita-acara';
+        $extension = $file->getClientOriginalExtension();
+        $filename = time() . '_' . uniqid() . '.' . $extension;
+        
+        // Simpan file
+        $file->storeAs($folder, $filename);
+        
+        return $filename;
+    }
+
+    /**
+     * Hapus file dari storage
+     */
+    private function deleteFile($filename)
+    {
+        $path = 'public/waste-b3/berita-acara/' . $filename;
+        if (Storage::exists($path)) {
+            Storage::delete($path);
+        }
+    }
+
     /**
      * Export data ke Excel (opsional)
      */
@@ -256,25 +302,4 @@ class WasteB3MasukController extends Controller
     {
         // Implementasi export jika diperlukan
     }
-
-    /**
-     * Print data (opsional)
-     */
-    // public function print(Request $request)
-    // {
-    //     // Filter data sesuai request
-    //     $query = WasteB3Masuk::with('creator');
-
-    //     if ($request->has('status')) {
-    //         $query->status($request->status);
-    //     }
-
-    //     if ($request->has('tanggal_dari') && $request->has('tanggal_sampai')) {
-    //         $query->tanggalMasukAntara($request->tanggal_dari, $request->tanggal_sampai);
-    //     }
-
-    //     $data = $query->get();
-
-    //     return view('waste-b3.print', compact('data'));
-    // }
 }

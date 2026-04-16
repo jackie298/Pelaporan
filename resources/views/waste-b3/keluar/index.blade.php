@@ -104,10 +104,39 @@
         border-radius: 0.5rem;
     }
 
+    /* File Badge */
+    .file-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.2rem 0.5rem;
+        background: rgba(33, 82, 255, 0.1);
+        color: #2152ff;
+        border-radius: 4px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .file-badge:hover {
+        background: rgba(33, 82, 255, 0.2);
+        color: #2152ff;
+        text-decoration: none;
+    }
+    .file-badge.no-file {
+        background: #f0f2f5;
+        color: #8392ab;
+    }
+
     .text-gradient-primary {
         background-image: var(--primary-gradient);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+    }
+    
+    /* Toast Notification */
+    .toast-container {
+        z-index: 9999;
     }
 </style>
 
@@ -133,7 +162,7 @@
     <div class="row px-3 mb-4">
         @foreach([
             ['label' => 'Total Keluar', 'val' => $summaryStats['total_keluar'] ?? 0, 'icon' => 'fa-truck-loading', 'color' => 'primary'],
-            ['label' => 'Total Berat', 'val' => number_format($summaryStats['total_volume_keluar'] ?? 0, 2) . ' Ton', 'icon' => 'fa-balance-scale', 'color' => 'success'],
+            ['label' => 'Total Berat', 'val' => number_format($summaryStats['total_volume_keluar'] ?? 0, 3, ',', '.') . ' Ton', 'icon' => 'fa-balance-scale', 'color' => 'success'],
             ['label' => 'Dokumen OK', 'val' => $summaryStats['dokumen_lengkap'] ?? 0, 'icon' => 'fa-file-check', 'color' => 'info'],
             ['label' => 'Pending Doc', 'val' => $summaryStats['menunggu_dokumen'] ?? 0, 'icon' => 'fa-file-signature', 'color' => 'warning']
         ] as $stat)
@@ -194,7 +223,7 @@
                         <th class="text-uppercase text-xxs font-weight-bolder opacity-7">Waktu Keluar</th>
                         <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-center">Volume</th>
                         <th class="text-uppercase text-xxs font-weight-bolder opacity-7">Tujuan & Dokumen</th>
-                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-center">Status</th>
+                        <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-center">Berita Acara</th>
                         <th class="text-uppercase text-xxs font-weight-bolder opacity-7 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -214,8 +243,9 @@
                             </div>
                         </td>
                         <td class="text-center">
+                            {{-- ✅ 3 Decimal Places for Volume --}}
                             <span class="badge badge-sm bg-gradient-light text-danger font-weight-bolder">
-                                - {{ $data->jumlah_keluar_ton_formatted }}
+                                - {{ number_format($data->jumlah_keluar_ton, 3, ',', '.') }} Ton
                             </span>
                         </td>
                         <td>
@@ -225,9 +255,21 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            <span class="status-badge {{ $data->file_dokumen_exists ? 'bg-gradient-success text-white' : 'bg-light text-secondary' }}">
-                                {{ $data->file_dokumen_exists ? 'Lengkap' : 'Menunggu' }}
-                            </span>
+                            {{-- ✅ Check berita_acara instead of file_dokumen --}}
+                            @if($data->berita_acara)
+                                <a href="{{ Storage::url('waste-b3/berita-acara-keluar/' . $data->berita_acara) }}" 
+                                   target="_blank" 
+                                   class="file-badge" 
+                                   title="Download: {{ $data->berita_acara }}">
+                                    <i class="fas fa-file-{{ pathinfo($data->berita_acara, PATHINFO_EXTENSION) == 'pdf' ? 'pdf' : 'image' }}"></i>
+                                    <span class="d-none d-md-inline">{{ Str::limit(pathinfo($data->berita_acara, PATHINFO_FILENAME), 8) }}</span>
+                                </a>
+                            @else
+                                <span class="file-badge no-file">
+                                    <i class="fas fa-minus"></i>
+                                    <span class="d-none d-md-inline">-</span>
+                                </span>
+                            @endif
                         </td>
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">
@@ -252,12 +294,13 @@
         @if($wasteB3Keluar->hasPages())
         <div class="card-footer d-flex justify-content-between align-items-center border-0">
             <span class="text-xs text-muted">Menampilkan {{ $wasteB3Keluar->count() }} data</span>
-            {{ $wasteB3Keluar->links('pagination::bootstrap-4') }}
+            {{ $wasteB3Keluar->appends(request()->query())->links('pagination::bootstrap-4') }}
         </div>
         @endif
     </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content border-0 shadow-lg" style="border-radius: 1.25rem;">
@@ -267,6 +310,9 @@
                 </div>
                 <h5 class="font-weight-bolder">Hapus Data?</h5>
                 <p class="text-sm text-muted">Data <b id="wasteName"></b> akan dihapus dan stok akan dikembalikan.</p>
+                <p class="text-xxs text-muted mt-2">
+                    <i class="fas fa-info-circle me-1"></i>File berita acara juga akan dihapus permanen.
+                </p>
                 <div class="d-flex gap-2 mt-4">
                     <button type="button" class="btn btn-light btn-round w-100 mb-0" data-bs-dismiss="modal">Batal</button>
                     <form id="deleteForm" method="POST" class="w-100">
@@ -279,10 +325,25 @@
     </div>
 </div>
 
+<!-- Toast Notification -->
+@if(session('success') || session('error'))
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div class="toast align-items-center text-white {{ session('success') ? 'bg-success' : 'bg-danger' }} border-0 show" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas {{ session('success') ? 'fa-check-circle' : 'fa-exclamation-circle' }} me-2"></i>
+                {{ session('success') ?? session('error') }}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+@endif
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Simple Delete Modal Logic
+        // Delete Modal Handler
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -290,6 +351,15 @@
                 document.getElementById('deleteForm').action = `/waste-b3-keluar/${this.dataset.id}`;
                 deleteModal.show();
             });
+        });
+
+        // Auto-hide toasts after 5 seconds
+        const toastElList = document.querySelectorAll('.toast');
+        [...toastElList].map(toast => {
+            setTimeout(() => {
+                const bsToast = bootstrap.Toast.getInstance(toast) || new bootstrap.Toast(toast);
+                bsToast.hide();
+            }, 5000);
         });
     });
 </script>
