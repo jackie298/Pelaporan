@@ -990,7 +990,7 @@
                                     </td>
                                     <td>
                                         <p class="text-wrap fw-medium mb-0 text-sm">{{ $item->nama }}</p>
-                                        <span class="text-xxs text-muted">Input: {{ $item->created_at->format('d/m/Y') }}</span>
+                                        <span class="text-xxs text-muted">Tabggal Konrak: {{ $item->periode->format('d/m/Y') }}</span>
                                     </td>
                                     <td class="align-middle text-center">
                                         @if($item->file_kontrak)

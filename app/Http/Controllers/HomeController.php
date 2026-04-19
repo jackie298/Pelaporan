@@ -28,13 +28,13 @@ class HomeController extends Controller
         // ========================================
         // 📊 REKAP ANGGARAN
         // ========================================
-        $rekap_anggaran = RekapAnggaran::whereMonth('created_at', Carbon::now()->month)
-            ->whereYear('created_at', Carbon::now()->year)
+        $rekap_anggaran = RekapAnggaran::whereMonth('periode', Carbon::now()->month)
+            ->whereYear('periode', Carbon::now()->year)
             ->latest()
             ->paginate(5);
 
-        $totalAnggaranBulanIni = RekapAnggaran::whereMonth('created_at', Carbon::now()->month)
-            ->whereYear('created_at', Carbon::now()->year)
+        $totalAnggaranBulanIni = RekapAnggaran::whereMonth('periode', Carbon::now()->month)
+            ->whereYear('periode', Carbon::now()->year)
             ->sum('harga');
 
         $counts = RekapAnggaran::selectRaw('LOWER(status) as status, count(*) as total')
