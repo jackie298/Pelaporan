@@ -1057,14 +1057,22 @@
                 <div class="chart-container" style="position: relative; height:200px;">
                     <canvas id="chart-status-dokumen"></canvas>
                 </div>
-                <div class="d-flex flex-wrap justify-content-center mt-3">
-                    @foreach(['open' => 'bg-info', 'close' => 'bg-success', 'pending' => 'bg-warning', 'proses finance' => 'bg-primary', 'hold' => 'bg-danger'] as $key => $color)
-                        <span class="badge badge-dot me-3">
-                            <i class="{{ $color }}"></i>
-                            <span class="text-dark text-xxs text-capitalize">
-                                {{ $key }}: <strong>{{ $statuscount[$key] ?? 0 }}</strong>
-                            </span>
-                        </span>
+                <div class="d-flex flex-wrap justify-content-center gap-2 mt-3">
+                    @php
+                        $statusMapping = [
+                            ['key' => 'open', 'label' => 'Open', 'color' => '#11cdef'],
+                            ['key' => 'close', 'label' => 'Close', 'color' => '#2dce89'],
+                            ['key' => 'pending', 'label' => 'Pending', 'color' => '#fb6340'],
+                            ['key' => 'proses finance', 'label' => 'Proses Finance', 'color' => '#5e72e4'],
+                            ['key' => 'hold', 'label' => 'Hold', 'color' => '#f5365c']
+                        ];
+                    @endphp
+                    
+                    @foreach($statusMapping as $item)
+                        <div class="badge bg-light text-dark d-flex align-items-center gap-2 px-3 py-2">
+                            <span class="rounded-circle" style="width: 8px; height: 8px; background-color: {{ $item['color'] }};"></span>
+                            <small class="fw-medium">{{ $item['label'] }}: {{ $statuscount[$item['key']] ?? 0 }}</small>
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -1889,7 +1897,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     // === Initialize all existing charts ===
-    @include('chart.status-dokumen')
+    @include('chart.status-dokumen', ['statuscount' => $statuscount])
     @include('chart.compliace')
     @include('chart.bukaanlahan-reklamasi')
     @include('chart.revegetasi')
