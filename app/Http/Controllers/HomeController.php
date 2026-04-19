@@ -28,23 +28,35 @@ class HomeController extends Controller
         // ========================================
         // 📊 REKAP ANGGARAN
         // ========================================
-        $rekap_anggaran = RekapAnggaran::whereMonth('periode', Carbon::now()->month)
-            ->whereYear('periode', Carbon::now()->year)
+
+        // Filter bulan & tahun saat ini
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // 1. Data tabel (paginate)
+        $rekap_anggaran = RekapAnggaran::whereMonth('periode', $currentMonth)
+            ->whereYear('periode', $currentYear)
             ->latest()
             ->paginate(5);
 
-        $totalAnggaranBulanIni = RekapAnggaran::whereMonth('periode', Carbon::now()->month)
-            ->whereYear('periode', Carbon::now()->year)
+        // 2. Total anggaran bulan ini
+        $totalAnggaranBulanIni = RekapAnggaran::whereMonth('periode', $currentMonth)
+            ->whereYear('periode', $currentYear)
             ->sum('harga');
 
+        // 3. Status count HANYA untuk bulan ini
         $counts = RekapAnggaran::selectRaw('LOWER(status) as status, count(*) as total')
+            ->whereMonth('periode', $currentMonth)
+            ->whereYear('periode', $currentYear)
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
 
+        // Merge dengan default values
         $statuscount = array_merge([
             'open' => 0, 'close' => 0, 'pending' => 0, 'proses finance' => 0, 'hold' => 0,
         ], $counts);
+        $statuscountJson = json_encode($statuscount);
 
         // ========================================
         // 🗑️ LIMBAH B3 - DASHBOARD PREVIEW
@@ -367,6 +379,7 @@ class HomeController extends Controller
             'rekap_anggaran',
             'totalAnggaranBulanIni',
             'statuscount',
+            'statuscountJson',
             
             // Waste B3
             'wasteB3Preview',

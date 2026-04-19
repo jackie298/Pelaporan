@@ -990,7 +990,7 @@
                                     </td>
                                     <td>
                                         <p class="text-wrap fw-medium mb-0 text-sm">{{ $item->nama }}</p>
-                                        <span class="text-xxs text-muted">Tabggal Konrak: {{ $item->periode->format('d/m/Y') }}</span>
+                                        <span class="text-xxs text-muted">Tanggal Konrak: {{ $item->periode->format('d/m/Y') }}</span>
                                     </td>
                                     <td class="align-middle text-center">
                                         @if($item->file_kontrak)
@@ -1049,6 +1049,9 @@
         <div class="card z-index-2 h-100">
             <div class="card-header pb-0">
                 <h6><i class="fas fa-chart-pie"></i> Grafik Status Dokumen</h6>
+                 <p class="mb-0 text-sm text-muted">
+                    Periode: <strong>{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</strong>
+                </p>
             </div>
             <div class="card-body p-3">
                 <div class="chart-container" style="position: relative; height:200px;">

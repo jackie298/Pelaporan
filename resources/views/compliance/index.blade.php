@@ -360,7 +360,7 @@
     <div class="alert-bar">
         <span class="text-white">
             <i class="fas fa-clipboard-check"></i>
-            <strong>Dokumen Compliance</strong>
+            <strong>Dokumen Inspeksi</strong>
         </span>
         <div class="d-flex gap-2">
             <a class="btn" href="{{ route('api.export.compliance', request()->query()) }}">
@@ -425,7 +425,7 @@
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <h5>
                     <i class="fas fa-list"></i>
-                    Daftar Dokumen Compliance
+                    Daftar Dokumen Inspeksi
                     @if(request()->anyFilled(['search', 'departemen', 'status', 'tanggal_dari', 'tanggal_sampai']))
                         <span class="filter-badge"><i class="fas fa-filter me-1"></i>Filtered</span>
                     @endif
@@ -677,7 +677,7 @@
             </div>
             <div class="modal-body text-center">
                 <i class="fas fa-trash-alt text-danger fa-3x mb-3"></i>
-                <p>Apakah Anda yakin ingin menghapus dokumen compliance dari:</p>
+                <p>Apakah Anda yakin ingin menghapus dokumen Inspeksi dari:</p>
                 <p class="fw-bold text-primary" id="equipmentName"></p>
                 <p class="text-muted small">Tindakan ini tidak dapat dibatalkan.</p>
             </div>

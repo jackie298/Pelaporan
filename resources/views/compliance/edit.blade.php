@@ -417,7 +417,7 @@
     <div class="alert-header">
         <span class="text-white">
             <i class="fas fa-clipboard-check"></i>
-            <strong>Edit Dokumen Compliance</strong>
+            <strong>Edit Dokumen Inspeksi</strong>
         </span>
     </div>
 
@@ -428,7 +428,7 @@
                 <div class="card-header">
                     <h5>
                         <i class="fas fa-edit"></i>
-                        Form Edit Dokumen Compliance
+                        Form Edit Dokumen Inspeksi
                     </h5>
                 </div>
 
