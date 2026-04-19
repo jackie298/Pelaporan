@@ -28,17 +28,15 @@ class ComplianceExport implements FromCollection, Withheadings, WithMapping, Wit
     {
         return [
             'ID',
-            'Reported By',
+            'Nama Pelapor',
             'Departemen',
-            'Location',
-            'Incident Type',
-            'Compliance Type',
-            'Date Reported',
+            'Lokasi',
+            'jenis Insiden',
+            'Jenis Inspeksi',
+            'Tanggal Lapor',
             'Status',
-            'Severity',
-            'Resolved By',
-            'Created At',
-            'Updated At',
+            'Tingkat Keparahan',
+            'Diselesaikan Oleh',
         ];
     }
 
@@ -49,18 +47,16 @@ class ComplianceExport implements FromCollection, Withheadings, WithMapping, Wit
     {
         return [
             $compliance->id,
-            $compliance->ReportedBy,
+            $compliance->Nama_pelapor,
             $compliance->Departemen,
-            $compliance->Location,
-            $compliance->IncidentType,
-            $compliance->ComplianceType,
+            $compliance->Lokasi,
+            $compliance->Jenis_insiden,
+            $compliance->Jenis_inspeksi,
             // Pastikan tanggal diformat agar terbaca dengan baik di Excel
-            $compliance->Date_reported ? \Carbon\Carbon::parse($compliance->Date_reported)->format('d-m-Y') : '-',
+            $compliance->Tanggal_lapor ? \Carbon\Carbon::parse($compliance->Tanggal_lapor)->format('d-m-Y') : '-',
             ucfirst($compliance->Status),
-            $compliance->Severity,
-            $compliance->ResolvedBy ?? '-',
-            $compliance->created_at ? $compliance->created_at->format('d-m-Y H:i') : '-',
-            $compliance->updated_at ? $compliance->updated_at->format('d-m-Y H:i') : '-',
+            $compliance->Tingkat_keparahan,
+            $compliance->Diselesaikan_oleh ?? '-',
         ];
     }
 

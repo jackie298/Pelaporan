@@ -27,8 +27,7 @@ class WasteB3Keluar extends Model
         'jumlah_keluar_ton',
         'tujuan_penyerahan',
         'nomor_dokumen_keluar',
-        'berita_acara',  
-        'file_dokumen',
+        'berita_acara',
         'catatan',
     ];
 
@@ -147,57 +146,6 @@ class WasteB3Keluar extends Model
             'jpg', 'jpeg', 'png' => 'fa-file-image',
             default => 'fa-file',
         };
-    }
-
-    // ========================================
-    // Existing Accessors for file_dokumen
-    // ========================================
-
-    /**
-     * Accessor: URL lengkap untuk file dokumen.
-     */
-    public function getFileDokumenUrlAttribute(): ?string
-    {
-        if (empty($this->file_dokumen)) {
-            return null;
-        }
-
-        // Jika sudah URL lengkap, return langsung
-        if (filter_var($this->file_dokumen, FILTER_VALIDATE_URL)) {
-            return $this->file_dokumen;
-        }
-
-        // Jika path relatif, tambahkan storage path
-        return asset('storage/' . $this->file_dokumen);
-    }
-
-    /**
-     * Accessor: Cek apakah file dokumen ada.
-     */
-    public function getFileDokumenExistsAttribute(): bool
-    {
-        if (empty($this->file_dokumen)) {
-            return false;
-        }
-
-        // Cek di storage
-        return Storage::disk('public')->exists($this->file_dokumen);
-    }
-
-    /**
-     * Accessor: Icon untuk status file dokumen.
-     */
-    public function getFileDokumenStatusAttribute(): string
-    {
-        if (empty($this->file_dokumen)) {
-            return '<span class="badge badge-sm bg-gradient-secondary">Belum Upload</span>';
-        }
-
-        if ($this->file_dokumen_exists) {
-            return '<span class="badge badge-sm bg-gradient-success"><i class="fas fa-check"></i> Tersedia</span>';
-        }
-
-        return '<span class="badge badge-sm bg-gradient-danger"><i class="fas fa-times"></i> File Hilang</span>';
     }
 
     /**

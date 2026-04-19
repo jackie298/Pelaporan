@@ -44,12 +44,6 @@ class ReklamasiSeeder extends Seeder
                 'luas_direklamasi'    => $luas,
                 'jenis_kegiatan'      => $jenisKegiatan[array_rand($jenisKegiatan)],
                 'metode_reklamasi'    => $metodeReklamasi[array_rand($metodeReklamasi)],
-                
-                // Kolam baru berdasarkan migrasi
-                'jenis_tanaman'       => $jenisTanaman[array_rand($jenisTanaman)],
-                'pupuk'               => $daftarPupuk[array_rand($daftarPupuk)],
-                'jumlah_tanaman'      => $jumlahTanaman,
-                
                 'alat_berat_digunakan'=> 'Excavator PC300, Dozer D85',
                 'izin_lingkungan'     => 'SK No. ' . rand(100, 999) . '/LHK/2024',
                 'status_kesesuaian'   => ['sesuai', 'tidak_sesuai'][array_rand([0, 1])],

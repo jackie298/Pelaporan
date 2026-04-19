@@ -1312,6 +1312,71 @@
     </div>
 </div>
 
+{{-- Pengelolaan Sampah --}}
+<div class="section-divider">
+    <i class="fa-solid fa-recycle"></i>
+    <span>Pengelolaan Sampah</span>
+</div>
+
+<div class="row mb-3">
+    <div class="col-md-4 mb-3 mb-md-0">
+        <div class="card card-stats">
+            <div class="card-body text-center py-3">
+                <div class="icon icon-shape bg-gradient-success shadow text-center border-radius-lg mb-2">
+                    <i class="fa-solid fa-building text-white"></i>
+                </div>
+                <h5 class="mb-0">{{ number_format($wasteStats['total_bulan_ini'] ?? 0, 0, ',', '.') }} kg</h5>
+                <small class="text-muted">Area Kantor (Bulan Ini)</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3 mb-md-0">
+        <div class="card card-stats">
+            <div class="card-body text-center py-3">
+                <div class="icon icon-shape bg-gradient-info shadow text-center border-radius-lg mb-2">
+                    <i class="fa-solid fa-industry text-white"></i>
+                </div>
+                <h5 class="mb-0">{{ number_format(($wasteStats['total_bulan_ini'] ?? 0) * 0.6, 0, ',', '.') }} kg</h5>
+                <small class="text-muted">Area Site (Bulan Ini)*</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-stats">
+            <div class="card-body text-center py-3">
+                <div class="icon icon-shape bg-gradient-warning shadow text-center border-radius-lg mb-2">
+                    <i class="fa-solid fa-scale-balanced text-white"></i>
+                </div>
+                <h5 class="mb-0">{{ number_format(($wasteStats['total_bulan_ini'] ?? 0) * 1.6, 0, ',', '.') }} kg</h5>
+                <small class="text-muted">Total Gabungan</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="card z-index-2 h-100">
+            <div class="card-header pb-0">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Grafik Pengelolaan Sampah {{ date('Y') }}</h6>
+                        <p class="mb-0 text-sm text-muted">
+                            <i class="fa fa-arrow-up text-success me-1"></i>
+                            <span class="fw-bold">Total Sampah Terkelola</span> Area Kantor & Site
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-3">
+                <div class="chart position-relative">
+                    <canvas id="chart-pengelolaan-sampah" class="chart-canvas" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- SECTION 2: COMPLIANCE --}}
 <div class="section-header">
     <h5><i class="fas fa-shield-alt"></i>Compliance Overview</h5>
@@ -1594,7 +1659,7 @@
 {{-- RENCANA DAN REALISASI --}}
 <div class="section-divider">
     <i class="fas fa-bullseye"></i>
-    <span>Rencana vs Realisasi</span>
+    <span>Rencana Dan Realisasi</span>
 </div>
 
 <div class="row">
@@ -1820,7 +1885,7 @@
 @push('dashboard')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // === Initialize all charts ===
+    // === Initialize all existing charts ===
     @include('chart.status-dokumen')
     @include('chart.compliace')
     @include('chart.bukaanlahan-reklamasi')
@@ -1830,95 +1895,149 @@ document.addEventListener('DOMContentLoaded', function () {
     @include('chart.nursery')
     @include('chart.work-hours')
     @include('chart.waste-water')
+    @include('chart.pengelolaan-sampah')
     
-    // === Table row hover effect ===
-    document.querySelectorAll('.table tbody tr').forEach(row => {
-        row.addEventListener('mouseenter', function() {
-            this.style.zIndex = '1';
+    // === 🗑️ WASTE MANAGEMENT CHARTS (FIXED) ===
+    if (document.getElementById('chart-waste-type')) {
+        new Chart(document.getElementById('chart-waste-type').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: @json($wasteTypeLabels),
+                datasets: [{
+                    data: @json($wasteTypeValues),
+                    backgroundColor: @json($wasteTypeColors),
+                    borderWidth: 0,
+                    hoverOffset: 12,
+                    spacing: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `${ctx.label}: ${ctx.parsed.toLocaleString('id-ID')} kg (${ctx.dataset.data.reduce((a,b)=>a+b,0)>0 ? Math.round((ctx.parsed/ctx.dataset.data.reduce((a,b)=>a+b,0))*100) : 0}%)`
+                        }
+                    }
+                }
+            }
         });
-    });
+    }
+
+    if (document.getElementById('chart-waste-trend')) {
+        const ctxTrend = document.getElementById('chart-waste-trend').getContext('2d');
+        const grad = ctxTrend.createLinearGradient(0,0,0,280);
+        grad.addColorStop(0, 'rgba(45,206,137,0.35)');
+        grad.addColorStop(1, 'rgba(45,206,137,0.02)');
+
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: @json($wasteTrendLabels),
+                datasets: [{
+                    label: 'Total Sampah (kg)',
+                    data: @json($wasteTrendValues),
+                    borderColor: '#2dce89',
+                    backgroundColor: grad,
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 2,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#2dce89'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: { label: ctx => `Total: ${ctx.parsed.y.toLocaleString('id-ID')} kg` }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.75)', maxRotation: 0, autoSkip: true, maxTicksLimit: 10 } },
+                    y: { grid: { color: 'rgba(255,255,255,0.12)' }, ticks: { color: 'rgba(255,255,255,0.75)', callback: v => v>=1000?(v/1000).toFixed(1)+'K':v }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    if (document.getElementById('chart-waste-source')) {
+        new Chart(document.getElementById('chart-waste-source').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: @json($wasteSourceLabels),
+                datasets: [{
+                    label: 'Total Sampah (kg)',
+                    data: @json($wasteSourceValues),
+                    backgroundColor: @json($wasteSourceColors),
+                    borderRadius: 10,
+                    borderSkipped: false,
+                    barThickness: 70
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `Total: ${ctx.parsed.toLocaleString('id-ID')} kg` } }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.95)' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.12)' }, ticks: { color: 'rgba(255,255,255,0.75)', callback: v => v>=1000?(v/1000).toFixed(1)+'K':v }, beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // === Table row hover effect ===
+    document.querySelectorAll('.table tbody tr').forEach(row => { row.addEventListener('mouseenter', function() { this.style.zIndex = '1'; }); });
     
     // === Badge hover effect ===
-    document.querySelectorAll('.badge-dot').forEach(badge => {
-        badge.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-2px)';
-        });
-        badge.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0)';
-        });
-    });
+    document.querySelectorAll('.badge-dot').forEach(badge => { badge.addEventListener('mouseenter', function() { this.style.transform = 'translateY(-2px)'; }); badge.addEventListener('mouseleave', function() { this.style.transform = 'translateY(0)'; }); });
 
     // === MODAL VISUAL HANDLER ===
     document.body.addEventListener('click', function (e) {
         const btn = e.target.closest('.detail-visual-btn');
         if (!btn) return;
-        
         e.preventDefault();
-        
-        // Parse data foto dari atribut data-fotos (JSON)
         const fotos = JSON.parse(btn.getAttribute('data-fotos') || '[]');
-        
-        // Populate text fields di modal
         document.getElementById('v-nama').textContent = "Pelapor: " + (btn.getAttribute('data-nama') || '-');
         document.getElementById('v-departemen').textContent = btn.getAttribute('data-departemen') || '-';
         document.getElementById('v-lokasi').textContent = btn.getAttribute('data-lokasi') || '-';
         document.getElementById('v-jenis-insiden').textContent = btn.getAttribute('data-jenis-insiden') || '-';
         document.getElementById('v-jenis-inspeksi').textContent = btn.getAttribute('data-jenis-inspeksi') || '-';
         document.getElementById('v-tanggal').textContent = "📅 " + (btn.getAttribute('data-tanggal') || '-');
-
-        // Render grid foto
         const grid = document.getElementById('photo-grid');
         grid.innerHTML = '';
         grid.classList.toggle('single-photo', fotos.length === 1);
-
         if (fotos.length > 0) {
             fotos.forEach((path, idx) => {
                 const ext = (path.split('.').pop() || '').toLowerCase();
                 let content = '';
                 const storagePath = `/storage/${path}`;
                 const fallbackImg = `{{ asset('assets/img/default-image.png') }}`;
-                
                 if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
-                    // Image: clickable for lightbox
-                    content = `
-                        <img src="${storagePath}" 
-                             class="main-img nka-zoomable" 
-                             data-full="${storagePath}"
-                             onerror="this.src='${fallbackImg}'"
-                             alt="Dokumentasi ${idx + 1}">
-                    `;
+                    content = `<img src="${storagePath}" class="main-img nka-zoomable" data-full="${storagePath}" onerror="this.src='${fallbackImg}'" alt="Dokumentasi ${idx + 1}">`;
                 } else if (ext === 'pdf') {
-                    content = `
-                        <a href="${storagePath}" target="_blank" class="text-decoration-none">
-                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 100%;">
-                                <i class="fas fa-file-pdf fa-4x text-danger"></i>
-                                <div class="mt-2 text-xs text-muted">Klik untuk buka PDF</div>
-                            </div>
-                        </a>
-                    `;
+                    content = `<a href="${storagePath}" target="_blank" class="text-decoration-none"><div class="d-flex align-items-center justify-content-center bg-light" style="height: 100%;"><i class="fas fa-file-pdf fa-4x text-danger"></i><div class="mt-2 text-xs text-muted">Klik untuk buka PDF</div></div></a>`;
                 } else {
-                    content = `
-                        <a href="${storagePath}" target="_blank" class="text-decoration-none">
-                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 100%;">
-                                <i class="fas fa-file fa-4x text-muted"></i>
-                                <div class="mt-2 text-xs text-muted">${ext.toUpperCase()}</div>
-                            </div>
-                        </a>
-                    `;
+                    content = `<a href="${storagePath}" target="_blank" class="text-decoration-none"><div class="d-flex align-items-center justify-content-center bg-light" style="height: 100%;"><i class="fas fa-file fa-4x text-muted"></i><div class="mt-2 text-xs text-muted">${ext.toUpperCase()}</div></div></a>`;
                 }
-                
-                grid.innerHTML += `
-                    <div class="nka-grid-item">
-                        ${content}
-                        <img src="{{ asset('assets/img/logoperusahaan.png') }}" class="nka-logo-watermark" alt="Logo">
-                    </div>
-                `;
+                grid.innerHTML += `<div class="nka-grid-item">${content}<img src="{{ asset('assets/img/logoperusahaan.png') }}" class="nka-logo-watermark" alt="Logo"></div>`;
             });
         } else {
             grid.innerHTML = '<div class="p-4 text-center w-100 text-muted">Tidak ada dokumen visual.</div>';
         }
-
-        // Show modal using Bootstrap 5
         const modalEl = document.getElementById('detailKegiatanModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         modal.show();
@@ -1928,42 +2047,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const lightbox = document.getElementById('nkaLightbox');
     const lightboxImg = document.getElementById('nkaLightboxImg');
     const lightboxClose = document.getElementById('nkaLightboxClose');
-
-    // Delegated event for dynamically added images
     document.getElementById('photo-grid')?.addEventListener('click', function(e) {
         const zoomable = e.target.closest('.nka-zoomable');
         if (zoomable) {
             e.preventDefault();
-            const fullSrc = zoomable.getAttribute('data-full') || zoomable.src;
-            lightboxImg.src = fullSrc;
+            lightboxImg.src = zoomable.getAttribute('data-full') || zoomable.src;
             lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent background scroll
+            document.body.style.overflow = 'hidden';
         }
     });
-
-    // Close lightbox
-    function closeLightbox() {
-        lightbox.classList.remove('active');
-        lightboxImg.src = '';
-        document.body.style.overflow = '';
-    }
-
+    function closeLightbox() { lightbox.classList.remove('active'); lightboxImg.src = ''; document.body.style.overflow = ''; }
     lightboxClose?.addEventListener('click', closeLightbox);
-    lightbox?.addEventListener('click', function(e) {
-        if (e.target === lightbox) closeLightbox();
-    });
-
-    // Close with ESC key
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-            closeLightbox();
-        }
-    });
-
-    // === CLEANUP: Reset modal content when closed ===
-    document.getElementById('detailKegiatanModal')?.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('photo-grid').innerHTML = '';
-    });
+    lightbox?.addEventListener('click', function(e) { if (e.target === lightbox) closeLightbox(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox(); });
+    document.getElementById('detailKegiatanModal')?.addEventListener('hidden.bs.modal', function () { document.getElementById('photo-grid').innerHTML = ''; });
 });
 </script>
 @endpush

@@ -11,11 +11,38 @@ class TrashManagementController extends Controller
     /**
      * Tampilkan daftar data pengelolaan sampah
      */
-    public function index()
+    public function index(Request $request)
     {
-        $trashData = TrashManagement::latest()->get();
+        $query = TrashManagement::query();
 
-        return view('trash-management.index', compact('trashData'));
+        // 🔍 Filter: Tanggal
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal', $request->tanggal);
+        }
+
+        // 🔍 Filter: Sumber Sampah
+        if ($request->filled('sumber_sampah')) {
+            $query->where('sumber_sampah', $request->sumber_sampah);
+        }
+
+        // 🔍 Filter: Keyword (cari di sumber_sampah atau catatan jika ada)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('sumber_sampah', 'LIKE', "%{$search}%")
+                // Tambahkan kolom lain jika perlu, contoh:
+                // ->orWhere('catatan', 'LIKE', "%{$search}%")
+                ;
+            });
+        }
+
+        // Pagination + preserve query params
+        $trashData = $query->latest()->paginate(20)->withQueryString();
+
+        // Pass filter values ke view untuk mempertahankan state form
+        return view('trash-management.index', compact('trashData'))->with([
+            'filters' => $request->only(['tanggal', 'sumber_sampah', 'search'])
+        ]);
     }
 
     /**
