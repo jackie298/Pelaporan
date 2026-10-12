@@ -30,8 +30,7 @@ class RekapAnggaranExport implements FromCollection, WithHeadings, WithMapping, 
             'keterangan',
             'uraian_rkab',
             'file_kontrak',
-            'Created At',
-            'Updated At',
+            'periode',
         ];
     }
 
@@ -47,8 +46,7 @@ class RekapAnggaranExport implements FromCollection, WithHeadings, WithMapping, 
             $rekapAnggaran->keterangan,
             $rekapAnggaran->uraian_rkab,
             $rekapAnggaran->file_kontrak,
-            $rekapAnggaran->created_at ? $rekapAnggaran->created_at->format('d-m-Y H:i') : '-',
-            $rekapAnggaran->updated_at ? $rekapAnggaran->updated_at->format('d-m-Y H:i') : '-',
+            $rekapAnggaran->periode,
         ];
     }
 
