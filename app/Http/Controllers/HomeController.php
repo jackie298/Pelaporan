@@ -147,22 +147,45 @@ class HomeController extends Controller
         // ========================================
         // 🌱 BUKAAN LAHAN & REKLAMASI
         // ========================================
-        $lastSixMonths = collect();
-        for ($i = 11; $i >= 0; $i--) {
-            $lastSixMonths->push(now()->subMonths($i)->format('Y-m'));
+        $currentYear = now()->year;
+
+        $months = collect();
+
+        for ($i = 1; $i <= 12; $i++) {
+            $months->push(sprintf('%04d-%02d', $currentYear, $i));
         }
 
-        $bukaanData = BukaanLahan::selectRaw("DATE_FORMAT(tanggal_bukaan, '%Y-%m') as bulan, SUM(luas_dibuka) as total")
+        // Data Bukaan Lahan
+        $bukaanData = BukaanLahan::selectRaw("
+                DATE_FORMAT(tanggal_bukaan, '%Y-%m') as bulan,
+                SUM(luas_dibuka) as total
+            ")
+            ->whereYear('tanggal_bukaan', $currentYear)
             ->groupBy('bulan')
             ->pluck('total', 'bulan');
 
-        $reklamasiData = Reklamasi::selectRaw("DATE_FORMAT(tanggal_reklamasi, '%Y-%m') as bulan, SUM(luas_direklamasi) as total")
+        // Data Reklamasi
+        $reklamasiData = Reklamasi::selectRaw("
+                DATE_FORMAT(tanggal_reklamasi, '%Y-%m') as bulan,
+                SUM(luas_direklamasi) as total
+            ")
+            ->whereYear('tanggal_reklamasi', $currentYear)
             ->groupBy('bulan')
             ->pluck('total', 'bulan');
 
-        $reklamasiLabels = $lastSixMonths->map(fn($m) => Carbon::parse($m)->format('M Y'));
-        $finalBukaanValues = $lastSixMonths->map(fn($m) => $bukaanData->get($m, 0));
-        $finalReklamasiValues = $lastSixMonths->map(fn($m) => $reklamasiData->get($m, 0));
+        // Label bulan
+        $reklamasiLabels = $months->map(
+            fn($m) => Carbon::parse($m)->translatedFormat('M Y')
+        );
+
+        // Nilai data per bulan
+        $finalBukaanValues = $months->map(
+            fn($m) => $bukaanData->get($m, 0)
+        );
+
+        $finalReklamasiValues = $months->map(
+            fn($m) => $reklamasiData->get($m, 0)
+        );
 
         // ========================================
         // 💧 WASTE WATER MANAGEMENT
