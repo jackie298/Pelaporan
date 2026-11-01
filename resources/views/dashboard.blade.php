@@ -1693,7 +1693,7 @@
 </div>
 
 {{-- RITASE DAN JAM KERJA ALAT --}}
-<div class="section-divider">
+{{-- <div class="section-divider">
     <i class="fas fa-truck-monster"></i>
     <span>Ritase & Jam Kerja Alat</span>
 </div>
@@ -1778,7 +1778,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 {{-- WASTE WATER MANAGEMENT --}}
 <div class="section-divider">
@@ -1904,7 +1904,6 @@ document.addEventListener('DOMContentLoaded', function () {
     @include('chart.performa-vegetasi')
     @include('chart.rencana-realisasi')
     @include('chart.nursery')
-    @include('chart.work-hours')
     @include('chart.waste-water')
     @include('chart.pengelolaan-sampah')
     

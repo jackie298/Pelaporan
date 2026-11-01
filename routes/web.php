@@ -18,6 +18,7 @@ use App\Http\Controllers\MonitoringVegetasiController;
 use App\Http\Controllers\WasteB3KeluarController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\DokumentasiKegiatanController;
+use App\Http\Controllers\DashboardExportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Route;
@@ -469,6 +470,9 @@ Route::group(['middleware' => 'auth', 'prevent-back-history'], function () {
 
     Route::delete('waste-b3-keluar/{id}', [WasteB3KeluarController::class, 'destroy'])
         ->name('waste-b3-keluar.destroy');
+
+    Route::get('export-ppt', [DashboardExportController::class, 'exportPpt'])
+        ->name('export-ppt');
 
    Route::post('/logout', [SessionsController::class, 'destroy'])->name('logout');
     Route::get('/login', function () {

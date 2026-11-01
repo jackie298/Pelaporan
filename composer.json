@@ -13,7 +13,8 @@
         "laravel/framework": "^11.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.6",
-        "maatwebsite/excel": "^3.1"
+        "maatwebsite/excel": "^3.1",
+        "phpoffice/phppresentation": "^1.2"
     },
     "require-dev": {
         "spatie/laravel-ignition": "^2.0",
