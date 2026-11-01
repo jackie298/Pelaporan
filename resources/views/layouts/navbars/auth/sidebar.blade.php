@@ -35,14 +35,14 @@
             </li>
 
             {{-- EXPORT PPT --}}
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a class="nav-link {{ Route::is('export-ppt') ? 'active' : '' }}" href="{{ route('export-ppt') }}">
                     <div class="icon icon-shape icon-sm shadow border-radius-md text-center me-2 d-flex align-items-center justify-content-center {{ Route::is('export-ppt') ? 'bg-gradient-primary' : 'bg-white' }}">
                         <i class="fas fa-house text-xs {{ Route::is('export-ppt') ? 'text-white' : 'text-dark' }}"></i>
                     </div>
                     <span class="nav-link-text ms-1">Export Ppt</span>
                 </a>
-            </li>
+            </li> --}}
 
             {{-- SECTION: OPERASIONAL --}}
             <li class="nav-item mt-3">
