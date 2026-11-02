@@ -3,140 +3,439 @@
 @section('content')
 
 <style>
-  /* Reset dasar untuk memastikan tinggi penuh */
-  html, body {
-    height: 100%;
-    margin: 0;
-    overflow-x: hidden; 
+    /* Reset */
+    html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Layout utama */
+    .erocs-login {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+        background: #f5f6fa;
+    }
+
+    /* Sisi kiri */
+    .erocs-login-left {
+        width: 50%;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 40px;
+        background: #f5f6fa;
+        box-sizing: border-box;
+    }
+
+    .erocs-login-content {
+        width: 100%;
+        max-width: 449px;
+    }
+
+    /* Heading */
+    .erocs-login-content h3 {
+        font-size: 29px;
+        font-weight: 400;
+        color: #222;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+
+    .erocs-login-content h3 strong {
+        font-weight: 700;
+        color: #237227;
+    }
+
+    .erocs-description {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #b0b0b0;
+        margin-bottom: 28px;
+    }
+
+    /* Form */
+    .erocs-form-group {
+        margin-bottom: 19px;
+    }
+
+    .erocs-form-group label {
+        display: block;
+        color: #222;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 10px;
+    }
+
+    .erocs-input {
+        display: block;
+        width: 100%;
+        height: 59px;
+        padding: 12px;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 5px;
+        color: #555;
+        font-size: 16px;
+        box-sizing: border-box;
+        transition: 0.3s ease;
+    }
+
+    .erocs-input:focus {
+        outline: none;
+        border-color: #237227;
+        box-shadow: 0 0 0 3px rgba(35, 114, 39, 0.1);
+    }
+
+    .erocs-input::placeholder {
+        color: #777;
+    }
+
+    /* Button */
+    .erocs-btn-login {
+        display: block;
+        width: 100%;
+        height: 59px;
+        background: #237227;
+        border: none;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .erocs-btn-login:hover {
+        background: #1b5a1f;
+        box-shadow: 0 5px 15px rgba(35, 114, 39, 0.2);
+    }
+
+    /* Error validation */
+    .erocs-error {
+        display: block;
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 6px;
+    }
+
+    /* Footer */
+    .erocs-footer {
+        text-align: center;
+        margin-top: 65px;
+    }
+
+    .erocs-footer p {
+        color: #aaa;
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+
+    /* Slideshow kanan */
+  .erocs-login-right {
+      width: 50%;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: #eee;
   }
 
-  /* Wrapper utama agar konten berada di tengah vertikal */
-  .login-wrapper {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
+  .erocs-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
   }
 
-  /* Styling untuk sisi Gambar */
-  .login-image-side {
-    /* Ganti contain menjadi cover agar gambar memenuhi area tanpa ruang kosong putih */
-    /* Jika Anda wajib menggunakan 'contain', kembalikan ke contain, tapi 'cover' biasanya lebih estetik */
-    background-image: url('{{ asset('assets/img/curved-images/HalamanLogin.jpg') }}');
-    background-size: cover; 
-    background-position: center;
-    background-repeat: no-repeat;
-    width: 100%;
-    height: 100%;
-    min-height: 100vh;
-    position: relative;
-  }
-  
-  /* Overlay gelap tipis di atas gambar agar teks (jika ada) terbaca, atau sekadar estetika */
-  .login-image-side::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%);
+  .erocs-slide.active {
+      opacity: 1;
   }
 
-  /* Styling Form Container */
-  .login-form-container {
-    background: #ffffff;
-    padding: 3rem 2rem;
-    border-radius: 1rem;
-    /* Shadow halus khas modern UI */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); 
-    width: 100%;
-    max-width: 450px;
-    margin: auto;
-  }
+    /* Responsive tablet dan mobile */
+    @media (max-width: 991px) {
+        .erocs-login {
+            flex-direction: column;
+        }
 
-  /* Input Styling */
-  .form-control {
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid #e0e0e0;
-    transition: all 0.2s;
-  }
+        .erocs-login-left {
+            width: 100%;
+            min-height: 100vh;
+            padding: 45px 30px;
+            order: 2;
+        }
 
-  .form-control:focus {
-    box-shadow: 0 0 0 3px rgba(23, 193, 232, 0.2); /* Warna info soft */
-    border-color: #17c1e8;
-  }
+        .erocs-login-right {
+            width: 100%;
+            min-height: 280px;
+            height: 280px;
+            order: 1;
+        }
 
-  /* Button Styling */
-  .btn-login {
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    transition: transform 0.2s;
-  }
-  
-  .btn-login:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(23, 193, 232, 0.4);
-  }
+        .erocs-login-content {
+            max-width: 500px;
+        }
+
+        .erocs-footer {
+            margin-top: 45px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .erocs-login-right {
+            min-height: 210px;
+            height: 210px;
+        }
+
+        .erocs-login-left {
+            padding: 40px 25px;
+        }
+
+        .erocs-login-content h3 {
+            font-size: 25px;
+        }
+
+        .erocs-description {
+            font-size: 14px;
+        }
+    }
 </style>
 
-<main class="main-content mt-0">
-  <section class="min-vh-100">
-    <div class="container-fluid p-0">
-      <div class="row g-0 login-wrapper">
-        
-        <!-- Kolom Kiri: Form Login -->
-        <div class="col-lg-6 col-md-12 d-flex align-items-center justify-content-center bg-white py-5">
-          <div class="login-form-container">
-            
-            <div class="text-center mb-4">
-              <h3 class="font-weight-bolder text-info text-gradient mb-1">E-ROCS</h3>
-              <p class="text-sm text-secondary mb-0">Environment Reporting & Compliance System</p>
-              <hr class="my-4" style="opacity: 0.1;">
-            </div>
-            
+<main class="erocs-login">
+
+    {{-- BAGIAN KIRI: FORM LOGIN --}}
+    <div class="erocs-login-left">
+
+        <div class="erocs-login-content">
+
+            <h3>
+                Login to <strong>E-ROCS</strong>
+            </h3>
+
+            <p class="erocs-description">
+                Environment Reporting & Compliance System
+            </p>
+
             <form role="form" method="POST" action="{{ route('login') }}">
-              @csrf
-              
-              <div class="mb-3">
-                <label class="form-label text-sm font-weight-bold text-dark">Email Address</label>
-                <input type="email" name="email" class="form-control" placeholder="name@example.com" required autofocus value="{{ old('email') }}">
-                @error('email')
-                  <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                @enderror
-              </div>
-              
-              <div class="mb-3">
-                <label class="form-label text-sm font-weight-bold text-dark">Password</label>
-                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-                @error('password')
-                  <p class="text-danger text-xs mt-1">{{ $message }}</p>
-                @enderror
-              </div>
-              
-              <div class="text-center mt-4">
-                <button type="submit" class="btn bg-gradient-info w-100 mb-0 btn-login shadow-sm">
-                  Login
+                @csrf
+
+                {{-- Email --}}
+                <div class="erocs-form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        class="erocs-input"
+                        placeholder="your-email@gmail.com"
+                        value="{{ old('email') }}"
+                        required
+                        autofocus
+                        autocomplete="username"
+                    >
+
+                    @error('email')
+                        <span class="erocs-error">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+
+                {{-- Password --}}
+                <div class="erocs-form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        class="erocs-input"
+                        placeholder="Your Password"
+                        required
+                        autocomplete="current-password"
+                    >
+
+                    @error('password')
+                        <span class="erocs-error">
+                            {{ $message }}
+                        </span>
+                    @enderror
+
+                </div>
+
+                {{-- Login Button --}}
+                <button type="submit" class="erocs-btn-login">
+                    Log In
                 </button>
-              </div>
+
             </form>
-            
-            <div class="text-center mt-5">
-               <p class="text-xs text-muted mb-0">&copy; {{ date('Y') }} PT Nusa Karya Arindo</p>
-               <p class="text-xs text-muted">Site Moronopo</p>
+
+            {{-- Footer --}}
+            <div class="erocs-footer">
+
+                <p>
+                    &copy; {{ date('Y') }} PT Nusa Karya Arindo
+                </p>
+
+                <p>
+                    Site Moronopo
+                </p>
+
             </div>
-          </div>
+
         </div>
 
-        <!-- Kolom Kanan: Gambar -->
-        <div class="col-lg-6 d-none d-lg-block p-0">
-          <div class="login-image-side">
-            <!-- Opsional: Anda bisa menambahkan teks welcome di atas gambar di sini -->
-          </div>
-        </div>
-
-      </div>
     </div>
-  </section>
+
+    {{-- BAGIAN KANAN: BACKGROUND IMAGE --}}
+    <div class="erocs-login-right">
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto1.png') }}"
+          class="erocs-slide active"
+          alt="Dokumentasi perusahaan 1"
+      >
+S
+      <img
+          src="{{ asset('assets/img/slide-show/foto2.png') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 2"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto3.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 3"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto4.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 4"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto5.png') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 5"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto6.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 6"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto7.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 7"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto8.jpg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 8"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto9.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 9"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto10.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 10"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto11.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 11"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto12.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 12"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto13.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 13"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto14.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 14"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto15.png') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 15"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto16.png') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 16"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto17.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 17"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto18.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 18"
+      >
+
+  </div>
+
 </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const slides = document.querySelectorAll('.erocs-slide');
+
+        let currentSlide = 0;
+
+        function showNextSlide() {
+
+            slides[currentSlide].classList.remove('active');
+
+            currentSlide = (currentSlide + 1) % slides.length;
+
+            slides[currentSlide].classList.add('active');
+
+        }
+
+        // Berganti setiap 5 detik
+        setInterval(showNextSlide, 5000);
+
+    });
+</script>
 
 @endsection
