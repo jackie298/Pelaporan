@@ -334,15 +334,9 @@ S
       >
 
       <img
-          src="{{ asset('assets/img/slide-show/foto6.jpeg') }}"
+          src="{{ asset('assets/img/slide-show/foto6.png') }}"
           class="erocs-slide"
           alt="Dokumentasi perusahaan 6"
-      >
-
-      <img
-          src="{{ asset('assets/img/slide-show/foto7.jpeg') }}"
-          class="erocs-slide"
-          alt="Dokumentasi perusahaan 7"
       >
 
       <img
@@ -352,21 +346,9 @@ S
       >
 
       <img
-          src="{{ asset('assets/img/slide-show/foto9.jpeg') }}"
-          class="erocs-slide"
-          alt="Dokumentasi perusahaan 9"
-      >
-
-      <img
           src="{{ asset('assets/img/slide-show/foto10.jpeg') }}"
           class="erocs-slide"
           alt="Dokumentasi perusahaan 10"
-      >
-
-      <img
-          src="{{ asset('assets/img/slide-show/foto11.jpeg') }}"
-          class="erocs-slide"
-          alt="Dokumentasi perusahaan 11"
       >
 
       <img
@@ -379,12 +361,6 @@ S
           src="{{ asset('assets/img/slide-show/foto13.jpeg') }}"
           class="erocs-slide"
           alt="Dokumentasi perusahaan 13"
-      >
-
-      <img
-          src="{{ asset('assets/img/slide-show/foto14.jpeg') }}"
-          class="erocs-slide"
-          alt="Dokumentasi perusahaan 14"
       >
 
       <img
@@ -409,6 +385,12 @@ S
           src="{{ asset('assets/img/slide-show/foto18.jpeg') }}"
           class="erocs-slide"
           alt="Dokumentasi perusahaan 18"
+      >
+
+      <img
+          src="{{ asset('assets/img/slide-show/foto19.jpeg') }}"
+          class="erocs-slide"
+          alt="Dokumentasi perusahaan 19"
       >
 
   </div>
